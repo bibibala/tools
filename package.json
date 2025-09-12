@@ -1,0 +1,48 @@
+{
+    "name": "files",
+    "version": "0.0.0",
+    "private": true,
+    "type": "module",
+    "engines": {
+        "node": "^20.19.0 || >=22.12.0"
+    },
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "preview": "vite preview",
+        "lint": "eslint . --fix",
+        "format": "prettier --write src/",
+        "prepare": "simple-git-hooks",
+        "postinstall": "git add --renormalize . || true"
+    },
+    "dependencies": {
+        "vue": "^3.5.18"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.31.0",
+        "@vitejs/plugin-vue": "^6.0.1",
+        "@vue/eslint-config-prettier": "^10.2.0",
+        "eslint": "^9.31.0",
+        "eslint-plugin-vue": "~10.3.0",
+        "globals": "^16.3.0",
+        "lint-staged": "^16.1.6",
+        "prettier": "3.6.2",
+        "simple-git-hooks": "^2.13.1",
+        "vite": "^7.0.6",
+        "vue-router": "^4.5.1"
+    },
+    "simple-git-hooks": {
+        "pre-commit": "pnpm lint-staged",
+        "pre-push": "git pull --rebase",
+        "post-merge": "pnpm prepare"
+    },
+    "lint-staged": {
+        "*.{js,vue}": [
+            "eslint --fix",
+            "prettier --write --end-of-line lf"
+        ],
+        "*.{json,scss,html,md}": [
+            "prettier --write --end-of-line lf"
+        ]
+    }
+}
