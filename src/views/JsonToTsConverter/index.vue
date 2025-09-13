@@ -1,13 +1,13 @@
 <template>
-    <div class="json-to-ts-converter">
-        <header class="app-header">
+    <div class="tool-page">
+        <header class="tool-header">
             <h1>JSON 转 TypeScript 接口工具</h1>
             <p>将JSON数据自动转换为TypeScript接口定义</p>
         </header>
 
         <main class="main-content">
-            <div class="input-section">
-                <label class="section-label">输入JSON</label>
+            <section class="tool-section">
+                <h2 class="section-title">输入JSON</h2>
                 <div class="input-container">
                     <JsonEditor
                         v-model:json="jsonData"
@@ -15,21 +15,21 @@
                     ></JsonEditor>
 
                     <div class="actions">
-                        <button class="btn clear-btn" @click="clearInput">
+                        <button class="btn btn-secondary" @click="clearInput">
                             清空
                         </button>
-                        <button class="btn sample-btn" @click="loadSample">
+                        <button class="btn btn-primary" @click="loadSample">
                             加载示例
                         </button>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            <div class="options-section">
-                <label class="section-label">转换选项</label>
+            <section class="tool-section">
+                <h2 class="section-title">转换选项</h2>
                 <div class="options-container">
                     <div class="option-item">
-                        <label class="option-label">
+                        <label class="section-label">
                             <input
                                 type="checkbox"
                                 v-model="options.interfaceName"
@@ -41,12 +41,12 @@
                             v-model="interfaceName"
                             :disabled="!options.interfaceName"
                             placeholder="接口名称"
-                            class="interface-name-input"
+                            class="form-input"
                         />
                     </div>
 
                     <div class="option-item">
-                        <label class="option-label">
+                        <label class="section-label">
                             <input
                                 type="checkbox"
                                 v-model="options.optionalProperties"
@@ -56,7 +56,7 @@
                     </div>
 
                     <div class="option-item">
-                        <label class="option-label">
+                        <label class="section-label">
                             <input
                                 type="checkbox"
                                 v-model="options.nullableProperties"
@@ -66,7 +66,7 @@
                     </div>
 
                     <div class="option-item">
-                        <label class="option-label">
+                        <label class="section-label">
                             <input
                                 type="checkbox"
                                 v-model="options.addReadonly"
@@ -76,7 +76,7 @@
                     </div>
 
                     <div class="option-item">
-                        <label class="option-label">
+                        <label class="section-label">
                             <input
                                 type="checkbox"
                                 v-model="options.preserveComments"
@@ -85,10 +85,10 @@
                         </label>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            <div class="output-section">
-                <label class="section-label">TypeScript 接口</label>
+            <section class="tool-section">
+                <h2 class="section-title">TypeScript 接口</h2>
                 <div class="output-container">
                     <div v-if="tsOutput !== ''" class="ts-highlight-container">
                         <CodeHighlighter
@@ -102,7 +102,7 @@
                 </div>
                 <div class="output-actions">
                     <button
-                        class="btn download-btn"
+                        class="btn btn-primary"
                         @click="downloadAsFile"
                         :disabled="tsOutput === ''"
                     >
@@ -110,7 +110,7 @@
                         下载文件
                     </button>
                 </div>
-            </div>
+            </section>
         </main>
     </div>
 </template>
@@ -256,35 +256,11 @@ watch(interfaceName, handleJsonChange);
 </script>
 
 <style scoped>
-.json-to-ts-converter {
-    width: 100%;
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
-.app-header {
-    text-align: center;
-    margin-bottom: 30px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid #eee;
-}
-
-.app-header h1 {
-    color: #2c3e50;
-    margin-bottom: 10px;
-    font-size: 2rem;
-}
-
-.app-header p {
-    color: #7f8c8d;
-    font-size: 1.1rem;
-}
-
+/* 使用统一的设计系统，保留必要的自定义样式 */
 .main-content {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 25px;
+    gap: var(--space-2xl);
 }
 
 @media (min-width: 768px) {
@@ -292,129 +268,63 @@ watch(interfaceName, handleJsonChange);
         grid-template-columns: 1fr 1fr;
     }
 
-    .options-section {
+    .tool-section:nth-child(2) {
         grid-column: 1 / 2;
     }
 
-    .output-section {
+    .tool-section:nth-child(3) {
         grid-column: 2 / 3;
         grid-row: 1 / 3;
     }
 }
 
-.section-label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 10px;
-    color: #2c3e50;
-    font-size: 1.1rem;
-}
-
 .input-container {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: var(--space);
 }
 
 .actions {
     display: flex;
-    gap: 10px;
+    gap: var(--space);
     flex-wrap: wrap;
 }
 
-.btn {
-    padding: 8px 16px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    font-weight: 500;
-    transition: all 0.2s;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-}
-
-.clear-btn {
-    background-color: #f1f5f9;
-    color: #333;
-}
-
-.clear-btn:hover {
-    background-color: #e2e8f0;
-}
-
-.sample-btn {
-    background-color: #3498db;
-    color: white;
-}
-
-.sample-btn:hover {
-    background-color: #2980b9;
-}
-
-.download-btn {
-    background-color: #e67e22;
-    color: white;
-}
-
-.download-btn:hover:not(:disabled) {
-    background-color: #d35400;
-}
-
-.icon {
-    font-style: normal;
-}
-
-.options-section {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
 .options-container {
-    background-color: #f8fafc;
-    border-radius: 6px;
-    padding: 20px;
-    border: 1px solid #e2e8f0;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    padding: var(--space-xl);
+    border: 1px solid var(--border);
 }
 
 .option-item {
-    margin-bottom: 15px;
+    margin-bottom: var(--space-lg);
 }
 
 .option-item:last-child {
     margin-bottom: 0;
 }
 
-.option-label {
+.section-label {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: var(--space);
     cursor: pointer;
-    font-size: 0.95rem;
-    margin-bottom: 5px;
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--space-xs);
 }
 
-.interface-name-input:disabled {
-    background-color: #f1f5f9;
-    cursor: not-allowed;
-    opacity: 0.7;
-}
-
-/* 输出区域 */
 .output-container {
     position: relative;
     min-height: 300px;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     overflow: hidden;
 }
 
 .ts-highlight-container {
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     overflow: hidden;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--border);
 }
 
 .output-placeholder {
@@ -426,28 +336,24 @@ watch(interfaceName, handleJsonChange);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #95a5a6;
+    color: var(--text-muted);
     font-style: italic;
-    padding: 20px;
+    padding: var(--space-xl);
     text-align: center;
-    border: 1px solid #ddd;
-    border-radius: 6px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
 }
 
 .output-actions {
-    margin-top: 15px;
+    margin-top: var(--space-lg);
     display: flex;
-    gap: 10px;
+    gap: var(--space);
     flex-wrap: wrap;
 }
 
 @media (max-width: 768px) {
     .output-actions {
         flex-direction: column;
-    }
-
-    .btn {
-        width: 100%;
     }
 
     .actions {

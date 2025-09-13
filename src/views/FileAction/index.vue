@@ -1,6 +1,6 @@
 <template>
-    <div class="file-action">
-        <header class="app-header">
+    <div class="tool-page">
+        <header class="tool-header">
             <h1>大文件处理工具</h1>
             <p>分片读取，控制并发，支持暂停/继续/取消，实时展示进度</p>
         </header>
@@ -296,28 +296,6 @@ async function previewIfText(f) {
 }
 </script>
 <style scoped>
-.file-action {
-    width: 100%;
-}
-
-.app-header {
-    text-align: center;
-    margin-bottom: 30px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid #eee;
-}
-
-.app-header h1 {
-    color: #2c3e50;
-    margin-bottom: 10px;
-    font-size: 2rem;
-}
-
-.app-header p {
-    color: #7f8c8d;
-    font-size: 1.1rem;
-}
-
 .main-content {
     display: grid;
     grid-template-columns: 1fr;

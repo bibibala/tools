@@ -1,16 +1,18 @@
 <template>
-    <div class="color-generator">
-        <header class="app-header">
+    <div class="tool-page">
+        <header class="tool-header">
             <h1>颜色方案生成器</h1>
             <p>生成协调的颜色体系，支持多种格式导出</p>
         </header>
 
         <main class="main-content">
-            <section class="primary-color-input">
-                <h2>主色调设置</h2>
+            <section class="tool-section">
+                <h2 class="section-title">主色调设置</h2>
 
                 <div class="color-input-group">
-                    <label for="primary-color">选择主色</label>
+                    <label for="primary-color" class="section-label"
+                        >选择主色</label
+                    >
                     <div class="color-input-wrapper">
                         <input
                             id="primary-color"
@@ -20,22 +22,24 @@
                         />
                         <div class="color-value-inputs">
                             <div class="color-value-input">
-                                <label>HEX</label>
+                                <label class="section-label">HEX</label>
                                 <input
                                     type="text"
                                     v-model="primaryColorHex"
                                     @input="updateColorFromHex"
                                     placeholder="#RRGGBB"
+                                    class="form-input"
                                 />
                             </div>
 
                             <div class="color-value-input">
-                                <label>RGB</label>
+                                <label class="section-label">RGB</label>
                                 <input
                                     type="text"
                                     :value="rgbString"
                                     @input="updateColorFromRgb"
                                     placeholder="r, g, b"
+                                    class="form-input"
                                 />
                             </div>
                         </div>
@@ -62,8 +66,8 @@
             </section>
 
             <!-- 颜色方案预览 -->
-            <section class="color-scheme-preview">
-                <h2>颜色方案预览</h2>
+            <section class="tool-section">
+                <h2 class="section-title">颜色方案预览</h2>
 
                 <!-- 主色变体 -->
                 <div class="color-group">
@@ -137,15 +141,18 @@
             </section>
 
             <!-- 代码导出 -->
-            <section class="code-export">
-                <h2>代码导出</h2>
+            <section class="tool-section">
+                <h2 class="section-title">代码导出</h2>
 
                 <div class="export-options">
                     <button
                         v-for="(format, index) in exportFormats"
                         :key="index"
-                        class="format-btn"
-                        :class="{ active: activeFormat === index }"
+                        class="btn"
+                        :class="{
+                            'btn-primary': activeFormat === index,
+                            'btn-secondary': activeFormat !== index,
+                        }"
                         @click="activeFormat = index"
                     >
                         {{ format.name }}
@@ -891,24 +898,166 @@ section h2 {
     border-color: #3498db;
 }
 
+/* 手机端适配优化 */
 @media (max-width: 768px) {
+    .color-generator {
+        padding: 16px;
+    }
+
+    .app-header h1 {
+        font-size: 1.5rem;
+    }
+
+    .app-header p {
+        font-size: 1rem;
+    }
+
+    .main-content {
+        gap: 24px;
+    }
+
+    section h2 {
+        font-size: 1.3rem;
+    }
+
+    /* 主色输入区域优化 */
+    .primary-color-input {
+        padding: 20px;
+    }
+
+    .color-input-wrapper {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .color-picker {
+        width: 50px;
+        height: 50px;
+        align-self: center;
+    }
+
     .color-value-inputs {
         flex-direction: column;
         min-width: auto;
+        gap: 12px;
+    }
+
+    .color-value-input input {
+        padding: 12px;
+        font-size: 16px; /* 防止iOS缩放 */
+    }
+
+    .color-preview {
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+    }
+
+    .color-swatch {
+        width: 60px;
+        height: 60px;
+        align-self: center;
+    }
+
+    .color-info {
+        gap: 8px;
+    }
+
+    .color-info div {
+        font-size: 0.9rem;
+    }
+
+    /* 颜色方案预览优化 */
+    .color-scheme-preview {
+        padding: 20px;
+    }
+
+    .color-group {
+        margin-bottom: 24px;
+    }
+
+    .color-group h3 {
+        font-size: 1.1rem;
     }
 
     .color-grid {
-        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
     }
 
     .color-item {
-        min-height: 100px;
+        min-height: 90px;
         padding: 12px;
     }
 
-    .color-code,
-    .color-name {
+    .color-code {
         font-size: 0.8rem;
+        word-break: break-all;
+    }
+
+    .color-name {
+        font-size: 0.75rem;
+        margin-top: 6px;
+    }
+
+    /* 代码导出区域优化 */
+    .code-export {
+        padding: 20px;
+    }
+
+    .export-options {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .format-btn {
+        padding: 12px 16px;
+        font-size: 14px;
+        text-align: center;
+    }
+}
+
+/* 超小屏幕优化 */
+@media (max-width: 480px) {
+    .color-generator {
+        padding: 12px;
+    }
+
+    .app-header h1 {
+        font-size: 1.3rem;
+    }
+
+    .app-header p {
+        font-size: 0.9rem;
+    }
+
+    .primary-color-input,
+    .color-scheme-preview,
+    .code-export {
+        padding: 16px;
+    }
+
+    .color-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .color-item {
+        min-height: 80px;
+        padding: 10px;
+    }
+
+    .color-code {
+        font-size: 0.75rem;
+    }
+
+    .color-name {
+        font-size: 0.7rem;
+    }
+
+    .format-btn {
+        padding: 10px 12px;
+        font-size: 13px;
     }
 }
 </style>

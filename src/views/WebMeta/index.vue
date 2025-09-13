@@ -1,20 +1,18 @@
 <template>
-    <div class="seo-meta-tool">
+    <div class="tool-page">
         <!-- 工具标题 -->
-        <div class="tool-header">
-            <h2>网站元信息（SEO）配置工具</h2>
-            <p class="tool-desc">
-                配置网站SEO元信息、社交预览、图标等，一键导出HTML文件
-            </p>
-        </div>
+        <header class="tool-header">
+            <h1>网站元信息（SEO）配置工具</h1>
+            <p>配置网站SEO元信息、社交预览、图标等，一键导出HTML文件</p>
+        </header>
 
         <!-- 配置分区：基础信息 -->
-        <div class="config-section">
-            <h3 class="section-title">1. 基础网站信息</h3>
+        <section class="tool-section">
+            <h2 class="section-title">1. 基础网站信息</h2>
             <div class="config-grid">
                 <!-- 网站标题 -->
                 <div class="config-item full-width">
-                    <label class="config-label" for="site-title"
+                    <label class="section-label" for="site-title"
                         >网站标题 <span class="required">*</span></label
                     >
                     <input
@@ -22,15 +20,15 @@
                         id="site-title"
                         v-model="metaConfig.title"
                         placeholder="例如：MyTools - 实用工具集合"
-                        class="config-input"
+                        class="form-input"
                         required
                     />
-                    <p class="config-hint">浏览器标签页标题，SEO核心要素</p>
+                    <p class="form-hint">浏览器标签页标题，SEO核心要素</p>
                 </div>
 
                 <!-- 网站域名 -->
                 <div class="config-item full-width">
-                    <label class="config-label" for="site-url"
+                    <label class="section-label" for="site-url"
                         >网站域名 <span class="required">*</span></label
                     >
                     <input
@@ -38,29 +36,29 @@
                         id="site-url"
                         v-model="metaConfig.url"
                         placeholder="例如：https://mytools.example.com"
-                        class="config-input"
+                        class="form-input"
                         required
                     />
-                    <p class="config-hint">
+                    <p class="form-hint">
                         网站唯一访问地址，用于社交平台预览和 canonical 标签
                     </p>
                 </div>
 
                 <!-- 网站描述 -->
                 <div class="config-item full-width">
-                    <label class="config-label" for="site-desc"
+                    <label class="section-label" for="site-desc"
                         >网站描述 <span class="required">*</span></label
                     >
                     <textarea
                         id="site-desc"
                         v-model="metaConfig.description"
                         placeholder="例如：提供JSON转TS、颜色处理、正则工具等实用在线工具，提升开发效率"
-                        class="config-input"
+                        class="form-input form-textarea"
                         rows="3"
                         maxlength="160"
                         required
                     ></textarea>
-                    <p class="config-hint">
+                    <p class="form-hint">
                         搜索引擎结果展示的描述（建议120-160字符）<span
                             class="char-count"
                             >{{ metaConfig.description.length }}/160</span
@@ -70,7 +68,7 @@
 
                 <!-- 关键词 -->
                 <div class="config-item full-width">
-                    <label class="config-label" for="site-keywords"
+                    <label class="section-label" for="site-keywords"
                         >SEO关键词</label
                     >
                     <input
@@ -78,20 +76,22 @@
                         id="site-keywords"
                         v-model="metaConfig.keywords"
                         placeholder="例如：在线工具,JSON转TS,颜色处理,正则表达式"
-                        class="config-input"
+                        class="form-input"
                     />
-                    <p class="config-hint">
+                    <p class="form-hint">
                         用英文逗号分隔，建议3-5个核心关键词，避免堆砌
                     </p>
                 </div>
 
                 <!-- 语言 -->
                 <div class="config-item">
-                    <label class="config-label" for="site-lang">网站语言</label>
+                    <label class="section-label" for="site-lang"
+                        >网站语言</label
+                    >
                     <select
                         id="site-lang"
                         v-model="metaConfig.lang"
-                        class="config-input"
+                        class="form-input form-select"
                     >
                         <option value="zh-CN">中文（中国大陆）</option>
                         <option value="en-US">英文（美国）</option>
@@ -103,13 +103,13 @@
 
                 <!-- 编码格式 -->
                 <div class="config-item">
-                    <label class="config-label" for="site-charset"
+                    <label class="section-label" for="site-charset"
                         >编码格式</label
                     >
                     <select
                         id="site-charset"
                         v-model="metaConfig.charset"
-                        class="config-input"
+                        class="form-input form-select"
                     >
                         <option value="UTF-8">UTF-8（推荐，支持多语言）</option>
                         <option value="GB2312">GB2312（仅中文，不推荐）</option>
@@ -119,15 +119,15 @@
                     </select>
                 </div>
             </div>
-        </div>
+        </section>
 
         <!-- 配置分区：SEO优化 -->
-        <div class="config-section">
-            <h3 class="section-title">2. SEO 高级优化</h3>
+        <section class="tool-section">
+            <h2 class="section-title">2. SEO 高级优化</h2>
             <div class="config-grid">
                 <!-- Canonical 标签 -->
                 <div class="config-item full-width">
-                    <label class="config-label" for="canonical-url"
+                    <label class="section-label" for="canonical-url"
                         >首选域名（Canonical）</label
                     >
                     <input
@@ -135,7 +135,7 @@
                         id="canonical-url"
                         v-model="metaConfig.canonical"
                         placeholder="默认与网站域名一致，如：https://mytools.example.com"
-                        class="config-input"
+                        class="form-input"
                     />
                     <p class="config-hint">
                         解决“同一内容多URL”问题，告诉搜索引擎哪个是首选地址
@@ -144,13 +144,13 @@
 
                 <!-- robots 标签 -->
                 <div class="config-item">
-                    <label class="config-label" for="robots"
+                    <label class="section-label" for="robots"
                         >搜索引擎索引（Robots）</label
                     >
                     <select
                         id="robots"
                         v-model="metaConfig.robots"
-                        class="config-input"
+                        class="form-input form-select"
                     >
                         <option value="index,follow">
                             允许索引+跟踪链接（推荐）
@@ -169,39 +169,41 @@
 
                 <!-- 作者 -->
                 <div class="config-item">
-                    <label class="config-label" for="author">网站作者</label>
+                    <label class="section-label" for="author">网站作者</label>
                     <input
                         type="text"
                         id="author"
                         v-model="metaConfig.author"
                         placeholder="例如：张三 / MyTools Team"
-                        class="config-input"
+                        class="form-input"
                     />
                 </div>
 
                 <!-- 版权信息 -->
                 <div class="config-item full-width">
-                    <label class="config-label" for="copyright">版权信息</label>
+                    <label class="section-label" for="copyright"
+                        >版权信息</label
+                    >
                     <input
                         type="text"
                         id="copyright"
                         v-model="metaConfig.copyright"
                         placeholder="例如：© 2024 MyTools. 保留所有权利。"
-                        class="config-input"
+                        class="form-input"
                     />
                 </div>
             </div>
-        </div>
+        </section>
 
         <!-- 配置分区：社交平台预览 -->
-        <div class="config-section">
-            <h3 class="section-title">
+        <section class="tool-section">
+            <h2 class="section-title">
                 3. 社交平台预览（Open Graph / Twitter）
-            </h3>
+            </h2>
             <div class="config-grid">
                 <!-- 社交预览标题 -->
                 <div class="config-item full-width">
-                    <label class="config-label" for="og-title"
+                    <label class="section-label" for="og-title"
                         >预览标题（默认与网站标题一致）</label
                     >
                     <input
@@ -209,7 +211,7 @@
                         id="og-title"
                         v-model="metaConfig.og.title"
                         placeholder="例如：MyTools - 免费在线开发工具"
-                        class="config-input"
+                        class="form-input"
                     />
                     <p class="config-hint">
                         分享到微信、Facebook、Twitter 等平台时显示的标题
@@ -218,7 +220,7 @@
 
                 <!-- 社交预览图片 -->
                 <div class="config-item full-width">
-                    <label class="config-label" for="og-image"
+                    <label class="section-label" for="og-image"
                         >预览图片 <span class="required">*</span></label
                     >
                     <input
@@ -226,7 +228,7 @@
                         id="og-image"
                         v-model="metaConfig.og.image"
                         placeholder="例如：https://mytools.example.com/og-image.jpg"
-                        class="config-input"
+                        class="form-input"
                         required
                     />
                     <p class="config-hint">
@@ -236,14 +238,14 @@
 
                 <!-- 社交预览描述 -->
                 <div class="config-item full-width">
-                    <label class="config-label" for="og-desc"
+                    <label class="section-label" for="og-desc"
                         >预览描述（默认与网站描述一致）</label
                     >
                     <textarea
                         id="og-desc"
                         v-model="metaConfig.og.description"
                         placeholder="例如：免费使用JSON转TS、颜色处理等工具，无需注册，立即上手"
-                        class="config-input"
+                        class="form-input form-textarea"
                         rows="2"
                         maxlength="200"
                     ></textarea>
@@ -257,13 +259,13 @@
 
                 <!-- 内容类型 -->
                 <div class="config-item">
-                    <label class="config-label" for="og-type"
+                    <label class="section-label" for="og-type"
                         >内容类型（Open Graph）</label
                     >
                     <select
                         id="og-type"
                         v-model="metaConfig.og.type"
-                        class="config-input"
+                        class="form-input form-select"
                     >
                         <option value="website">网站（整体站点，推荐）</option>
                         <option value="article">文章（单篇内容）</option>
@@ -274,13 +276,13 @@
 
                 <!-- Twitter 卡片类型 -->
                 <div class="config-item">
-                    <label class="config-label" for="twitter-card"
+                    <label class="section-label" for="twitter-card"
                         >Twitter 卡片类型</label
                     >
                     <select
                         id="twitter-card"
                         v-model="metaConfig.twitter.card"
-                        class="config-input"
+                        class="form-input form-select"
                     >
                         <option value="summary_large_image">
                             大图卡片（推荐）
@@ -293,7 +295,7 @@
 
                 <!-- Twitter 作者账号 -->
                 <div class="config-item">
-                    <label class="config-label" for="twitter-author"
+                    <label class="section-label" for="twitter-author"
                         >Twitter 作者账号</label
                     >
                     <input
@@ -301,19 +303,19 @@
                         id="twitter-author"
                         v-model="metaConfig.twitter.author"
                         placeholder="例如：@mytools_dev"
-                        class="config-input"
+                        class="form-input"
                     />
                 </div>
             </div>
-        </div>
+        </section>
 
         <!-- 配置分区：图标与移动适配 -->
-        <div class="config-section">
-            <h3 class="section-title">4. 图标与移动适配</h3>
+        <section class="tool-section">
+            <h2 class="section-title">4. 图标与移动适配</h2>
             <div class="config-grid">
                 <!-- 网站图标（favicon） -->
                 <div class="config-item full-width">
-                    <label class="config-label" for="favicon"
+                    <label class="section-label" for="favicon"
                         >网站图标（Favicon）</label
                     >
                     <input
@@ -321,7 +323,7 @@
                         id="favicon"
                         v-model="metaConfig.favicon"
                         placeholder="例如：https://mytools.example.com/favicon.ico"
-                        class="config-input"
+                        class="form-input"
                     />
                     <p class="config-hint">
                         浏览器标签页图标，推荐尺寸：32x32px 或 64x64px
@@ -330,7 +332,7 @@
 
                 <!-- 苹果触摸图标 -->
                 <div class="config-item">
-                    <label class="config-label" for="apple-touch-icon"
+                    <label class="section-label" for="apple-touch-icon"
                         >苹果触摸图标</label
                     >
                     <input
@@ -338,7 +340,7 @@
                         id="apple-touch-icon"
                         v-model="metaConfig.appleTouchIcon"
                         placeholder="例如：https://mytools.example.com/apple-touch-icon.png"
-                        class="config-input"
+                        class="form-input"
                     />
                     <p class="config-hint">
                         iOS 设备添加到桌面时显示的图标，推荐尺寸：180x180px
@@ -347,13 +349,13 @@
 
                 <!-- 视口设置（移动适配） -->
                 <div class="config-item full-width">
-                    <label class="config-label" for="viewport"
+                    <label class="section-label" for="viewport"
                         >视口配置（移动适配）</label
                     >
                     <select
                         id="viewport"
                         v-model="metaConfig.viewport"
-                        class="config-input"
+                        class="form-input form-select"
                     >
                         <option value="width=device-width, initial-scale=1.0">
                             默认适配（推荐）
@@ -374,41 +376,41 @@
 
                 <!-- 主题色 -->
                 <div class="config-item">
-                    <label class="config-label" for="theme-color"
+                    <label class="section-label" for="theme-color"
                         >浏览器主题色</label
                     >
                     <input
                         type="color"
                         id="theme-color"
                         v-model="metaConfig.themeColor"
-                        class="config-input color-input"
+                        class="form-input color-input"
                     />
                     <p class="config-hint">
                         匹配网站主色调，影响浏览器地址栏/工具栏颜色（部分浏览器支持）
                     </p>
                 </div>
             </div>
-        </div>
+        </section>
 
         <!-- HTML 预览区域（用你的高亮组件） -->
-        <div class="preview-section">
-            <h3 class="section-title">HTML 代码预览</h3>
+        <section class="tool-section">
+            <h2 class="section-title">HTML 代码预览</h2>
             <div class="preview-card">
                 <CodeHighlighter :code="generatedHtml" language="html" />
             </div>
-        </div>
+        </section>
 
         <!-- 操作按钮 -->
         <div class="action-section">
             <button
-                class="export-btn"
+                class="btn btn-primary"
                 @click="downloadHtml"
                 :disabled="!isValidConfig"
             >
                 导出 index.html 文件
             </button>
             <button
-                class="reset-btn"
+                class="btn btn-secondary"
                 @click="resetConfig"
                 :disabled="isDefaultConfig"
             >
@@ -654,111 +656,10 @@ const resetConfig = () => {
 </script>
 
 <style scoped>
-.seo-meta-tool {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 24px 16px;
-    font-family: inherit;
-    color: var(--text);
-}
-
-/* 标题区域 */
-.tool-header {
-    margin-bottom: 32px;
-    text-align: center;
-}
-
-.tool-header h2 {
-    font-size: 24px;
-    font-weight: 700;
-    margin-bottom: 8px;
-    color: var(--accent);
-}
-
-.tool-desc {
-    font-size: 14px;
-    color: var(--muted);
-    margin: 0;
-}
-
-/* 配置区域 */
-.config-section {
-    margin-bottom: 32px;
-    padding: 20px;
-    background: var(--bg);
-    border-radius: 8px;
-    border: 1px solid var(--border);
-}
-
-.section-title {
-    font-size: 18px;
-    font-weight: 600;
-    margin-bottom: 16px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--border);
-    color: var(--accent);
-}
-
-.config-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 16px;
-}
-
-.config-item {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.full-width {
-    grid-column: 1 / -1; /* 跨列，占满整行宽度 */
-}
-
-.config-label {
-    font-size: 14px;
-    color: var(--text);
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-
+/* 使用统一的设计系统，保留必要的自定义样式 */
 .required {
-    color: #e53e3e;
-    font-weight: bold;
-}
-
-.config-input {
-    padding: 8px 12px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    background: var(--bg);
-    color: var(--text);
-    font-size: 14px;
-    transition: border-color 0.15s ease;
-}
-
-.config-input:focus {
-    outline: none;
-    border-color: var(--accent);
-    box-shadow: 0 0 0 2px rgba(17, 24, 39, 0.1);
-}
-
-/* 颜色选择器特殊样式 */
-.color-input {
-    padding: 2px;
-    height: 40px;
-}
-
-/* 提示文本 */
-.config-hint {
-    font-size: 12px;
-    color: var(--muted);
-    margin: 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    color: var(--error);
+    font-weight: var(--font-weight-bold);
 }
 
 .char-count {
@@ -766,100 +667,118 @@ const resetConfig = () => {
     font-family: monospace;
 }
 
-/* 预览区域 */
-.preview-section {
-    margin-bottom: 32px;
+.color-input {
+    padding: 2px;
+    height: 40px;
 }
 
 .preview-card {
-    padding: 8px;
+    padding: var(--space-sm);
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     background: var(--bg);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    box-shadow: var(--shadow-sm);
     overflow-x: auto;
 }
 
-/* 按钮区域 */
 .action-section {
     display: flex;
-    gap: 16px;
+    gap: var(--space-md);
     justify-content: center;
-    margin-top: 16px;
+    margin-top: var(--space-md);
 }
 
-.export-btn {
-    padding: 10px 24px;
-    border: none;
-    border-radius: 6px;
-    background: var(--accent);
-    color: #fff;
-    font-size: 16px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-}
-
-.export-btn:hover {
-    background: #1f2937;
-}
-
-.export-btn:disabled {
-    background: var(--muted);
-    cursor: not-allowed;
-    opacity: 0.7;
-}
-
-.reset-btn {
-    padding: 10px 24px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    background: var(--bg);
-    color: var(--text);
-    font-size: 16px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.reset-btn:hover {
-    background: var(--hover-bg);
-    border-color: #d1d5db;
-}
-
-.reset-btn:disabled {
-    color: var(--muted);
-    cursor: not-allowed;
-}
-
-/* 响应式适配 */
+/* 手机端特殊适配 */
 @media (max-width: 768px) {
+    .tool-page {
+        padding: var(--space-sm);
+        max-width: 100vw;
+        width: 100vw;
+        margin: 0;
+        overflow-x: hidden;
+    }
+
+    .tool-section {
+        padding: var(--space-md);
+        margin-bottom: var(--space-md);
+        width: 100%;
+        box-sizing: border-box;
+    }
+
     .config-grid {
         grid-template-columns: 1fr;
+        gap: var(--space-sm);
+        width: 100%;
+        min-width: 0;
     }
 
-    .tool-header h2 {
-        font-size: 20px;
+    .config-item {
+        width: 100%;
+        box-sizing: border-box;
     }
 
-    .section-title {
-        font-size: 16px;
+    .form-input {
+        width: 100%;
+        box-sizing: border-box;
+        font-size: var(--font-size);
+    }
+
+    .form-hint {
+        font-size: var(--font-size-xs);
+        line-height: 1.3;
+        word-break: break-word;
     }
 
     .action-section {
         flex-direction: column;
         align-items: stretch;
+        gap: var(--space);
+        margin-top: var(--space-lg);
     }
 
-    .export-btn,
-    .reset-btn {
-        width: 100%;
-        padding: 8px 20px;
-        font-size: 14px;
-    }
-
-    .preview-card {
+    .color-input {
+        height: 48px;
         padding: 4px;
+    }
+}
+
+@media (max-width: 480px) {
+    .tool-page {
+        padding: var(--space-xs);
+    }
+
+    .tool-section {
+        padding: var(--space-sm);
+    }
+
+    .form-input {
+        padding: var(--space-sm);
+        font-size: var(--font-size-sm);
+    }
+
+    .color-input {
+        height: 44px;
+    }
+
+    .form-hint {
+        font-size: 10px;
+    }
+}
+
+/* 横屏手机优化 */
+@media (max-width: 768px) and (orientation: landscape) {
+    .config-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-sm);
+    }
+
+    .full-width {
+        grid-column: 1 / -1;
+    }
+
+    .action-section {
+        flex-direction: row;
+        gap: var(--space);
     }
 }
 </style>

@@ -1,12 +1,12 @@
 <template>
-    <div class="regex-visualizer">
-        <header class="app-header">
+    <div class="tool-page">
+        <header class="tool-header">
             <h1>正则表达式可视化工具</h1>
             <p>实时调试正则表达式，可视化匹配过程</p>
         </header>
 
         <main class="main-content">
-            <section class="input-section">
+            <section class="tool-section">
                 <div class="regex-input-group">
                     <label for="regex-pattern">正则表达式</label>
                     <div class="regex-input-wrapper">
@@ -53,7 +53,7 @@
                 </div>
             </section>
 
-            <section class="results-section">
+            <section class="tool-section">
                 <div class="results-header">
                     <h2>匹配结果</h2>
                     <div class="match-stats">
