@@ -113,6 +113,7 @@
 
 <script setup>
 import { ref, watch, computed } from "vue";
+import useToast from "@/utils/useToast.js";
 
 // 正则表达式相关状态
 const regexPattern = ref("");
@@ -137,7 +138,7 @@ const currentRegex = computed(() => {
         if (!regexPattern.value) return null;
         return new RegExp(regexPattern.value, flags.value.join(""));
     } catch (err) {
-        alert(`正则表达式错误: ${err.message}`);
+        useToast.showInfo(`正则表达式错误: ${err.message}`);
         return null;
     }
 });

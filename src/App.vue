@@ -10,14 +10,14 @@
                     >json转Ts接口
                 </RouterLink>
                 <RouterLink to="/color" class="nav-link" active-class="active"
-                    >颜色处理</RouterLink
-                >
+                    >颜色处理
+                </RouterLink>
                 <RouterLink to="/file" class="nav-link" active-class="active"
-                    >大文件读取
+                    >文件处理
                 </RouterLink>
                 <RouterLink to="/regex" class="nav-link" active-class="active"
-                    >正则工具</RouterLink
-                >
+                    >正则工具
+                </RouterLink>
             </nav>
         </header>
         <main class="content">

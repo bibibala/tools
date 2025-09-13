@@ -18,6 +18,18 @@ export default defineConfig([
                 ...globals.browser,
             },
         },
+        rules: {
+            "no-unused-vars": "error",
+            "no-useless-escape": "off",
+            "vue/no-mutating-props": "off",
+            "prefer-promise-reject-errors": "off",
+            "vue/multi-word-component-names": [
+                "error",
+                {
+                    ignores: ["index"], // 忽略 index.vue
+                },
+            ],
+        },
     },
 
     js.configs.recommended,

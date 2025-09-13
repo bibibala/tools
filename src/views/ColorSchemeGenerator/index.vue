@@ -167,10 +167,6 @@
                 >
                     <i class="copy-icon">📋</i> 复制代码
                 </button>
-
-                <div v-if="copySuccess" class="copy-success">
-                    代码已复制到剪贴板！
-                </div>
             </section>
         </main>
     </div>
@@ -434,7 +430,6 @@ const exportFormats = [
     { name: "Tailwind", type: "tailwind" },
 ];
 const activeFormat = ref(0);
-const copySuccess = ref(false);
 
 // 生成导出代码
 const getExportCode = (format) => {
@@ -631,10 +626,7 @@ function generateTailwindConfig() {
 // 复制到剪贴板
 const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text).then(() => {
-        copySuccess.value = true;
-        setTimeout(() => {
-            copySuccess.value = false;
-        }, 2000);
+        console.log("success");
     });
 };
 
@@ -937,17 +929,6 @@ section h2 {
 
 .copy-icon {
     font-size: 1.1rem;
-}
-
-.copy-success {
-    margin-top: 10px;
-    padding: 8px 12px;
-    background-color: #10b981;
-    color: white;
-    border-radius: 4px;
-    font-size: 0.9rem;
-    display: inline-block;
-    animation: fadeInOut 2s;
 }
 
 @keyframes fadeInOut {

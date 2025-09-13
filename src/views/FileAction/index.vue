@@ -292,8 +292,7 @@ async function previewIfText(f) {
         return;
     }
     const blob = f.slice(0, 1024);
-    const text = await blob.text();
-    textPreview.value = text;
+    textPreview.value = await blob.text();
 }
 </script>
 <style scoped>

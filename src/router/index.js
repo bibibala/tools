@@ -7,26 +7,26 @@ const router = createRouter({
         {
             path: "/regex",
             name: "RegexVisualizer",
-            component: () => import("@/views/RegexVisualizer.vue"),
+            component: () => import("@/views/RegexVisualizer/index.vue"),
             meta: { title: "正则可视化调试" },
         },
         {
             path: "/file",
             name: "FileAction",
-            component: () => import("@/views/FileAction.vue"),
-            meta: { title: "大文件读取" },
+            component: () => import("@/views/FileAction/index.vue"),
+            meta: { title: "大文件处理工具" },
         },
         {
             path: "/color",
             name: "ColorSchemeGenerator",
-            component: () => import("@/views/ColorSchemeGenerator.vue"),
+            component: () => import("@/views/ColorSchemeGenerator/index.vue"),
             meta: { title: "颜色处理" },
         },
         {
             path: "/json-to-interface",
             name: "JsonToTsConverter",
-            component: () => import("@/views/JsonToTsConverter.vue"),
-            meta: { title: "颜色处理" },
+            component: () => import("@/views/JsonToTsConverter/index.vue"),
+            meta: { title: "Json转Ts接口" },
         },
     ],
 });
