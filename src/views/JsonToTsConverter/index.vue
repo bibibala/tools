@@ -9,11 +9,11 @@
             <div class="input-section">
                 <label class="section-label">输入JSON</label>
                 <div class="input-container">
-                    <textarea
-                        v-model="jsonInput"
-                        placeholder='示例: {"name": "John", "age": 30, "isActive": true}'
-                        @input="handleInput"
-                    ></textarea>
+                    <JsonEditor
+                        v-model:json="jsonData"
+                        @update:json="handleJsonChange"
+                    ></JsonEditor>
+
                     <div class="actions">
                         <button class="btn clear-btn" @click="clearInput">
                             清空
@@ -21,33 +21,7 @@
                         <button class="btn sample-btn" @click="loadSample">
                             加载示例
                         </button>
-                        <button
-                            class="btn preview-btn"
-                            @click="toggleJsonPreview"
-                        >
-                            {{ showJsonPreview ? "隐藏预览" : "JSON预览" }}
-                        </button>
                     </div>
-                </div>
-
-                <!-- JSON 高亮预览 -->
-                <div
-                    v-if="showJsonPreview && formattedJson"
-                    class="json-preview"
-                >
-                    <label class="section-label">JSON 格式化预览</label>
-                    <div class="highlight-container">
-                        <ShikiCodeHighlighterHighlighter
-                            :code="formattedJson"
-                            language="json"
-                            :theme="codeTheme"
-                        />
-                    </div>
-                </div>
-
-                <div v-if="errorMessage" class="error-message">
-                    <i class="icon error-icon">!</i>
-                    {{ errorMessage }}
                 </div>
             </div>
 
@@ -110,30 +84,16 @@
                             保留注释 (如果有)
                         </label>
                     </div>
-
-                    <!-- 主题选择 -->
-                    <div class="option-item">
-                        <label class="option-label">代码主题</label>
-                        <select v-model="codeTheme" class="theme-select">
-                            <option value="github-dark">GitHub Dark</option>
-                            <option value="github-light">GitHub Light</option>
-                            <option value="dracula">Dracula</option>
-                            <option value="monokai">Monokai</option>
-                            <option value="nord">Nord</option>
-                            <option value="one-dark-pro">One Dark Pro</option>
-                        </select>
-                    </div>
                 </div>
             </div>
 
             <div class="output-section">
                 <label class="section-label">TypeScript 接口</label>
                 <div class="output-container">
-                    <div v-if="tsOutput" class="ts-highlight-container">
-                        <ShikiCodeHighlighterHighlighter
+                    <div v-if="tsOutput !== ''" class="ts-highlight-container">
+                        <CodeHighlighter
                             :code="tsOutput"
                             language="typescript"
-                            :theme="codeTheme"
                         />
                     </div>
                     <div v-else class="output-placeholder">
@@ -144,7 +104,7 @@
                     <button
                         class="btn copy-btn"
                         @click="copyToClipboard"
-                        :disabled="!tsOutput"
+                        :disabled="tsOutput === ''"
                     >
                         <i class="icon copy-icon">📋</i>
                         复制到剪贴板
@@ -152,7 +112,7 @@
                     <button
                         class="btn download-btn"
                         @click="downloadAsFile"
-                        :disabled="!tsOutput"
+                        :disabled="tsOutput === ''"
                     >
                         <i class="icon download-icon">💾</i>
                         下载文件
@@ -164,15 +124,13 @@
 </template>
 
 <script setup>
-import { ref, watch, computed } from "vue";
+import { ref, watch } from "vue";
 import useToast from "@/utils/useToast.js";
-import ShikiCodeHighlighterHighlighter from "@/components/ShikiCodeHighlighter.vue";
+import JsonEditor from "@/components/JsonEditor.vue";
+import CodeHighlighter from "@/components/CodeHighlighter.vue";
 
-const jsonInput = ref("");
+const jsonData = ref({});
 const tsOutput = ref("");
-const errorMessage = ref("");
-const showJsonPreview = ref(false);
-const codeTheme = ref("github-dark");
 
 const interfaceName = ref("RootObject");
 const options = ref({
@@ -183,39 +141,14 @@ const options = ref({
     preserveComments: false,
 });
 
-// 格式化的 JSON 用于高亮显示
-const formattedJson = computed(() => {
-    if (!jsonInput.value.trim()) return "";
-
+// 处理JSON编辑器内容变化
+const handleJsonChange = (value) => {
     try {
-        const parsed = JSON.parse(jsonInput.value);
-        return JSON.stringify(parsed, null, 2);
-    } catch {
-        return "";
-    }
-});
-
-// 处理输入变化
-const handleInput = () => {
-    try {
-        // 清除错误消息
-        errorMessage.value = "";
-
-        // 如果输入为空，清空输出
-        if (!jsonInput.value.trim()) {
-            tsOutput.value = "";
-            return;
-        }
-
-        // 尝试解析JSON
-        const jsonObject = JSON.parse(jsonInput.value);
-
-        // 转换为TypeScript接口
+        const jsonObject =
+            typeof value === "object" ? value : JSON.parse(value);
         tsOutput.value = convertJsonToTypeScript(jsonObject);
     } catch (err) {
-        // 捕获JSON解析错误
-        errorMessage.value = `JSON解析错误: ${err.message}`;
-        tsOutput.value = "";
+        useToast.showError(`JSON 格式错误,${err}`);
     }
 };
 
@@ -284,14 +217,8 @@ const capitalize = (str) => {
 };
 
 const clearInput = () => {
-    jsonInput.value = "";
+    jsonData.value = null;
     tsOutput.value = "";
-    errorMessage.value = "";
-    showJsonPreview.value = false;
-};
-
-const toggleJsonPreview = () => {
-    showJsonPreview.value = !showJsonPreview.value;
 };
 
 // 加载示例JSON
@@ -313,9 +240,10 @@ const loadSample = () => {
         lastLogin: "2023-07-15T14:30:00Z",
     };
 
-    jsonInput.value = JSON.stringify(sampleJson, null, 2);
-    handleInput();
+    jsonData.value = sampleJson;
+    handleJsonChange(sampleJson);
 };
+
 const copyToClipboard = async () => {
     if (!tsOutput.value) return;
 
@@ -323,7 +251,7 @@ const copyToClipboard = async () => {
         await navigator.clipboard.writeText(tsOutput.value);
         useToast.showSuccess("复制成功");
     } catch (err) {
-        useToast.showError(`复制失败:,${err} `);
+        useToast.showError(`复制失败: ${err} `);
         const textArea = document.createElement("textarea");
         textArea.value = tsOutput.value;
         document.body.appendChild(textArea);
@@ -332,6 +260,7 @@ const copyToClipboard = async () => {
         document.body.removeChild(textArea);
     }
 };
+
 const downloadAsFile = () => {
     if (!tsOutput.value) return;
 
@@ -347,13 +276,16 @@ const downloadAsFile = () => {
     URL.revokeObjectURL(url);
 };
 
-watch(options, handleInput, { deep: true });
-watch(interfaceName, handleInput);
+watch(options, handleJsonChange, { deep: true });
+watch(interfaceName, handleJsonChange);
 </script>
 
 <style scoped>
 .json-to-ts-converter {
     width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
 }
 
 .app-header {
@@ -409,35 +341,6 @@ watch(interfaceName, handleInput);
     gap: 10px;
 }
 
-textarea {
-    width: 100%;
-    min-height: 200px;
-    padding: 15px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-family: "Consolas", "Monaco", monospace;
-    font-size: 0.9rem;
-    resize: vertical;
-    transition: border-color 0.2s;
-}
-
-textarea:focus {
-    outline: none;
-    border-color: #3498db;
-    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
-}
-
-.json-preview {
-    margin-top: 15px;
-}
-
-.highlight-container,
-.ts-highlight-container {
-    border-radius: 6px;
-    overflow: hidden;
-    border: 1px solid #e2e8f0;
-}
-
 .actions {
     display: flex;
     gap: 10px;
@@ -474,15 +377,6 @@ textarea:focus {
 
 .sample-btn:hover {
     background-color: #2980b9;
-}
-
-.preview-btn {
-    background-color: #9b59b6;
-    color: white;
-}
-
-.preview-btn:hover {
-    background-color: #8e44ad;
 }
 
 .copy-btn {
@@ -544,16 +438,6 @@ textarea:focus {
     margin-bottom: 5px;
 }
 
-.interface-name-input,
-.theme-select {
-    margin-left: 10px;
-    padding: 6px 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 0.9rem;
-    width: 200px;
-}
-
 .interface-name-input:disabled {
     background-color: #f1f5f9;
     cursor: not-allowed;
@@ -566,6 +450,12 @@ textarea:focus {
     min-height: 300px;
     border-radius: 6px;
     overflow: hidden;
+}
+
+.ts-highlight-container {
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
 }
 
 .output-placeholder {
@@ -590,31 +480,6 @@ textarea:focus {
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
-}
-
-.error-message {
-    margin-top: 10px;
-    padding: 10px 15px;
-    background-color: #fee2e2;
-    border-left: 4px solid #ef4444;
-    border-radius: 4px;
-    color: #dc2626;
-    font-size: 0.9rem;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.error-icon {
-    background-color: #ef4444;
-    color: white;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
 }
 
 @media (max-width: 768px) {

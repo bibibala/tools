@@ -2,6 +2,10 @@
     <div class="app-shell">
         <header class="app-bar">
             <div class="header-left">
+                <div class="logo-container">
+                    <img :src="logo" alt="MyTools Logo" class="logo-img" />
+                </div>
+
                 <div class="dropdown-container">
                     <button
                         class="dropdown-btn"
@@ -20,7 +24,7 @@
                             <line x1="4" x2="20" y1="12" y2="12"></line>
                             <line x1="4" x2="20" y1="18" y2="18"></line>
                         </svg>
-                        <span class="btn-text">MyTools</span>
+                        <span class="btn-text">工具菜单</span>
                         <svg
                             width="16"
                             height="16"
@@ -38,6 +42,7 @@
                         :class="{ show: isMenuOpen }"
                         ref="dropdownMenu"
                     >
+                        <!-- 菜单选项保持不变 -->
                         <RouterLink
                             to="/json-to-interface"
                             class="dropdown-item"
@@ -45,6 +50,15 @@
                             @click.stop="isMenuOpen = false"
                         >
                             json转Ts接口
+                        </RouterLink>
+
+                        <RouterLink
+                            to="/json"
+                            class="dropdown-item"
+                            active-class="active"
+                            @click.stop="isMenuOpen = false"
+                        >
+                            json格式化
                         </RouterLink>
                         <RouterLink
                             to="/color"
@@ -117,8 +131,9 @@
 <script setup>
 import { RouterLink } from "vue-router";
 import github from "@/assets/github.png";
-import { getRepoUpdateTime, getStar, REPO_URL } from "@/utils/useGetRepo.js";
+import logo from "@/assets/logo.png";
 import { ref, onMounted, onBeforeUnmount } from "vue";
+import { getRepoUpdateTime, getStar, REPO_URL } from "@/utils/useGetRepo.js";
 
 const year = ref(new Date().getFullYear());
 const lastUpdateTime = ref("2024-01-01");
@@ -203,10 +218,29 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 16px;
+    padding: 8px 16px; /* 稍微减少垂直内边距 */
     border-bottom: 1px solid var(--border);
     backdrop-filter: saturate(180%) blur(8px);
     background: rgba(255, 255, 255, 0.8);
+    height: 56px;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+}
+
+.logo-img {
+    height: 50px;
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
 }
 
 .dropdown-container {
@@ -236,8 +270,7 @@ body {
 }
 
 .dropdown-btn .btn-text {
-    font-weight: 700;
-    letter-spacing: 0.2px;
+    font-weight: 500;
 }
 
 .dropdown-arrow {
@@ -343,10 +376,18 @@ body {
     font-size: 12px;
 }
 
-/* 响应式优化（小屏适配） */
 @media (max-width: 480px) {
     .app-bar {
-        padding: 8px 12px;
+        padding: 6px 12px;
+        height: 50px;
+    }
+
+    .header-left {
+        gap: 8px;
+    }
+
+    .logo-img {
+        height: 30px;
     }
 
     .dropdown-btn {

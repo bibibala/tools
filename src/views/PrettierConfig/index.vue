@@ -264,7 +264,7 @@
 
 <script setup>
 import { ref, computed } from "vue";
-import CodeHighlighter from "@/components/ShikiCodeHighlighter.vue";
+import CodeHighlighter from "@/components/CodeHighlighter.vue";
 
 const prettierConfig = ref({
     // 基础配置

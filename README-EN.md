@@ -10,7 +10,7 @@
 | Tool Name             | Path                 | Core Functionality                                                                                                               |
 | --------------------- | -------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | Regex Visualizer      | `/regex`             | Real-time regex parsing, visualize the matching process, support regex syntax validation and replacement testing                 |
-| Large File Handler    | `/file`              | Supports large file upload, content search, format conversion (e.g., TXT/CSV), and chunked processing (to avoid memory overflow) |
+| Large File Handler    | `/file`              | Supports large file upload,and chunked processing (to avoid memory overflow) |
 | Color Tool            | `/color`             | Color value conversion (HEX/RGB/RGBA/HSL), generate color schemes, contrast check (WCAG compliant)                               |
 | JSON to TypeScript    | `/json-to-interface` | Automatically convert JSON structure to TypeScript interfaces, supports nested structures and arrays                             |
 | Prettier Configurator | `/prettier`          | Visual configuration of Prettier code formatting rules, live preview, and one-click export of config files                       |

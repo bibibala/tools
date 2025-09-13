@@ -30,6 +30,12 @@ const router = createRouter({
             meta: { title: "Json转Ts接口" },
         },
         {
+            path: "/json",
+            name: "JsonEditor",
+            component: () => import("@/views/JsonPretty/index.vue"),
+            meta: { title: "Json格式化" },
+        },
+        {
             path: "/prettier",
             name: "PrettierConfig",
             component: () => import("@/views/PrettierConfig/index.vue"),
