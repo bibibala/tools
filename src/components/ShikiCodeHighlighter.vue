@@ -7,15 +7,12 @@
         <div v-else v-html="highlightedCode" class="highlighted-code" />
     </div>
 </template>
+
 <script setup>
 import { createHighlighter } from "shiki";
 import { ref, computed, onMounted, watch, nextTick } from "vue";
 
-const {
-    code,
-    language = "json",
-    theme = "vitesse-dark",
-} = defineProps({
+const { code, language, theme } = defineProps({
     code: {
         type: String,
         required: true,
@@ -23,8 +20,6 @@ const {
     language: {
         type: String,
         default: "json",
-        validator: (value) =>
-            ["json", "typescript", "ts", "js"].includes(value),
     },
     theme: {
         type: String,
@@ -36,12 +31,69 @@ const highlighter = ref(null);
 const loading = ref(true);
 const error = ref("");
 
-const langMap = {
-    ts: "typescript",
+// 统一的语言映射配置
+const languageMap = {
+    // JavaScript 相关
     js: "javascript",
+    jsx: "javascript",
+
+    // TypeScript 相关
+    ts: "typescript",
+    tsx: "typescript",
+
+    // HTML 相关
+    htm: "html",
+
+    // CSS 相关
+    css: "css",
+    scss: "scss",
+    sass: "sass",
+    less: "less",
+    stylus: "stylus",
+
+    // 其他常用语言
+    py: "python",
+    rb: "ruby",
+    sh: "bash",
+    shell: "bash",
+    yml: "yaml",
+
+    // 保持原样的语言
+    json: "json",
+    html: "html",
+    javascript: "javascript",
+    typescript: "typescript",
+    python: "python",
+    java: "java",
+    cpp: "cpp",
+    c: "c",
+    go: "go",
+    rust: "rust",
+    php: "php",
+    swift: "swift",
+    kotlin: "kotlin",
+    dart: "dart",
+    vue: "vue",
+    xml: "xml",
+    sql: "sql",
+    markdown: "markdown",
+    md: "markdown",
+    yaml: "yaml",
+    toml: "toml",
+    ini: "ini",
+    dockerfile: "dockerfile",
+    bash: "bash",
+    powershell: "powershell",
+    r: "r",
+    matlab: "matlab",
+    latex: "latex",
+    graphql: "graphql",
 };
 
-const normalizedLanguage = computed(() => langMap[language] || language);
+const normalizedLanguage = computed(() => {
+    const lang = language.toLowerCase();
+    return languageMap[lang] || lang;
+});
 
 const highlightedCode = computed(() => {
     if (!highlighter.value || !code.trim()) {

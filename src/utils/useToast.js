@@ -1,4 +1,5 @@
 import { Notify } from "notiflix/build/notiflix-notify-aio";
+import { Loading } from "notiflix/build/notiflix-loading-aio";
 
 const useToast = {
     showSuccess(message) {
@@ -27,3 +28,13 @@ const useToast = {
 };
 
 export default useToast;
+
+export function showLoading() {
+    Loading.standard({
+        clickToClose: false,
+    });
+}
+
+export function hideLoading() {
+    Loading.remove();
+}
