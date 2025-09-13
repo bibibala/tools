@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120" role="img" aria-labelledby="title">
+    <title id="title">Cute Code Logo (Big Face)</title>
+
+    <!-- 黑色背景圆 -->
+    <circle cx="60" cy="60" r="58" fill="black" />
+
+    <!-- 左右括号 -->
+    <g stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none">
+        <path d="M32 36 Q20 60 32 84" />
+        <path d="M88 36 Q100 60 88 84" />
+    </g>
+
+    <!-- 放大的小脸 -->
+    <circle cx="50" cy="58" r="6" fill="white"/>
+    <circle cx="70" cy="58" r="6" fill="white"/>
+    <path d="M46 74 Q60 88 74 74" stroke="white" stroke-width="4" fill="none" stroke-linecap="round"/>
+</svg>

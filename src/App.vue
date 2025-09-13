@@ -77,7 +77,7 @@
                             文件处理
                         </RouterLink>
                         <RouterLink
-                            to="/regex"
+                            to="/"
                             class="dropdown-item"
                             active-class="active"
                             @click.stop="isMenuOpen = false"
@@ -131,7 +131,7 @@
 <script setup>
 import { RouterLink } from "vue-router";
 import github from "@/assets/github.png";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/logo.svg";
 import { ref, onMounted, onBeforeUnmount } from "vue";
 import { getRepoUpdateTime, getStar, REPO_URL } from "@/utils/useGetRepo.js";
 
@@ -237,7 +237,7 @@ body {
 }
 
 .logo-img {
-    height: 50px;
+    height: 38px;
     width: auto;
     object-fit: contain;
     filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));

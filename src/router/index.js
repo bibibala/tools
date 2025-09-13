@@ -4,9 +4,8 @@ import { hideLoading, showLoading } from "@/utils/useToast.js";
 const router = createRouter({
     history: createWebHistory(),
     routes: [
-        { path: "/", redirect: { path: "/regex" } },
         {
-            path: "/regex",
+            path: "/",
             name: "RegexVisualizer",
             component: () => import("@/views/RegexVisualizer/index.vue"),
             meta: { title: "正则可视化调试" },
