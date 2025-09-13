@@ -1,9 +1,10 @@
-const username = "bibibala";
-const repo = "tools";
+export const USER_NAME = "bibibala";
+export const REPO = "tools";
+export const REPO_URL = "https://github.com/bibibala/tools";
 
 export async function getRepoUpdateTime() {
     const res = await fetch(
-        `https://api.github.com/repos/${username}/${repo}`,
+        `https://api.github.com/repos/${USER_NAME}/${REPO}`,
         {
             headers: { Accept: "application/vnd.github.v3+json" },
         },
@@ -27,4 +28,16 @@ export async function getRepoUpdateTime() {
         ":" +
         String(updatedAt.getSeconds()).padStart(2, "0")
     );
+}
+
+export async function getStar() {
+    const res = await fetch(
+        `https://api.github.com/repos/${USER_NAME}/${REPO}`,
+        {
+            headers: { Accept: "application/vnd.github.v3+json" },
+        },
+    );
+    if (!res.ok) throw new Error("GitHub API 请求失败");
+    const data = await res.json();
+    return data.stargazers_count;
 }
