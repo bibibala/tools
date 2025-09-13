@@ -102,14 +102,6 @@
                 </div>
                 <div class="output-actions">
                     <button
-                        class="btn copy-btn"
-                        @click="copyToClipboard"
-                        :disabled="tsOutput === ''"
-                    >
-                        <i class="icon copy-icon">📋</i>
-                        复制到剪贴板
-                    </button>
-                    <button
                         class="btn download-btn"
                         @click="downloadAsFile"
                         :disabled="tsOutput === ''"
@@ -244,23 +236,6 @@ const loadSample = () => {
     handleJsonChange(sampleJson);
 };
 
-const copyToClipboard = async () => {
-    if (!tsOutput.value) return;
-
-    try {
-        await navigator.clipboard.writeText(tsOutput.value);
-        useToast.showSuccess("复制成功");
-    } catch (err) {
-        useToast.showError(`复制失败: ${err} `);
-        const textArea = document.createElement("textarea");
-        textArea.value = tsOutput.value;
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand("copy");
-        document.body.removeChild(textArea);
-    }
-};
-
 const downloadAsFile = () => {
     if (!tsOutput.value) return;
 
@@ -379,15 +354,6 @@ watch(interfaceName, handleJsonChange);
     background-color: #2980b9;
 }
 
-.copy-btn {
-    background-color: #2ecc71;
-    color: white;
-}
-
-.copy-btn:hover:not(:disabled) {
-    background-color: #27ae60;
-}
-
 .download-btn {
     background-color: #e67e22;
     color: white;
@@ -395,13 +361,6 @@ watch(interfaceName, handleJsonChange);
 
 .download-btn:hover:not(:disabled) {
     background-color: #d35400;
-}
-
-.copy-btn:disabled,
-.download-btn:disabled {
-    background-color: #bdc3c7;
-    cursor: not-allowed;
-    opacity: 0.7;
 }
 
 .icon {

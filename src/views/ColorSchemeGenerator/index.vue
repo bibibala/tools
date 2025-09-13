@@ -6,7 +6,6 @@
         </header>
 
         <main class="main-content">
-            <!-- 主色输入区域 -->
             <section class="primary-color-input">
                 <h2>主色调设置</h2>
 
@@ -154,19 +153,15 @@
                 </div>
 
                 <div class="code-output">
-                    <pre><code>{{ getExportCode(exportFormats[activeFormat].type) }}</code></pre>
+                    <CodeHighlighter
+                        :code="getExportCode(exportFormats[activeFormat].type)"
+                        :language="
+                            getLanguageForFormat(
+                                exportFormats[activeFormat].type,
+                            )
+                        "
+                    />
                 </div>
-
-                <button
-                    class="copy-btn"
-                    @click="
-                        copyToClipboard(
-                            getExportCode(exportFormats[activeFormat].type),
-                        )
-                    "
-                >
-                    <i class="copy-icon">📋</i> 复制代码
-                </button>
             </section>
         </main>
     </div>
@@ -174,6 +169,7 @@
 
 <script setup>
 import { ref, computed, watch } from "vue";
+import CodeHighlighter from "@/components/CodeHighlighter.vue";
 
 // 主色状态
 const primaryColorHex = ref("#165DFF");
@@ -209,7 +205,7 @@ const updateColorFromHex = (e) => {
     hsl.value = rgbToHsl(r, g, b);
 };
 
-// 从RGB更新颜色值 - 修复的核心部分
+// 从RGB更新颜色值
 const updateColorFromRgb = (e) => {
     const inputValue = e.target.value.trim();
     // 使用更宽松的正则匹配RGB值
@@ -422,14 +418,29 @@ function hslToRgb(h, s, l) {
     return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
 }
 
-// 导出格式
 const exportFormats = [
     { name: "CSS变量", type: "css" },
     { name: "SCSS变量", type: "scss" },
     { name: "JavaScript", type: "js" },
     { name: "Tailwind", type: "tailwind" },
 ];
+
 const activeFormat = ref(0);
+
+const getLanguageForFormat = (format) => {
+    switch (format) {
+        case "css":
+            return "css";
+        case "scss":
+            return "scss";
+        case "js":
+            return "javascript";
+        case "tailwind":
+            return "javascript";
+        default:
+            return "text";
+    }
+};
 
 // 生成导出代码
 const getExportCode = (format) => {
@@ -623,16 +634,7 @@ function generateTailwindConfig() {
     return config;
 }
 
-// 复制到剪贴板
-const copyToClipboard = (text) => {
-    navigator.clipboard.writeText(text).then(() => {
-        console.log("success");
-    });
-};
-
-// 监听主色变化
 watch(primaryColorHex, (newVal) => {
-    // 当HEX值改变时更新颜色
     const inputEvent = { target: { value: newVal } };
     updateColorFromHex(inputEvent);
 });
@@ -889,64 +891,6 @@ section h2 {
     border-color: #3498db;
 }
 
-.code-output {
-    position: relative;
-    background-color: #2d3748;
-    border-radius: 6px;
-    overflow: hidden;
-    margin-bottom: 15px;
-}
-
-.code-output pre {
-    margin: 0;
-    padding: 15px;
-    overflow-x: auto;
-    color: #e2e8f0;
-    font-family: "Consolas", "Monaco", monospace;
-    font-size: 0.9rem;
-    line-height: 1.5;
-    max-height: 400px;
-}
-
-.copy-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 18px;
-    background-color: #3498db;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 0.95rem;
-    transition: background-color 0.2s;
-}
-
-.copy-btn:hover {
-    background-color: #2980b9;
-}
-
-.copy-icon {
-    font-size: 1.1rem;
-}
-
-@keyframes fadeInOut {
-    0% {
-        opacity: 0;
-    }
-    20% {
-        opacity: 1;
-    }
-    80% {
-        opacity: 1;
-    }
-    100% {
-        opacity: 0;
-    }
-}
-
-/* 响应式调整 */
 @media (max-width: 768px) {
     .color-value-inputs {
         flex-direction: column;

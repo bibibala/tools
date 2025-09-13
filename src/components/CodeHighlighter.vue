@@ -1,16 +1,23 @@
 <template>
     <div class="code-highlighter">
-        <div v-if="loading" class="loading">正在加载高亮器...</div>
+        <div v-if="loading" class="loading">正在加载加载高亮加载高亮器...</div>
         <div v-else-if="error" class="error">
             {{ error }}
         </div>
-        <div v-else v-html="highlightedCode" class="highlighted-code" />
+        <div v-else class="code-container">
+            <button class="copy-btn" @click="copyToClipboard(code)">
+                <i class="icon">📋</i>
+                <span class="text">复制</span>
+            </button>
+            <div v-html="highlightedCode" class="highlighted-code" />
+        </div>
     </div>
 </template>
 
 <script setup>
 import { createHighlighter } from "shiki";
-import { ref, computed, onMounted, watch, nextTick } from "vue";
+import { ref, computed, onMounted, watch, watchEffect } from "vue";
+import { copyToClipboard } from "@/utils/useToClipboard.js";
 
 const { code, language, theme } = defineProps({
     code: {
@@ -27,38 +34,41 @@ const { code, language, theme } = defineProps({
     },
 });
 
+// 状态管理
 const highlighter = ref(null);
 const loading = ref(true);
 const error = ref("");
+const highlightedCode = ref("<pre><code></code></pre>");
 
-// 统一的语言映射配置
+// 常用主题和语言预加载
+const commonThemes = ["vitesse-dark"];
+const commonLanguages = [
+    "javascript",
+    "typescript",
+    "css",
+    "scss",
+    "html",
+    "json",
+    "bash",
+];
+
+// 语言映射配置
 const languageMap = {
-    // JavaScript 相关
     js: "javascript",
     jsx: "javascript",
-
-    // TypeScript 相关
     ts: "typescript",
     tsx: "typescript",
-
-    // HTML 相关
     htm: "html",
-
-    // CSS 相关
     css: "css",
     scss: "scss",
     sass: "sass",
     less: "less",
     stylus: "stylus",
-
-    // 其他常用语言
     py: "python",
     rb: "ruby",
     sh: "bash",
     shell: "bash",
     yml: "yaml",
-
-    // 保持原样的语言
     json: "json",
     html: "html",
     javascript: "javascript",
@@ -95,59 +105,70 @@ const normalizedLanguage = computed(() => {
     return languageMap[lang] || lang;
 });
 
-const highlightedCode = computed(() => {
+// 代码高亮处理
+const processHighlighting = async () => {
     if (!highlighter.value || !code.trim()) {
-        return "<pre><code></code></pre>";
+        highlightedCode.value = "<pre><code></code></pre>";
+        return;
     }
 
     try {
-        return highlighter.value.codeToHtml(code, {
+        highlightedCode.value = await highlighter.value.codeToHtml(code, {
             lang: normalizedLanguage.value,
             theme,
         });
     } catch (err) {
         console.error("代码高亮失败:", err);
-        return `<pre><code>${escapeHtml(code)}</code></pre>`;
+        highlightedCode.value = `<pre><code>${escapeHtml(code)}</code></pre>`;
     }
-});
+};
 
+// 初始化Shiki
 async function initShiki() {
     try {
         loading.value = true;
         error.value = "";
 
+        const themesToLoad = [...new Set([theme, ...commonThemes])];
+        const langsToLoad = [
+            ...new Set([normalizedLanguage.value, ...commonLanguages]),
+        ];
+
         highlighter.value = await createHighlighter({
-            themes: [theme],
-            langs: [normalizedLanguage.value],
+            themes: themesToLoad,
+            langs: langsToLoad,
         });
 
-        console.log("Shiki 初始化成功");
+        await processHighlighting();
     } catch (err) {
         console.error("初始化 Shiki 失败:", err);
         error.value = `代码高亮器加载失败: ${err.message}`;
+        highlightedCode.value = `<pre><code>${escapeHtml(code)}</code></pre>`;
     } finally {
         loading.value = false;
     }
 }
 
+// HTML转义
 function escapeHtml(text) {
     const div = document.createElement("div");
     div.textContent = text;
     return div.innerHTML;
 }
 
+// 生命周期和监听器
 onMounted(initShiki);
 
 watch(
     () => theme,
-    async (newTheme, oldTheme) => {
-        if (highlighter.value && newTheme !== oldTheme) {
+    async (newTheme) => {
+        if (highlighter.value) {
             try {
                 const loadedThemes = highlighter.value.getLoadedThemes();
                 if (!loadedThemes.includes(newTheme)) {
                     await highlighter.value.loadTheme(newTheme);
                 }
-                await nextTick();
+                await processHighlighting();
             } catch (err) {
                 console.warn("加载新主题失败:", err);
             }
@@ -157,26 +178,49 @@ watch(
 
 watch(
     () => language,
-    async (newLang, oldLang) => {
-        if (highlighter.value && newLang !== oldLang) {
+    async () => {
+        if (highlighter.value) {
             try {
                 const normalizedLang = normalizedLanguage.value;
                 const loadedLangs = highlighter.value.getLoadedLanguages();
                 if (!loadedLangs.includes(normalizedLang)) {
                     await highlighter.value.loadLanguage(normalizedLang);
                 }
-                await nextTick();
+                await processHighlighting();
             } catch (err) {
                 console.warn("加载新语言失败:", err);
             }
         }
     },
 );
+
+watch(
+    () => code,
+    async () => {
+        if (highlighter.value && !loading.value && !error.value) {
+            await processHighlighting();
+        }
+    },
+);
+
+watchEffect(() => {
+    if (
+        !loading.value &&
+        !error.value &&
+        highlighter.value &&
+        highlightedCode.value === "<pre><code></code></pre>" &&
+        code.trim()
+    ) {
+        console.log("检测到空高亮内容，尝试重新处理");
+        setTimeout(processHighlighting, 100);
+    }
+});
 </script>
 
 <style scoped>
 .code-highlighter {
     width: 100%;
+    position: relative;
 }
 
 .loading {
@@ -194,6 +238,46 @@ watch(
     color: #c33;
 }
 
+.code-container {
+    position: relative;
+    width: 100%;
+}
+
+.copy-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    opacity: 0;
+    transition:
+        opacity 0.2s ease,
+        background-color 0.2s ease;
+    z-index: 10;
+}
+
+/* 鼠标悬停容器时显示按钮 */
+.code-container:hover .copy-btn {
+    opacity: 1;
+}
+
+/* 按钮交互效果 */
+.copy-btn:hover {
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+.icon {
+    font-size: 14px;
+}
+
 .highlighted-code {
     width: 100%;
     overflow-x: auto;
@@ -207,6 +291,7 @@ watch(
     font-size: 14px;
     line-height: 1.5;
     overflow-x: auto;
+    min-height: 24px;
 }
 
 .highlighted-code :deep(code) {
