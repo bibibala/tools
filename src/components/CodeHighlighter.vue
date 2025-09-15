@@ -42,67 +42,11 @@ const highlightedCode = ref("<pre><code></code></pre>");
 
 // 常用主题和语言预加载
 const commonThemes = ["vitesse-dark"];
-const commonLanguages = [
-    "javascript",
-    "typescript",
-    "css",
-    "scss",
-    "html",
-    "json",
-    "bash",
-];
+const commonLanguages = ["javascript", "typescript", "json", "sass", "html"];
 
-// 语言映射配置
-const languageMap = {
-    js: "javascript",
-    jsx: "javascript",
-    ts: "typescript",
-    tsx: "typescript",
-    htm: "html",
-    css: "css",
-    scss: "scss",
-    sass: "sass",
-    less: "less",
-    stylus: "stylus",
-    py: "python",
-    rb: "ruby",
-    sh: "bash",
-    shell: "bash",
-    yml: "yaml",
-    json: "json",
-    html: "html",
-    javascript: "javascript",
-    typescript: "typescript",
-    python: "python",
-    java: "java",
-    cpp: "cpp",
-    c: "c",
-    go: "go",
-    rust: "rust",
-    php: "php",
-    swift: "swift",
-    kotlin: "kotlin",
-    dart: "dart",
-    vue: "vue",
-    xml: "xml",
-    sql: "sql",
-    markdown: "markdown",
-    md: "markdown",
-    yaml: "yaml",
-    toml: "toml",
-    ini: "ini",
-    dockerfile: "dockerfile",
-    bash: "bash",
-    powershell: "powershell",
-    r: "r",
-    matlab: "matlab",
-    latex: "latex",
-    graphql: "graphql",
-};
-
+// 直接使用传入的语言，不做任何映射
 const normalizedLanguage = computed(() => {
-    const lang = language.toLowerCase();
-    return languageMap[lang] || lang;
+    return language.toLowerCase();
 });
 
 // 代码高亮处理
@@ -264,17 +208,17 @@ watchEffect(() => {
     z-index: 10;
 }
 
-/* 鼠标悬停容器时显示按钮 */
 .code-container:hover .copy-btn {
     opacity: 1;
 }
 
-/* 按钮交互效果 */
 .copy-btn:hover {
+    z-index: 1;
     background-color: rgba(0, 0, 0, 0.7);
 }
 
 .icon {
+    z-index: 1;
     font-size: 14px;
 }
 

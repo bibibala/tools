@@ -144,6 +144,13 @@ const handleJsonChange = (value) => {
     }
 };
 
+// 新增：处理选项或接口名称变化时重新生成TypeScript
+const regenerateTypeScript = () => {
+    if (jsonData.value && Object.keys(jsonData.value).length > 0) {
+        tsOutput.value = convertJsonToTypeScript(jsonData.value);
+    }
+};
+
 // 转换JSON为TypeScript接口
 const convertJsonToTypeScript = (
     json,
@@ -251,8 +258,8 @@ const downloadAsFile = () => {
     URL.revokeObjectURL(url);
 };
 
-watch(options, handleJsonChange, { deep: true });
-watch(interfaceName, handleJsonChange);
+watch(options, regenerateTypeScript, { deep: true });
+watch(interfaceName, regenerateTypeScript);
 </script>
 
 <style scoped>

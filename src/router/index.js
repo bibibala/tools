@@ -46,6 +46,12 @@ const router = createRouter({
             component: () => import("@/views/WebMeta/index.vue"),
             meta: { title: "网站元信息配置" },
         },
+        {
+            path: "/file-accept",
+            name: "FileAcceptGenerator",
+            component: () => import("@/views/FileAcceptGenerator/index.vue"),
+            meta: { title: "文件类型Accept生成器" },
+        },
     ],
 });
 
