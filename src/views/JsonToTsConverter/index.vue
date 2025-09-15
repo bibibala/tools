@@ -138,6 +138,7 @@ const handleJsonChange = (value) => {
     try {
         const jsonObject =
             typeof value === "object" ? value : JSON.parse(value);
+        jsonData.value = jsonObject; // 添加这行，更新jsonData
         tsOutput.value = convertJsonToTypeScript(jsonObject);
     } catch (err) {
         useToast.showError(`JSON 格式错误,${err}`);
@@ -146,7 +147,11 @@ const handleJsonChange = (value) => {
 
 // 新增：处理选项或接口名称变化时重新生成TypeScript
 const regenerateTypeScript = () => {
-    if (jsonData.value && Object.keys(jsonData.value).length > 0) {
+    if (
+        jsonData.value &&
+        typeof jsonData.value === "object" &&
+        Object.keys(jsonData.value).length > 0
+    ) {
         tsOutput.value = convertJsonToTypeScript(jsonData.value);
     }
 };

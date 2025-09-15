@@ -208,22 +208,6 @@ watch([regexPattern, flags, testText], processMatches, { immediate: true });
 </script>
 
 <style>
-.regex-visualizer {
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-    color: #333;
-    line-height: 1.6;
-}
-
-.app-header {
-    text-align: center;
-    margin-bottom: 30px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid #eee;
-}
-
 .app-header h1 {
     color: #2c3e50;
     margin-bottom: 10px;
@@ -243,14 +227,8 @@ watch([regexPattern, flags, testText], processMatches, { immediate: true });
 
 @media (min-width: 768px) {
     .main-content {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr;
     }
-}
-
-.input-section {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
 }
 
 .regex-input-group,
@@ -323,13 +301,6 @@ label {
 .flag-btn.active {
     background-color: #3498db;
     color: white;
-}
-
-.results-section {
-    background-color: #f8f9fa;
-    border-radius: 6px;
-    padding: 20px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .results-header {

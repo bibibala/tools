@@ -453,14 +453,13 @@ const toggleCategory = (category) => {
 }
 
 .format-option:hover {
-    border-color: var(--accent);
-    background: var(--hover-bg);
+    border-color: var(--info);
 }
 
 .format-checkbox {
     width: 16px;
     height: 16px;
-    accent-color: var(--accent);
+    accent-color: var(--info);
 }
 
 .format-option span {
@@ -495,7 +494,7 @@ const toggleCategory = (category) => {
 .category-checkbox {
     width: 18px;
     height: 18px;
-    accent-color: #3b82f6;
+    accent-color: var(--info);
 }
 
 .file-types-grid {
@@ -517,19 +516,19 @@ const toggleCategory = (category) => {
 }
 
 .file-type-item:hover {
-    border-color: #3b82f6;
+    border-color: var(--info);
     background: var(--hover-bg);
 }
 
 .file-type-item.active {
-    border-color: #3b82f6;
+    border-color: var(--info);
     background: rgba(59, 130, 246, 0.1);
 }
 
 .file-type-checkbox {
     width: 16px;
     height: 16px;
-    accent-color: #3b82f6;
+    accent-color: var(--info);
 }
 
 .file-type-content {
@@ -572,7 +571,7 @@ const toggleCategory = (category) => {
 }
 
 .stat-value {
-    color: #3b82f6;
+    color: var(--info);
     font-weight: var(--font-weight-medium);
     font-size: var(--font-size-sm);
 }
