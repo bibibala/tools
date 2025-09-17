@@ -42,80 +42,15 @@
                         :class="{ show: isMenuOpen }"
                         ref="dropdownMenu"
                     >
-                        <!-- 菜单选项保持不变 -->
-                        <RouterLink
-                            to="/json-to-interface"
-                            class="dropdown-item"
-                            active-class="active"
-                            @click.stop="isMenuOpen = false"
-                        >
-                            json转Ts接口
-                        </RouterLink>
-
-                        <RouterLink
-                            to="/json"
-                            class="dropdown-item"
-                            active-class="active"
-                            @click.stop="isMenuOpen = false"
-                        >
-                            json格式化
-                        </RouterLink>
-                        <RouterLink
-                            to="/color"
-                            class="dropdown-item"
-                            active-class="active"
-                            @click.stop="isMenuOpen = false"
-                        >
-                            颜色处理
-                        </RouterLink>
-                        <RouterLink
-                            to="/file"
-                            class="dropdown-item"
-                            active-class="active"
-                            @click.stop="isMenuOpen = false"
-                        >
-                            文件处理
-                        </RouterLink>
-                        <RouterLink
-                            to="/"
-                            class="dropdown-item"
-                            active-class="active"
-                            @click.stop="isMenuOpen = false"
-                        >
-                            正则工具
-                        </RouterLink>
-                        <RouterLink
-                            to="/prettier"
-                            class="dropdown-item"
-                            active-class="active"
-                            @click.stop="isMenuOpen = false"
-                        >
-                            prettier配置
-                        </RouterLink>
-                        <RouterLink
-                            to="/web-meta"
-                            class="dropdown-item"
-                            active-class="active"
-                            @click.stop="isMenuOpen = false"
-                        >
-                            网站元信息配置
-                        </RouterLink>
-                        <RouterLink
-                            to="/file-accept"
-                            class="dropdown-item"
-                            active-class="active"
-                            @click.stop="isMenuOpen = false"
-                        >
-                            文件Accept生成器
-                        </RouterLink>
-                        <RouterLink
-                            to="/image-location"
-                            class="dropdown-item"
-                            active-class="active"
-                            @click.stop="isMenuOpen = false"
-                        >
-                            图片位置信息查看器
-                        </RouterLink>
+                        <div v-for="(item, index) in routes" :key="index">
+                            <RouterLink
+                                :to="item.path"
+                                class="dropdown-item"
+                                active-class="active"
+                                @click.stop="isMenuOpen = false"
+                                >{{ item.meta.title }}
+                            </RouterLink>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -145,6 +80,7 @@
 </template>
 
 <script setup>
+import { routes } from "@/router/index.js";
 import { RouterLink } from "vue-router";
 import github from "@/assets/github.png";
 import logo from "@/assets/logo.svg";

@@ -1,9 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { hideLoading, showLoading } from "@/utils/useToast.js";
 
-const router = createRouter({
-    history: createWebHistory(),
-    routes: [
+export const routes = [
         {
             path: "/",
             name: "RegexVisualizer",
@@ -14,7 +12,7 @@ const router = createRouter({
             path: "/file",
             name: "FileAction",
             component: () => import("@/views/FileAction/index.vue"),
-            meta: { title: "大文件处理工具" },
+            meta: { title: "大文件处理" },
         },
         {
             path: "/color",
@@ -38,7 +36,7 @@ const router = createRouter({
             path: "/prettier",
             name: "PrettierConfig",
             component: () => import("@/views/PrettierConfig/index.vue"),
-            meta: { title: "prettier配置" },
+            meta: { title: "前端项目配置" },
         },
         {
             path: "/web-meta",
@@ -50,16 +48,19 @@ const router = createRouter({
             path: "/file-accept",
             name: "FileAcceptGenerator",
             component: () => import("@/views/FileAcceptGenerator/index.vue"),
-            meta: { title: "文件类型Accept生成器" },
+            meta: { title: "文件类型Accept生成" },
         },
         {
             path: "/image-location",
             name: "ImageLocationViewer",
             component: () => import("@/views/ImageLocationViewer/index.vue"),
-            meta: { title: "图片位置信息查看器" },
+            meta: { title: "图片元信息查看" },
         },
     ],
-});
+    router = createRouter({
+        history: createWebHistory(),
+        routes,
+    });
 
 router.beforeEach(() => {
     showLoading();

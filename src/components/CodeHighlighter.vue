@@ -15,9 +15,10 @@
 </template>
 
 <script setup>
-import { createHighlighter } from "shiki";
-import { ref, computed, onMounted, watch, watchEffect } from "vue";
+import { createHighlighterCore } from "shiki/core";
 import { copyToClipboard } from "@/utils/useToClipboard.js";
+import { createJavaScriptRegexEngine } from "shiki/engine/javascript";
+import { ref, onMounted, watch, watchEffect, onBeforeUnmount } from "vue";
 
 const { code, language, theme } = defineProps({
     code: {
@@ -40,47 +41,38 @@ const loading = ref(true);
 const error = ref("");
 const highlightedCode = ref("<pre><code></code></pre>");
 
-// 常用主题和语言预加载
-const commonThemes = ["vitesse-dark"];
-const commonLanguages = ["javascript", "typescript", "json", "sass", "html"];
-
-// 直接使用传入的语言，不做任何映射
-const normalizedLanguage = computed(() => {
-    return language.toLowerCase();
-});
-
 // 代码高亮处理
 const processHighlighting = async () => {
-    if (!highlighter.value || !code.trim()) {
-        highlightedCode.value = "<pre><code></code></pre>";
-        return;
-    }
-
-    try {
-        highlightedCode.value = await highlighter.value.codeToHtml(code, {
-            lang: normalizedLanguage.value,
-            theme,
-        });
-    } catch (err) {
-        console.error("代码高亮失败:", err);
-        highlightedCode.value = `<pre><code>${escapeHtml(code)}</code></pre>`;
-    }
+    highlightedCode.value = highlighter.value.codeToHtml(code, {
+        lang: language.toLowerCase(),
+        theme,
+    });
 };
+onMounted(initCodeHighlighter);
 
-// 初始化Shiki
-async function initShiki() {
+onBeforeUnmount(() => {
+    if (highlighter.value) {
+        highlighter.value.dispose();
+    }
+});
+
+// 初始化
+async function initCodeHighlighter() {
     try {
         loading.value = true;
         error.value = "";
 
-        const themesToLoad = [...new Set([theme, ...commonThemes])];
-        const langsToLoad = [
-            ...new Set([normalizedLanguage.value, ...commonLanguages]),
-        ];
-
-        highlighter.value = await createHighlighter({
-            themes: themesToLoad,
-            langs: langsToLoad,
+        highlighter.value = await createHighlighterCore({
+            themes: [import("shiki/dist/themes/vitesse-dark")],
+            langs: [
+                import("shiki/dist/langs/typescript"),
+                import("shiki/dist/langs/javascript"),
+                import("shiki/dist/langs/html"),
+                import("shiki/dist/langs/css"),
+                import("shiki/dist/langs/json"),
+                import("shiki/dist/langs/sass"),
+            ],
+            engine: createJavaScriptRegexEngine(),
         });
 
         await processHighlighting();
@@ -100,40 +92,11 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-// 生命周期和监听器
-onMounted(initShiki);
-
-watch(
-    () => theme,
-    async (newTheme) => {
-        if (highlighter.value) {
-            try {
-                const loadedThemes = highlighter.value.getLoadedThemes();
-                if (!loadedThemes.includes(newTheme)) {
-                    await highlighter.value.loadTheme(newTheme);
-                }
-                await processHighlighting();
-            } catch (err) {
-                console.warn("加载新主题失败:", err);
-            }
-        }
-    },
-);
-
 watch(
     () => language,
     async () => {
         if (highlighter.value) {
-            try {
-                const normalizedLang = normalizedLanguage.value;
-                const loadedLangs = highlighter.value.getLoadedLanguages();
-                if (!loadedLangs.includes(normalizedLang)) {
-                    await highlighter.value.loadLanguage(normalizedLang);
-                }
-                await processHighlighting();
-            } catch (err) {
-                console.warn("加载新语言失败:", err);
-            }
+            await processHighlighting();
         }
     },
 );

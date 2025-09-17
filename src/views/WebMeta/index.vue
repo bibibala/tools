@@ -422,7 +422,6 @@
 
 <script setup>
 import { ref, computed, watch } from "vue";
-// 导入你的代码高亮组件（请根据实际路径调整）
 import CodeHighlighter from "@/components/CodeHighlighter.vue";
 
 // 1. 初始化默认配置（带合理默认值，覆盖所有核心字段）

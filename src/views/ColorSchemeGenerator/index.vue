@@ -162,11 +162,6 @@
                 <div class="code-output">
                     <CodeHighlighter
                         :code="getExportCode(exportFormats[activeFormat].type)"
-                        :language="
-                            getLanguageForFormat(
-                                exportFormats[activeFormat].type,
-                            )
-                        "
                     />
                 </div>
             </section>
@@ -433,21 +428,6 @@ const exportFormats = [
 ];
 
 const activeFormat = ref(0);
-
-const getLanguageForFormat = (format) => {
-    switch (format) {
-        case "css":
-            return "css";
-        case "scss":
-            return "scss";
-        case "js":
-            return "javascript";
-        case "tailwind":
-            return "javascript";
-        default:
-            return "text";
-    }
-};
 
 // 生成导出代码
 const getExportCode = (format) => {
