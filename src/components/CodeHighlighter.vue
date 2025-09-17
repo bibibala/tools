@@ -205,20 +205,17 @@ watchEffect(() => {
     transition:
         opacity 0.2s ease,
         background-color 0.2s ease;
-    z-index: 10;
 }
 
 .code-container:hover .copy-btn {
-    opacity: 1;
+    opacity: 99;
 }
 
 .copy-btn:hover {
-    z-index: 1;
     background-color: rgba(0, 0, 0, 0.7);
 }
 
 .icon {
-    z-index: 1;
     font-size: 14px;
 }
 

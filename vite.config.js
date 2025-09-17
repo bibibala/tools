@@ -10,7 +10,14 @@ export default defineConfig({
         cssCodeSplit: true,
     },
     optimizeDeps: {
-        include: ["vue", "vue-router", "notiflix", "shiki", "json-editor-vue"],
+        include: [
+            "vue",
+            "vue-router",
+            "notiflix",
+            "shiki",
+            "json-editor-vue",
+            "exif-js",
+        ],
         exclude: [
             "eslint",
             "@eslint/js",

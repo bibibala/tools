@@ -52,6 +52,12 @@ const router = createRouter({
             component: () => import("@/views/FileAcceptGenerator/index.vue"),
             meta: { title: "文件类型Accept生成器" },
         },
+        {
+            path: "/image-location",
+            name: "ImageLocationViewer",
+            component: () => import("@/views/ImageLocationViewer/index.vue"),
+            meta: { title: "图片位置信息查看器" },
+        },
     ],
 });
 
