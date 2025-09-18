@@ -56,6 +56,13 @@ export const routes = [
             component: () => import("@/views/ImageLocationViewer/index.vue"),
             meta: { title: "图片元信息查看" },
         },
+        {
+            path: "/year",
+            name: "ChineseNewYearCountdown",
+            component: () =>
+                import("@/views/ChineseNewYearCountdown/index.vue"),
+            meta: { title: "农历新年倒计时" },
+        },
     ],
     router = createRouter({
         history: createWebHistory(),

@@ -1,12 +1,12 @@
 <template>
-    <div class="image-location-viewer">
-        <div class="header">
-            <h1>图片位置信息查看器</h1>
+    <div class="tool-page">
+        <div class="tool-header">
+            <h1>图片元信息查看器</h1>
             <p>上传图片查看其中的位置信息和元数据</p>
         </div>
 
         <!-- 文件上传区域 -->
-        <div class="upload-area">
+        <div class="tool-section">
             <input
                 ref="fileInput"
                 type="file"
@@ -34,7 +34,7 @@
                         />
                     </svg>
                     <p>点击选择图片或拖拽图片到此处</p>
-                    <p class="hint">支持 JPG、PNG、TIFF 等格式</p>
+                    <p class="form-hint">支持 JPG、PNG、TIFF 等格式</p>
                 </div>
                 <div v-else class="image-preview">
                     <img :src="imagePreview" alt="Selected image" />
@@ -47,148 +47,183 @@
 
         <!-- 元信息显示区域 -->
         <div v-if="exifData" class="metadata-section">
-            <h2>图片元信息</h2>
+            <h2 class="section-title">图片元信息</h2>
 
             <!-- 基本信息 -->
-            <div class="info-card">
-                <h3>基本信息</h3>
-                <div class="info-grid">
-                    <div class="info-item">
-                        <label>文件名:</label>
-                        <span>{{ fileName }}</span>
-                    </div>
-                    <div class="info-item">
-                        <label>文件大小:</label>
-                        <span>{{ formatFileSize(fileSize) }}</span>
-                    </div>
-                    <div class="info-item">
-                        <label>图片尺寸:</label>
-                        <span>{{ imageWidth }} × {{ imageHeight }}</span>
-                    </div>
-                    <div class="info-item" v-if="formattedDateTime">
-                        <label>拍摄时间:</label>
-                        <span>{{ formattedDateTime }}</span>
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">基本信息</h3>
+                </div>
+                <div class="card-body">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label>文件名:</label>
+                            <span>{{ fileName }}</span>
+                        </div>
+                        <div class="info-item">
+                            <label>文件大小:</label>
+                            <span>{{ formatFileSize(fileSize) }}</span>
+                        </div>
+                        <div class="info-item">
+                            <label>图片尺寸:</label>
+                            <span>{{ imageWidth }} × {{ imageHeight }}</span>
+                        </div>
+                        <div class="info-item" v-if="formattedDateTime">
+                            <label>拍摄时间:</label>
+                            <span>{{ formattedDateTime }}</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- 设备信息 -->
-            <div class="info-card" v-if="hasDeviceInfo">
-                <h3>设备信息</h3>
-                <div class="info-grid">
-                    <div class="info-item" v-if="exifData.Make">
-                        <label>制造商:</label>
-                        <span>{{ exifData.Make }}</span>
-                    </div>
-                    <div class="info-item" v-if="exifData.Model">
-                        <label>设备型号:</label>
-                        <span>{{ exifData.Model }}</span>
-                    </div>
-                    <div class="info-item" v-if="exifData.Software">
-                        <label>软件:</label>
-                        <span>{{ exifData.Software }}</span>
-                    </div>
-                    <div class="info-item" v-if="exifData.LensModel">
-                        <label>镜头型号:</label>
-                        <span>{{ exifData.LensModel }}</span>
+            <div class="card" v-if="hasDeviceInfo">
+                <div class="card-header">
+                    <h3 class="card-title">设备信息</h3>
+                </div>
+                <div class="card-body">
+                    <div class="info-grid">
+                        <div class="info-item" v-if="exifData.Make">
+                            <label>制造商:</label>
+                            <span>{{ exifData.Make }}</span>
+                        </div>
+                        <div class="info-item" v-if="exifData.Model">
+                            <label>设备型号:</label>
+                            <span>{{ exifData.Model }}</span>
+                        </div>
+                        <div class="info-item" v-if="exifData.Software">
+                            <label>软件:</label>
+                            <span>{{ exifData.Software }}</span>
+                        </div>
+                        <div class="info-item" v-if="exifData.LensModel">
+                            <label>镜头型号:</label>
+                            <span>{{ exifData.LensModel }}</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- 拍摄参数 -->
-            <div class="info-card" v-if="hasCameraSettings">
-                <h3>拍摄参数</h3>
-                <div class="info-grid">
-                    <div class="info-item" v-if="exifData.FNumber">
-                        <label>光圈:</label>
-                        <span>f/{{ exifData.FNumber }}</span>
-                    </div>
-                    <div class="info-item" v-if="exifData.ExposureTime">
-                        <label>快门速度:</label>
-                        <span>{{
-                            formatExposureTime(exifData.ExposureTime)
-                        }}</span>
-                    </div>
-                    <div class="info-item" v-if="exifData.ISOSpeedRatings">
-                        <label>ISO:</label>
-                        <span>{{ exifData.ISOSpeedRatings }}</span>
-                    </div>
-                    <div class="info-item" v-if="exifData.FocalLength">
-                        <label>焦距:</label>
-                        <span>{{ exifData.FocalLength }}mm</span>
-                    </div>
-                    <div class="info-item" v-if="exifData.Flash">
-                        <label>闪光灯:</label>
-                        <span>{{ formatFlash(exifData.Flash) }}</span>
-                    </div>
-                    <div class="info-item" v-if="exifData.WhiteBalance">
-                        <label>白平衡:</label>
-                        <span>{{
-                            formatWhiteBalance(exifData.WhiteBalance)
-                        }}</span>
+            <div class="card" v-if="hasCameraSettings">
+                <div class="card-header">
+                    <h3 class="card-title">拍摄参数</h3>
+                </div>
+                <div class="card-body">
+                    <div class="info-grid">
+                        <div class="info-item" v-if="exifData.FNumber">
+                            <label>光圈:</label>
+                            <span>f/{{ exifData.FNumber }}</span>
+                        </div>
+                        <div class="info-item" v-if="exifData.ExposureTime">
+                            <label>快门速度:</label>
+                            <span>{{
+                                formatExposureTime(exifData.ExposureTime)
+                            }}</span>
+                        </div>
+                        <div class="info-item" v-if="exifData.ISOSpeedRatings">
+                            <label>ISO:</label>
+                            <span>{{ exifData.ISOSpeedRatings }}</span>
+                        </div>
+                        <div class="info-item" v-if="exifData.FocalLength">
+                            <label>焦距:</label>
+                            <span>{{ exifData.FocalLength }}mm</span>
+                        </div>
+                        <div class="info-item" v-if="exifData.Flash">
+                            <label>闪光灯:</label>
+                            <span>{{ formatFlash(exifData.Flash) }}</span>
+                        </div>
+                        <div class="info-item" v-if="exifData.WhiteBalance">
+                            <label>白平衡:</label>
+                            <span>{{
+                                formatWhiteBalance(exifData.WhiteBalance)
+                            }}</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- GPS位置信息 -->
-            <div class="info-card" v-if="hasGPSInfo">
-                <h3>位置信息</h3>
-                <div class="info-grid">
-                    <div class="info-item">
-                        <label>纬度:</label>
-                        <span>{{ gpsInfo.latitude }}°</span>
-                    </div>
-                    <div class="info-item">
-                        <label>经度:</label>
-                        <span>{{ gpsInfo.longitude }}°</span>
-                    </div>
-                    <div class="info-item" v-if="gpsInfo.altitude">
-                        <label>海拔:</label>
-                        <span>{{ gpsInfo.altitude }}m</span>
-                    </div>
-                    <div class="info-item" v-if="exifData.GPSImgDirection">
-                        <label>拍摄方向:</label>
-                        <span>{{ exifData.GPSImgDirection }}°</span>
+            <div class="card" v-if="hasGPSInfo">
+                <div class="card-header">
+                    <h3 class="card-title">位置信息</h3>
+                </div>
+                <div class="card-body">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label>纬度:</label>
+                            <span>{{ gpsInfo.latitude }}°</span>
+                        </div>
+                        <div class="info-item">
+                            <label>经度:</label>
+                            <span>{{ gpsInfo.longitude }}°</span>
+                        </div>
+                        <div class="info-item" v-if="gpsInfo.altitude">
+                            <label>海拔:</label>
+                            <span>{{ gpsInfo.altitude }}m</span>
+                        </div>
+                        <div class="info-item" v-if="exifData.GPSImgDirection">
+                            <label>拍摄方向:</label>
+                            <span>{{ exifData.GPSImgDirection }}°</span>
+                        </div>
                     </div>
                 </div>
-                <div class="map-actions">
-                    <button @click="openInGoogleMaps" class="map-btn">
-                        Google地图
-                    </button>
-                    <button @click="openInBaiduMaps" class="map-btn">
-                        百度地图
-                    </button>
-                    <button @click="openInAMap" class="map-btn">
-                        高德地图
-                    </button>
-                    <button @click="copyCoordinates" class="map-btn">
-                        复制坐标
-                    </button>
+                <div class="card-footer">
+                    <div class="map-actions">
+                        <button
+                            @click="openInGoogleMaps"
+                            class="btn btn-primary"
+                        >
+                            Google地图
+                        </button>
+                        <button
+                            @click="openInBaiduMaps"
+                            class="btn btn-primary"
+                        >
+                            百度地图
+                        </button>
+                        <button @click="openInAMap" class="btn btn-primary">
+                            高德地图
+                        </button>
+                        <button
+                            @click="copyCoordinates"
+                            class="btn btn-secondary"
+                        >
+                            复制坐标
+                        </button>
+                    </div>
                 </div>
             </div>
 
             <!-- 完整EXIF数据 -->
-            <div class="info-card">
-                <h3>完整EXIF数据</h3>
-                <CodeHighlighter
-                    :code="formatExifData(exifData)"
-                    language="json"
-                />
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">完整EXIF数据</h3>
+                </div>
+                <div class="card-body">
+                    <CodeHighlighter
+                        :code="formatExifData(exifData)"
+                        language="json"
+                    />
+                </div>
             </div>
         </div>
 
         <!-- 无EXIF数据提示 -->
         <div v-else-if="selectedImage && !loading" class="no-exif">
-            <div class="info-card">
-                <h3>无元信息</h3>
-                <p>该图片不包含EXIF元信息，或者元信息已被移除。</p>
-                <p>通常以下情况会导致EXIF信息缺失：</p>
-                <ul>
-                    <li>图片经过社交媒体平台处理</li>
-                    <li>使用某些图片编辑软件保存时移除了元信息</li>
-                    <li>图片格式不支持EXIF（如某些PNG文件）</li>
-                    <li>截图或合成图片</li>
-                </ul>
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">无元信息</h3>
+                </div>
+                <div class="card-body">
+                    <p>该图片不包含EXIF元信息，或者元信息已被移除。</p>
+                    <p>通常以下情况会导致EXIF信息缺失：</p>
+                    <ul>
+                        <li>图片经过社交媒体平台处理</li>
+                        <li>使用某些图片编辑软件保存时移除了元信息</li>
+                        <li>图片格式不支持EXIF（如某些PNG文件）</li>
+                        <li>截图或合成图片</li>
+                    </ul>
+                </div>
             </div>
         </div>
 
@@ -825,30 +860,24 @@ const copyCoordinates = async () => {
 </script>
 
 <style scoped>
-.image-location-viewer {
-    max-width: 1200px;
-    margin: 0 auto;
+.tool-page {
     padding: var(--space-lg);
-    font-family:
-        -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
-.header {
-    text-align: center;
+.tool-header {
     margin-bottom: var(--space-2xl);
 }
 
-.header h1 {
-    color: var(--accent);
+.tool-header h1 {
+    color: var(--text);
     margin-bottom: var(--space-sm);
 }
 
-.header p {
+.tool-header p {
     color: var(--text-secondary);
-    font-size: var(--font-size-lg);
 }
 
-.upload-area {
+.tool-section {
     margin-bottom: var(--space-2xl);
 }
 
@@ -878,7 +907,7 @@ const copyCoordinates = async () => {
     color: var(--text-secondary);
 }
 
-.upload-placeholder .hint {
+.form-hint {
     font-size: var(--font-size-sm);
     color: var(--text-muted);
 }
@@ -916,26 +945,39 @@ const copyCoordinates = async () => {
     margin-top: var(--space-2xl);
 }
 
-.metadata-section h2 {
+.section-title {
     color: var(--accent);
     margin-bottom: var(--space-lg);
     border-bottom: 2px solid var(--info);
     padding-bottom: var(--space-sm);
 }
 
-.info-card {
+.card {
     background: var(--bg);
     border-radius: var(--radius-md);
-    padding: var(--space-xl);
     margin-bottom: var(--space-lg);
     box-shadow: var(--shadow);
     border: 1px solid var(--border);
 }
 
-.info-card h3 {
+.card-header {
+    padding: var(--space-lg);
+    border-bottom: 1px solid var(--border);
+}
+
+.card-title {
     color: var(--accent);
-    margin-bottom: var(--space-md);
+    margin: 0;
     font-size: var(--font-size-lg);
+}
+
+.card-body {
+    padding: var(--space-lg);
+}
+
+.card-footer {
+    padding: var(--space-lg);
+    border-top: 1px solid var(--border);
 }
 
 .info-grid {
@@ -965,60 +1007,42 @@ const copyCoordinates = async () => {
 }
 
 .map-actions {
-    margin-top: var(--space-md);
     display: flex;
     gap: var(--space-sm);
     flex-wrap: wrap;
 }
 
-.map-btn {
+.btn {
+    padding: var(--space-sm) var(--space-lg);
+    border-radius: var(--radius);
+    border: none;
+    cursor: pointer;
+    font-weight: var(--font-weight-semibold);
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
     background: var(--info);
     color: white;
-    border: none;
-    padding: var(--space-xs) var(--space-md);
-    border-radius: var(--radius);
-    cursor: pointer;
-    font-size: var(--font-size-sm);
-    transition: background 0.3s ease;
 }
 
-.map-btn:hover {
-    background: var(--accent);
-}
-
-.exif-data pre {
-    margin: 0;
-    font-size: var(--font-size-xs);
+.btn-secondary {
+    background: var(--bg-secondary);
     color: var(--text);
-    white-space: pre-wrap;
-    word-wrap: break-word;
+    border: 1px solid var(--border);
 }
 
-.no-exif {
-    margin-top: var(--space-2xl);
-}
-
-.no-exif p {
-    margin-bottom: var(--space-md);
-    color: var(--text-secondary);
-}
-
-.no-exif ul {
-    color: var(--text-secondary);
-    padding-left: var(--space-lg);
-}
-
-.no-exif li {
-    margin-bottom: var(--space-xs);
+.btn-secondary:hover {
+    background: var(--hover-bg);
 }
 
 .error-message {
-    background: #f8d7da;
+    background: var(--error);
     color: var(--error);
     padding: var(--space-md);
     border-radius: var(--radius);
     margin: var(--space-lg) 0;
-    border: 1px solid #f5c6cb;
+    border: 1px solid var(--error);
 }
 
 .loading {
@@ -1046,7 +1070,7 @@ const copyCoordinates = async () => {
 }
 
 @media (max-width: 768px) {
-    .image-location-viewer {
+    .tool-page {
         padding: var(--space-md);
     }
 
@@ -1056,6 +1080,10 @@ const copyCoordinates = async () => {
 
     .map-actions {
         flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
     }
 }
 </style>
