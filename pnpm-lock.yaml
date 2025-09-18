@@ -39,6 +39,9 @@ importers:
       lint-staged:
         specifier: ^16.1.6
         version: 16.1.6
+      lunar-javascript:
+        specifier: ^1.7.4
+        version: 1.7.4
       notiflix:
         specifier: ^3.2.8
         version: 3.2.8
@@ -1053,6 +1056,9 @@ packages:
   log-update@6.1.0:
     resolution: {integrity: sha512-9ie8ItPR6tjY5uYJh8K/Zrv/RMZ5VOlOWvtZdEHYSTFKZfIBPQa9tOAEeAWhd+AnIneLJ22w5fjOYtoutpWq5w==}
     engines: {node: '>=18'}
+
+  lunar-javascript@1.7.4:
+    resolution: {integrity: sha512-BuLEZ54sN92XBEQsKB9UOexC23mrimyS5HyC+0OJHJhuBr4SL1Op8fkYNuRAgez0Y9i9377PW1fBIA4FiAeYlw==}
 
   magic-string@0.30.19:
     resolution: {integrity: sha512-2N21sPY9Ws53PZvsEpVtNuSW+ScYbQdp4b9qUaL+9QkHUrGFKo56Lg9Emg5s9V/qrtNBmiR01sYhUOwu3H+VOw==}
@@ -2348,6 +2354,8 @@ snapshots:
       slice-ansi: 7.1.2
       strip-ansi: 7.1.2
       wrap-ansi: 9.0.2
+
+  lunar-javascript@1.7.4: {}
 
   magic-string@0.30.19:
     dependencies:

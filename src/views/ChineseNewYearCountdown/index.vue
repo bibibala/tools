@@ -142,207 +142,63 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import { Solar } from "lunar-javascript";
+import { ref, computed, onMounted, onBeforeUnmount } from "vue";
 
-// 农历计算类 - 使用更准确的算法
-class LunarCalendar {
-    constructor() {
-        // 生肖数组
-        this.zodiacAnimals = [
-            "鼠",
-            "牛",
-            "虎",
-            "兔",
-            "龙",
-            "蛇",
-            "马",
-            "羊",
-            "猴",
-            "鸡",
-            "狗",
-            "猪",
-        ];
-
-        // 已知的准确农历新年日期（用于验证和基准）
-        this.knownNewYearDates = {
-            2020: new Date(2020, 0, 25), // 1月25日
-            2021: new Date(2021, 1, 12), // 2月12日
-            2022: new Date(2022, 1, 1), // 2月1日
-            2023: new Date(2023, 0, 22), // 1月22日
-            2024: new Date(2024, 1, 10), // 2月10日
-            2025: new Date(2025, 0, 29), // 1月29日
-            2026: new Date(2026, 1, 17), // 2月17日
-            2027: new Date(2027, 1, 6), // 2月6日
-            2028: new Date(2028, 0, 26), // 1月26日
-            2029: new Date(2029, 1, 13), // 2月13日
-            2030: new Date(2030, 1, 3), // 2月3日
-        };
-    }
-
-    // 使用更精确的算法计算农历新年
-    getChineseNewYear(gregorianYear) {
-        // 如果有已知的准确日期，直接返回
-        if (this.knownNewYearDates[gregorianYear]) {
-            return this.knownNewYearDates[gregorianYear];
-        }
-
-        // 使用改进的算法计算
-        return this.calculateNewYear(gregorianYear);
-    }
-
-    // 改进的农历新年计算算法
-    calculateNewYear(year) {
-        // 使用2025年作为基准点（已知准确日期）
-        const baseYear = 2025;
-        const baseDate = new Date(2025, 0, 29); // 2025年1月29日
-
-        if (year === baseYear) {
-            return baseDate;
-        }
-
-        const yearDiff = year - baseYear;
-
-        // 农历年平均长度（考虑闰年）
-        // 19年周期中有7个闰年，平均每年约354.367天
-        const avgLunarYear = 354.367;
-        const solarYear = 365.25;
-
-        // 计算大概的日期偏移
-        let dayOffset = Math.round(yearDiff * (avgLunarYear - solarYear));
-
-        // 使用更精确的Metonic周期调整
-        const metonicAdjustment = this.getMetonicAdjustment(year, baseYear);
-        dayOffset += metonicAdjustment;
-
-        // 计算新日期
-        let newDate = new Date(
-            baseDate.getTime() + dayOffset * 24 * 60 * 60 * 1000,
-        );
-
-        // 确保日期在合理范围内（1月21日到2月20日）
-        newDate = this.adjustDateToValidRange(newDate);
-
-        return newDate;
-    }
-
-    // Metonic周期调整（19年周期的微调）
-    getMetonicAdjustment(year, baseYear) {
-        const yearDiff = year - baseYear;
-        const cycles = Math.floor(Math.abs(yearDiff) / 19);
-        const remainder = Math.abs(yearDiff) % 19;
-
-        // 每个完整周期的累积误差调整
-        let adjustment = cycles * (yearDiff > 0 ? -1 : 1);
-
-        // 根据19年周期内的位置进行微调
-        const adjustments = [
-            0, -1, 0, 1, 0, -1, 1, 0, -1, 0, 1, -1, 0, 1, 0, -1, 0, 1, -1,
-        ];
-        if (remainder < adjustments.length) {
-            adjustment += adjustments[remainder] * (yearDiff > 0 ? 1 : -1);
-        }
-
-        return adjustment;
-    }
-
-    // 调整日期到有效范围
-    adjustDateToValidRange(date) {
-        const year = date.getFullYear();
-        const month = date.getMonth();
-        const day = date.getDate();
-
-        // 如果在1月但太早（小于21日）
-        if (month === 0 && day < 21) {
-            return new Date(year, 0, 21 + (day % 8));
-        }
-
-        // 如果在2月但太晚（大于20日）
-        if (month === 1 && day > 20) {
-            return new Date(year, 1, 1 + (day % 19));
-        }
-
-        // 如果在其他月份，调整到合理范围
-        if (month > 1) {
-            return new Date(year, 1, 1 + (day % 19));
-        }
-
-        if (month < 0) {
-            return new Date(year, 0, 21 + (Math.abs(day) % 8));
-        }
-
-        return date;
-    }
-
-    // 获取生肖信息（修正生肖计算）
-    getZodiacInfo(gregorianYear) {
-        // 生肖以农历年为准，需要考虑农历新年的时间
-        const newYearDate = this.getChineseNewYear(gregorianYear);
-        const currentDate = new Date();
-
-        let lunarYear = gregorianYear;
-
-        // 如果还没到今年的农历新年，生肖应该是上一年的
-        if (
-            currentDate.getFullYear() === gregorianYear &&
-            currentDate < newYearDate
-        ) {
-            lunarYear = gregorianYear - 1;
-        }
-
-        // 1900年是庚子年（鼠年），作为基准
-        const baseYear = 1900;
-        const animalIndex = (lunarYear - baseYear) % 12;
-
-        return {
-            animal: this.zodiacAnimals[animalIndex],
-            name: `${this.zodiacAnimals[animalIndex]}年`,
-            lunarYear: lunarYear,
-        };
-    }
-
-    // 获取下一个农历新年
-    getNextChineseNewYear(currentDate = new Date()) {
-        const currentYear = currentDate.getFullYear();
-        const thisYearNewYear = this.getChineseNewYear(currentYear);
-
-        if (currentDate < thisYearNewYear) {
-            return thisYearNewYear;
-        } else {
-            return this.getChineseNewYear(currentYear + 1);
-        }
-    }
-}
-
-// 创建农历计算实例
-const lunarCalendar = new LunarCalendar();
-
-// 响应式数据
+// ----- state & timer -----
 const currentDate = ref(new Date());
-const showDebug = ref(false); // 调试信息开关
+const showDebug = ref(false);
 let timer = null;
 
-// 计算属性
-const nextNewYear = computed(() => {
-    return lunarCalendar.getNextChineseNewYear(currentDate.value);
-});
+// ----- helper: 在公历区间内查找正月初一（更稳健，避免依赖库中可能不同命名的 getNewYear） -----
+function getChineseNewYear(gregorianYear) {
+    const msDay = 24 * 3600 * 1000;
+    const start = new Date(gregorianYear, 0, 21); // 1 月 21 日
+    const end = new Date(gregorianYear, 1, 20); // 2 月 20 日
+    const days = Math.round((end.getTime() - start.getTime()) / msDay);
 
-const daysLeft = computed(() => {
-    const timeDiff = nextNewYear.value.getTime() - currentDate.value.getTime();
-    return Math.ceil(timeDiff / (1000 * 3600 * 24));
-});
-
-// 详细的时间倒计时
-const timeLeft = computed(() => {
-    const timeDiff = nextNewYear.value.getTime() - currentDate.value.getTime();
-
-    if (timeDiff <= 0) {
-        return { days: 0, hours: 0, minutes: 0, seconds: 0 };
+    for (let i = 0; i <= days; i++) {
+        const d = new Date(start.getTime() + i * msDay);
+        const solar = Solar.fromDate(d);
+        const lunar = solar.getLunar();
+        // lunar.getMonth() / getDay() 返回农历月/日（数字）
+        if (lunar.getMonth() === 1 && lunar.getDay() === 1) {
+            // 返回一个纯 Date（本地时区，日期为当天）
+            return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+        }
     }
 
-    const days = Math.floor(timeDiff / (1000 * 3600 * 24));
-    const hours = Math.floor((timeDiff % (1000 * 3600 * 24)) / (1000 * 3600));
-    const minutes = Math.floor((timeDiff % (1000 * 3600)) / (1000 * 60));
-    const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+    // 极端兜底：如果意外没找到（理论上不可能），返回 1/1
+    return new Date(gregorianYear, 0, 1);
+}
+
+// ----- 计算下一个农历新年 -----
+const nextNewYear = computed(() => {
+    const now = currentDate.value;
+    const thisYearNY = getChineseNewYear(now.getFullYear());
+    if (now < thisYearNY) return thisYearNY;
+    return getChineseNewYear(now.getFullYear() + 1);
+});
+
+// 剩余天数（向上取整）
+const daysLeft = computed(() => {
+    const diff = nextNewYear.value.getTime() - currentDate.value.getTime();
+    return Math.ceil(diff / (24 * 3600 * 1000));
+});
+
+// 详细倒计时（天/时/分/秒，字符串形式，前导零）
+const timeLeft = computed(() => {
+    let diff = nextNewYear.value.getTime() - currentDate.value.getTime();
+    if (diff <= 0) {
+        return { days: "00", hours: "00", minutes: "00", seconds: "00" };
+    }
+    const days = Math.floor(diff / (24 * 3600 * 1000));
+    diff -= days * 24 * 3600 * 1000;
+    const hours = Math.floor(diff / (3600 * 1000));
+    diff -= hours * 3600 * 1000;
+    const minutes = Math.floor(diff / (60 * 1000));
+    diff -= minutes * 60 * 1000;
+    const seconds = Math.floor(diff / 1000);
 
     return {
         days: String(days).padStart(2, "0"),
@@ -352,19 +208,30 @@ const timeLeft = computed(() => {
     };
 });
 
+// 当前的生肖 / 年（使用 lunar-javascript 提供的 lunar 信息）
 const currentYear = computed(() => {
-    return lunarCalendar.getZodiacInfo(currentDate.value.getFullYear());
+    const lunar = Solar.fromDate(currentDate.value).getLunar();
+    return {
+        animal: lunar.getYearShengXiao(), // 例如 "虎"
+        name: `${lunar.getYearInGanZhi()}${lunar.getYearShengXiao()}年`, // 干支+生肖
+        lunarYear: lunar.getYear(), // 农历年份数字
+    };
 });
 
+// 下一个农历年的生肖/名称
 const nextYear = computed(() => {
-    const nextYearNum = nextNewYear.value.getFullYear();
-    return lunarCalendar.getZodiacInfo(nextYearNum);
+    const lunar = Solar.fromDate(nextNewYear.value).getLunar();
+    return {
+        animal: lunar.getYearShengXiao(),
+        name: `${lunar.getYearInGanZhi()}${lunar.getYearShengXiao()}年`,
+        lunarYear: lunar.getYear(),
+    };
 });
 
+// 进度百分比（从当年 1 月 1 到下一个春节）
 const progressPercentage = computed(() => {
     const yearStart = new Date(currentDate.value.getFullYear(), 0, 1);
-    const nextNewYearDate = nextNewYear.value;
-    const yearTotal = nextNewYearDate.getTime() - yearStart.getTime();
+    const yearTotal = nextNewYear.value.getTime() - yearStart.getTime();
     const yearPassed = currentDate.value.getTime() - yearStart.getTime();
     return Math.min(
         Math.max(Math.round((yearPassed / yearTotal) * 100), 0),
@@ -372,26 +239,23 @@ const progressPercentage = computed(() => {
     );
 });
 
-// SVG圆周长
+// SVG 圆周长（与你现有 template 保持一致）
 const circumference = computed(() => 2 * Math.PI * 90);
 
-// 生命周期
+// ----- 生命周期 -----
 onMounted(() => {
-    // 每秒更新一次时间
+    // 每秒更新 currentDate（使倒计时运行）
     timer = setInterval(() => {
         currentDate.value = new Date();
     }, 1000);
 
-    // 开发模式下显示调试信息
     if (import.meta?.env?.DEV) {
         showDebug.value = true;
     }
 });
 
-onUnmounted(() => {
-    if (timer) {
-        clearInterval(timer);
-    }
+onBeforeUnmount(() => {
+    if (timer) clearInterval(timer);
 });
 </script>
 
