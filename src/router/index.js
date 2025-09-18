@@ -19,6 +19,18 @@ export const routes = [
         },
     },
     {
+        path: "/year",
+        name: "ChineseNewYearCountdown",
+        component: () => import("@/views/ChineseNewYearCountdown/index.vue"),
+        meta: {
+            title: "农历新年倒计时",
+            description:
+                "精美的农历新年倒计时工具，实时显示距离春节还有多少天、小时、分钟、秒，支持生肖年份显示和进度可视化",
+            keywords:
+                "农历新年, 春节倒计时, 新年倒计时, 生肖, 农历, 春节, 中国新年, 倒计时工具",
+        },
+    },
+    {
         path: "/file",
         name: "FileAction",
         component: () => import("@/views/FileAction/index.vue"),
@@ -128,7 +140,6 @@ export function createMyRouter() {
         router.afterEach((to) => {
             hideLoading();
 
-            // 设置页面SEO信息
             if (to.meta) {
                 const { setPageMeta } = useSEO();
                 setPageMeta({
@@ -143,6 +154,6 @@ export function createMyRouter() {
     return router;
 }
 
-// 导出默认路由实例
+// 导出默认路由实例（为了向后兼容）
 const router = createMyRouter();
 export default router;
