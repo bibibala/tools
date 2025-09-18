@@ -40,11 +40,13 @@
                 <div class="config-item">
                     <label class="section-label">缩进方式</label>
                     <select
-                        v-model="prettierConfig.useTabs"
+                        v-model="indentType"
                         class="form-input form-select"
+                        @change="updateIndentConfig"
                     >
-                        <option :value="false">空格（2个）</option>
-                        <option :value="true">Tab</option>
+                        <option value="spaces-2">空格（2个）</option>
+                        <option value="spaces-4">空格（4个）</option>
+                        <option value="tabs">Tab</option>
                     </select>
                 </div>
 
@@ -216,6 +218,40 @@
                             <option value="latest">最新版本</option>
                         </select>
                     </div>
+
+                    <!-- 引号规则同步提示 -->
+                    <div class="sync-info">
+                        <div class="sync-item">
+                            <span class="sync-icon">🔗</span>
+                            <div class="sync-content">
+                                <strong>配置文件自动同步</strong>
+                                <p>
+                                    ESLint 引号规则将自动与 Prettier
+                                    配置保持一致
+                                </p>
+                                <p v-if="generateFiles.tsconfig">
+                                    TSConfig 缩进和项目配置也会同步更新
+                                </p>
+                                <small>
+                                    当前设置：{{
+                                        prettierConfig.singleQuote
+                                            ? "单引号"
+                                            : "双引号"
+                                    }}
+                                    {{
+                                        eslintConfig.extends.typescript
+                                            ? "（包含 TypeScript 规则）"
+                                            : ""
+                                    }}
+                                    {{
+                                        generateFiles.tsconfig
+                                            ? "+ TSConfig 同步"
+                                            : ""
+                                    }}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -348,6 +384,14 @@
                                 />
                                 <span class="checkmark"></span>
                                 GitAttributes
+                            </label>
+                            <label class="checkbox-item">
+                                <input
+                                    type="checkbox"
+                                    v-model="generateFiles.tsconfig"
+                                />
+                                <span class="checkmark"></span>
+                                TSConfig
                             </label>
                         </div>
                     </div>
@@ -520,7 +564,7 @@ const presets = {
     typescript: {
         prettier: {
             printWidth: 80,
-            tabWidth: 2,
+            tabWidth: 4,
             useTabs: false,
             semi: true,
             singleQuote: true,
@@ -545,6 +589,9 @@ const presets = {
 
 const selectedPreset = ref("custom");
 
+// 缩进类型管理
+const indentType = ref("spaces-2");
+
 const prettierConfig = ref({
     // 基础配置
     printWidth: 80,
@@ -565,6 +612,24 @@ const prettierConfig = ref({
     endOfLine: "lf",
 });
 
+// 更新缩进配置
+const updateIndentConfig = () => {
+    switch (indentType.value) {
+        case "spaces-2":
+            prettierConfig.value.useTabs = false;
+            prettierConfig.value.tabWidth = 2;
+            break;
+        case "spaces-4":
+            prettierConfig.value.useTabs = false;
+            prettierConfig.value.tabWidth = 4;
+            break;
+        case "tabs":
+            prettierConfig.value.useTabs = true;
+            prettierConfig.value.tabWidth = 2; // Tab的默认宽度
+            break;
+    }
+};
+
 const eslintConfig = ref({
     enabled: true,
     env: {
@@ -582,6 +647,10 @@ const eslintConfig = ref({
         ecmaVersion: "latest",
         sourceType: "module",
     },
+    rules: {
+        quotes: "off", // 将根据Prettier配置自动设置
+        "@typescript-eslint/quotes": "off", // TypeScript引号规则
+    },
 });
 
 const generateFiles = ref({
@@ -589,6 +658,7 @@ const generateFiles = ref({
     eslint: true,
     editorconfig: true,
     gitattributes: true,
+    tsconfig: false, // 默认不启用，因为不是所有项目都需要TypeScript
 });
 
 const exportFormat = ref("js");
@@ -600,6 +670,25 @@ const applyPreset = () => {
         const preset = presets[selectedPreset.value];
         Object.assign(prettierConfig.value, preset.prettier);
         Object.assign(eslintConfig.value, preset.eslint);
+
+        // 同步缩进类型
+        if (preset.prettier.useTabs) {
+            indentType.value = "tabs";
+        } else if (preset.prettier.tabWidth === 4) {
+            indentType.value = "spaces-4";
+        } else {
+            indentType.value = "spaces-2";
+        }
+
+        // 根据预设类型自动启用相关配置文件
+        if (selectedPreset.value === "typescript") {
+            generateFiles.value.tsconfig = true;
+            generateFiles.value.eslint = true; // TypeScript项目通常需要ESLint
+        } else if (selectedPreset.value === "vue") {
+            generateFiles.value.tsconfig = false; // Vue项目可能不需要TypeScript
+        } else if (selectedPreset.value === "react") {
+            generateFiles.value.tsconfig = false; // React项目可能使用JavaScript
+        }
     }
 };
 
@@ -656,6 +745,44 @@ const formattedEslintConfig = computed(() => {
             "prettier/prettier": "error",
             ...config.rules,
         };
+    }
+
+    // 根据Prettier配置同步引号规则
+    const quoteStyle = prettierConfig.value.singleQuote ? "single" : "double";
+
+    // 基础JavaScript引号规则
+    config.rules.quotes = [
+        "error",
+        quoteStyle,
+        {
+            avoidEscape: true,
+            allowTemplateLiterals: true,
+        },
+    ];
+
+    // TypeScript引号规则（如果启用了TypeScript支持）
+    if (eslintConfig.value.extends.typescript) {
+        config.rules["@typescript-eslint/quotes"] = [
+            "error",
+            quoteStyle,
+            {
+                avoidEscape: true,
+                allowTemplateLiterals: true,
+            },
+        ];
+        // 禁用基础quotes规则，使用TypeScript版本
+        config.rules.quotes = "off";
+    }
+
+    // JSX引号规则（如果有React或Vue JSX支持）
+    if (
+        eslintConfig.value.extends.vue ||
+        config.extends.some((ext) => ext.includes("react"))
+    ) {
+        const jsxQuoteStyle = prettierConfig.value.jsxSingleQuote
+            ? "prefer-single"
+            : "prefer-double";
+        config.rules["jsx-quotes"] = ["error", jsxQuoteStyle];
     }
 
     switch (exportFormat.value) {
@@ -741,6 +868,68 @@ const formattedGitAttributes = computed(() => {
     return content;
 });
 
+// 生成 TSConfig
+const formattedTsConfig = computed(() => {
+    const config = {
+        $schema: "https://json.schemastore.org/tsconfig",
+        compilerOptions: {
+            // 基础配置
+            target: "ES2020",
+            lib: ["ES2020", "DOM", "DOM.Iterable"],
+            allowJs: true,
+            skipLibCheck: true,
+            esModuleInterop: true,
+            allowSyntheticDefaultImports: true,
+            strict: true,
+            forceConsistentCasingInFileNames: true,
+            noFallthroughCasesInSwitch: true,
+
+            // 模块解析
+            module: "ESNext",
+            moduleResolution: "bundler",
+            resolveJsonModule: true,
+            isolatedModules: true,
+            noEmit: true,
+
+            // JSX 配置
+            jsx: eslintConfig.value.extends.vue ? "preserve" : "react-jsx",
+
+            // 路径映射
+            baseUrl: ".",
+            paths: {
+                "@/*": ["src/*"],
+            },
+
+            // 类型检查配置
+            noUnusedLocals: true,
+            noUnusedParameters: true,
+            exactOptionalPropertyTypes: true,
+            noImplicitReturns: true,
+            noImplicitOverride: true,
+        },
+        include: [
+            "src/**/*.ts",
+            "src/**/*.tsx",
+            ...(eslintConfig.value.extends.vue ? ["src/**/*.vue"] : []),
+        ],
+        exclude: ["node_modules", "dist", "**/*.test.*", "**/*.spec.*"],
+    };
+
+    // 根据项目类型调整配置
+    if (eslintConfig.value.extends.vue) {
+        // Vue 项目特殊配置
+        config.compilerOptions.jsx = "preserve";
+        config.compilerOptions.types = ["vite/client"];
+    }
+
+    // 使用与Prettier一致的缩进格式化JSON
+    return JSON.stringify(
+        config,
+        null,
+        prettierConfig.value.useTabs ? "\t" : prettierConfig.value.tabWidth,
+    );
+});
+
 // 活动文件列表
 const activeFiles = computed(() => {
     const files = [];
@@ -780,6 +969,16 @@ const activeFiles = computed(() => {
             displayName: "GitAttributes",
             content: formattedGitAttributes.value,
             filename: ".gitattributes",
+        });
+    }
+
+    if (generateFiles.value.tsconfig) {
+        files.push({
+            name: "tsconfig",
+            displayName: "TSConfig",
+            content: formattedTsConfig.value,
+            language: "json",
+            filename: "tsconfig.json",
         });
     }
 
@@ -832,28 +1031,63 @@ watch(
     },
     { immediate: true },
 );
+
+// 监听Prettier引号配置变化，自动同步JSX引号
+watch(
+    () => prettierConfig.value.singleQuote,
+    (newValue) => {
+        // 自动同步JSX引号设置
+        prettierConfig.value.jsxSingleQuote = newValue;
+    },
+);
+
+// 监听TypeScript扩展配置变化，自动启用/禁用TSConfig生成
+watch(
+    () => eslintConfig.value.extends.typescript,
+    (newValue) => {
+        if (newValue) {
+            // 启用TypeScript时，建议启用TSConfig生成
+            generateFiles.value.tsconfig = true;
+        }
+        // 注意：不自动禁用TSConfig，因为用户可能有其他需求
+    },
+);
+
+// 初始化缩进类型
+const initIndentType = () => {
+    if (prettierConfig.value.useTabs) {
+        indentType.value = "tabs";
+    } else if (prettierConfig.value.tabWidth === 4) {
+        indentType.value = "spaces-4";
+    } else {
+        indentType.value = "spaces-2";
+    }
+};
+
+// 组件挂载时初始化
+initIndentType();
 </script>
 
 <style scoped>
 /* ESLint 配置样式 */
 .eslint-config-container {
-    background: #f8fafc;
-    border-radius: 12px;
-    padding: 24px;
-    border: 1px solid #e2e8f0;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    padding: var(--space-xl);
+    border: 1px solid var(--border);
 }
 
 .eslint-toggle {
-    margin-bottom: 24px;
+    margin-bottom: var(--space-xl);
 }
 
 .toggle-label {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: var(--space);
     cursor: pointer;
-    font-size: 16px;
-    font-weight: 500;
+    font-size: var(--font-size);
+    font-weight: var(--font-weight-medium);
 }
 
 .toggle-input {
@@ -864,7 +1098,7 @@ watch(
     position: relative;
     width: 50px;
     height: 24px;
-    background: #cbd5e1;
+    background: var(--border);
     border-radius: 24px;
     transition: all 0.3s ease;
 }
@@ -876,14 +1110,14 @@ watch(
     left: 2px;
     width: 20px;
     height: 20px;
-    background: white;
+    background: var(--bg);
     border-radius: 50%;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-sm);
 }
 
 .toggle-input:checked + .toggle-slider {
-    background: #3b82f6;
+    background: var(--info);
 }
 
 .toggle-input:checked + .toggle-slider::before {
@@ -907,31 +1141,31 @@ watch(
 
 /* 高级配置样式 */
 .advanced-config {
-    background: #f8fafc;
-    border-radius: 12px;
-    padding: 24px;
-    border: 1px solid #e2e8f0;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    padding: var(--space-xl);
+    border: 1px solid var(--border);
 }
 
 .config-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 32px;
-    margin-bottom: 24px;
+    gap: var(--space-2xl);
+    margin-bottom: var(--space-xl);
 }
 
 .config-group {
-    background: white;
-    border-radius: 8px;
-    padding: 20px;
-    border: 1px solid #e2e8f0;
+    background: var(--bg);
+    border-radius: var(--radius);
+    padding: var(--space-lg);
+    border: 1px solid var(--border);
 }
 
 .group-title {
-    margin: 0 0 16px 0;
-    font-size: 14px;
-    font-weight: 600;
-    color: #374151;
+    margin: 0 0 var(--space-md) 0;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--accent-light);
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
@@ -939,21 +1173,21 @@ watch(
 /* 复选框样式 */
 .checkbox-grid {
     display: grid;
-    gap: 12px;
+    gap: var(--space);
 }
 
 .checkbox-item {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: var(--space);
     cursor: pointer;
-    padding: 8px;
-    border-radius: 6px;
+    padding: var(--space-sm);
+    border-radius: var(--radius);
     transition: background-color 0.2s;
 }
 
 .checkbox-item:hover {
-    background: #f1f5f9;
+    background: var(--hover-bg);
 }
 
 .checkbox-item input[type="checkbox"] {
@@ -964,14 +1198,14 @@ watch(
     position: relative;
     width: 18px;
     height: 18px;
-    border: 2px solid #cbd5e1;
-    border-radius: 4px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
     transition: all 0.2s;
 }
 
 .checkbox-item input[type="checkbox"]:checked + .checkmark {
-    background: #3b82f6;
-    border-color: #3b82f6;
+    background: var(--info);
+    border-color: var(--info);
 }
 
 .checkbox-item input[type="checkbox"]:checked + .checkmark::after {
@@ -989,24 +1223,24 @@ watch(
 /* 单选按钮样式 */
 .radio-group {
     display: flex;
-    gap: 16px;
+    gap: var(--space-md);
 }
 
 .radio-item {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: var(--space);
     cursor: pointer;
-    padding: 12px 16px;
-    border: 2px solid #e2e8f0;
-    border-radius: 8px;
+    padding: var(--space) var(--space-md);
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
     transition: all 0.2s;
     flex: 1;
 }
 
 .radio-item:hover {
-    border-color: #cbd5e1;
-    background: #f8fafc;
+    border-color: var(--border);
+    background: var(--hover-bg);
 }
 
 .radio-item input[type="radio"] {
@@ -1017,13 +1251,13 @@ watch(
     position: relative;
     width: 18px;
     height: 18px;
-    border: 2px solid #cbd5e1;
+    border: 2px solid var(--border);
     border-radius: 50%;
     transition: all 0.2s;
 }
 
 .radio-item input[type="radio"]:checked + .radio-mark {
-    border-color: #3b82f6;
+    border-color: var(--info);
 }
 
 .radio-item input[type="radio"]:checked + .radio-mark::after {
@@ -1033,12 +1267,12 @@ watch(
     left: 3px;
     width: 8px;
     height: 8px;
-    background: #3b82f6;
+    background: var(--info);
     border-radius: 50%;
 }
 
 .radio-item input[type="radio"]:checked ~ .radio-text {
-    color: #3b82f6;
+    color: var(--info);
 }
 
 .radio-text {
@@ -1048,59 +1282,111 @@ watch(
 }
 
 .radio-text strong {
-    font-weight: 600;
-    font-size: 14px;
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--font-size-sm);
 }
 
 .radio-text small {
-    font-size: 12px;
-    color: #6b7280;
+    font-size: var(--font-size-xs);
+    color: var(--text-secondary);
 }
 
 /* 文件选择样式 */
 .file-selection {
     display: grid;
-    gap: 12px;
+    gap: var(--space);
 }
 
 /* 预览标签样式 */
 .preview-tabs {
     display: flex;
-    gap: 8px;
-    margin-bottom: 16px;
-    border-bottom: 1px solid #e5e7eb;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-md);
+    border-bottom: 1px solid var(--border);
 }
 
 .tab-btn {
-    padding: 8px 16px;
+    padding: var(--space-sm) var(--space-md);
     border: none;
     background: none;
     cursor: pointer;
     border-bottom: 2px solid transparent;
-    font-size: 14px;
-    color: #6b7280;
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
     transition: all 0.2s;
 }
 
 .tab-btn:hover {
-    color: #374151;
+    color: var(--text);
 }
 
 .tab-btn.active {
-    color: #3b82f6;
-    border-bottom-color: #3b82f6;
+    color: var(--info);
+    border-bottom-color: var(--info);
+}
+
+.preview-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
 }
 
 .action-section {
     text-align: center;
-    margin-top: 32px;
+    margin-top: var(--space-2xl);
+}
+
+/* 同步信息样式 */
+.sync-info {
+    margin-top: var(--space-lg);
+    padding: var(--space-md);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius);
+}
+
+.sync-item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space);
+}
+
+.sync-icon {
+    font-size: var(--font-size-lg);
+    margin-top: 2px;
+}
+
+.sync-content {
+    flex: 1;
+}
+
+.sync-content strong {
+    color: var(--accent);
+    font-size: var(--font-size-sm);
+    display: block;
+    margin-bottom: var(--space-xs);
+}
+
+.sync-content p {
+    margin: 0 0 var(--space-sm) 0;
+    color: var(--text);
+    font-size: var(--font-size-xs);
+    line-height: 1.4;
+}
+
+.sync-content small {
+    color: var(--text-secondary);
+    font-size: var(--font-size-xs);
+    font-style: italic;
 }
 
 /* 响应式设计 */
 @media (max-width: 768px) {
     .config-row {
         grid-template-columns: 1fr;
-        gap: 16px;
+        gap: var(--space-md);
     }
 
     .radio-group {

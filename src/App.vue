@@ -85,15 +85,16 @@ import { RouterLink } from "vue-router";
 import github from "@/assets/github.png";
 import logo from "@/assets/logo.svg";
 import { ref, onMounted, onBeforeUnmount } from "vue";
-import { getRepoUpdateTime, getStar, REPO_URL } from "@/utils/useGetRepo.js";
+import { getRepoInfo, REPO_URL } from "@/utils/useGetRepo.js";
 
 const year = ref(new Date().getFullYear());
 const lastUpdateTime = ref("2024-01-01");
 const star = ref(0);
 
 onMounted(async () => {
-    star.value = await getStar();
-    lastUpdateTime.value = await getRepoUpdateTime();
+    const { time, stars } = await getRepoInfo();
+    lastUpdateTime.value = time;
+    star.value = stars;
 });
 
 const isMenuOpen = ref(false);

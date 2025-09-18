@@ -6,45 +6,60 @@
         </header>
 
         <main class="main-content">
-            <section class="input-section">
-                <label class="section-label">选择文件</label>
-                <div class="input-row">
-                    <input
-                        type="file"
-                        @change="onFileChange"
-                        :disabled="isReading"
-                    />
-                    <button
-                        class="btn clear-btn"
-                        @click="reset"
-                        :disabled="!file || isReading"
-                    >
-                        清除
-                    </button>
-                </div>
+            <section class="tool-section">
+                <h2 class="section-title">选择文件</h2>
+                <div class="config-grid">
+                    <div class="config-item full-width">
+                        <div class="input-row">
+                            <input
+                                type="file"
+                                @change="onFileChange"
+                                :disabled="isReading"
+                                class="form-input"
+                            />
+                            <button
+                                class="btn btn-secondary"
+                                @click="reset"
+                                :disabled="!file || isReading"
+                            >
+                                清除
+                            </button>
+                        </div>
+                    </div>
 
-                <div v-if="fileInfo" class="file-meta">
-                    <div class="meta-item">
-                        <strong>文件名：</strong>{{ fileInfo.name }}
-                    </div>
-                    <div class="meta-item">
-                        <strong>大小：</strong
-                        >{{ (fileInfo.size / 1024 / 1024).toFixed(2) }} MB
-                    </div>
-                    <div class="meta-item">
-                        <strong>类型：</strong>{{ fileInfo.type || "未知" }}
+                    <div v-if="fileInfo" class="config-item full-width">
+                        <div class="file-meta">
+                            <div class="info-item">
+                                <label>文件名：</label>
+                                <span>{{ fileInfo.name }}</span>
+                            </div>
+                            <div class="info-item">
+                                <label>大小：</label>
+                                <span
+                                    >{{
+                                        (fileInfo.size / 1024 / 1024).toFixed(2)
+                                    }}
+                                    MB</span
+                                >
+                            </div>
+                            <div class="info-item">
+                                <label>类型：</label>
+                                <span>{{ fileInfo.type || "未知" }}</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
 
-            <section class="options-section">
-                <label class="section-label">读取参数</label>
-                <div class="options-container">
-                    <div class="option-item">
-                        <label class="option-label">分片大小</label>
+            <section class="tool-section">
+                <h2 class="section-title">读取参数</h2>
+                <div class="config-grid">
+                    <div class="config-item">
+                        <label class="section-label">分片大小</label>
                         <select
                             v-model.number="chunkSizeMB"
                             :disabled="isReading"
+                            class="form-input"
                         >
                             <option :value="1">1 MB</option>
                             <option :value="2">2 MB</option>
@@ -53,71 +68,99 @@
                             <option :value="16">16 MB</option>
                         </select>
                     </div>
-                    <div class="option-item">
-                        <label class="option-label">并发数</label>
-                        <input
-                            type="range"
-                            min="1"
-                            max="8"
-                            v-model.number="concurrency"
-                            :disabled="isReading"
-                        />
-                        <span class="option-value">{{ concurrency }}</span>
+                    <div class="config-item">
+                        <label class="section-label">并发数</label>
+                        <div class="range-input-wrapper">
+                            <input
+                                type="range"
+                                min="1"
+                                max="8"
+                                v-model.number="concurrency"
+                                :disabled="isReading"
+                                class="range-input"
+                            />
+                            <span class="range-value">{{ concurrency }}</span>
+                        </div>
                     </div>
 
-                    <div class="actions">
-                        <button
-                            class="btn sample-btn"
-                            @click="startRead"
-                            :disabled="!file || isReading"
-                        >
-                            开始读取
-                        </button>
-                        <button
-                            class="btn"
-                            @click="togglePause"
-                            :disabled="!isReading"
-                        >
-                            {{ isPaused ? "继续" : "暂停" }}
-                        </button>
-                        <button
-                            class="btn"
-                            @click="cancel"
-                            :disabled="!isReading"
-                        >
-                            取消
-                        </button>
+                    <div class="config-item full-width">
+                        <div class="actions">
+                            <button
+                                class="btn btn-primary"
+                                @click="startRead"
+                                :disabled="!file || isReading"
+                            >
+                                开始读取
+                            </button>
+                            <button
+                                class="btn btn-warning"
+                                @click="togglePause"
+                                :disabled="!isReading"
+                            >
+                                {{ isPaused ? "继续" : "暂停" }}
+                            </button>
+                            <button
+                                class="btn btn-error"
+                                @click="cancel"
+                                :disabled="!isReading"
+                            >
+                                取消
+                            </button>
+                        </div>
                     </div>
                 </div>
             </section>
 
-            <section v-if="fileInfo" class="progress-section">
-                <label class="section-label">进度</label>
-                <div class="progress-bar">
-                    <div
-                        class="progress"
-                        :style="{ width: percent + '%' }"
-                    ></div>
-                </div>
-                <div class="stats">
-                    <div>进度：{{ percent.toFixed(1) }}%</div>
-                    <div>分片：{{ loadedChunks }} / {{ totalChunks }}</div>
-                    <div>
-                        已读：{{ (bytesRead / 1024 / 1024).toFixed(2) }} /
-                        {{ (fileInfo.size / 1024 / 1024).toFixed(2) }} MB
+            <section v-if="fileInfo" class="tool-section">
+                <h2 class="section-title">进度</h2>
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div
+                            class="progress"
+                            :style="{ width: percent + '%' }"
+                        ></div>
                     </div>
-                    <div>速度：{{ speedMBps.toFixed(2) }} MB/s</div>
-                    <div v-if="etaSeconds !== null">
-                        剩余：约 {{ etaSeconds.toFixed(1) }} 秒
-                    </div>
-                    <div v-if="elapsedSeconds > 0">
-                        耗时：{{ elapsedSeconds.toFixed(1) }} 秒
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <label>进度：</label>
+                            <span class="status-info"
+                                >{{ percent.toFixed(1) }}%</span
+                            >
+                        </div>
+                        <div class="stat-item">
+                            <label>分片：</label>
+                            <span>{{ loadedChunks }} / {{ totalChunks }}</span>
+                        </div>
+                        <div class="stat-item">
+                            <label>已读：</label>
+                            <span
+                                >{{ (bytesRead / 1024 / 1024).toFixed(2) }} /
+                                {{ (fileInfo.size / 1024 / 1024).toFixed(2) }}
+                                MB</span
+                            >
+                        </div>
+                        <div class="stat-item">
+                            <label>速度：</label>
+                            <span class="status-success"
+                                >{{ speedMBps.toFixed(2) }} MB/s</span
+                            >
+                        </div>
+                        <div v-if="etaSeconds !== null" class="stat-item">
+                            <label>剩余：</label>
+                            <span class="status-warning"
+                                >约 {{ etaSeconds.toFixed(1) }} 秒</span
+                            >
+                        </div>
+                        <div v-if="elapsedSeconds > 0" class="stat-item">
+                            <label>耗时：</label>
+                            <span>{{ elapsedSeconds.toFixed(1) }} 秒</span>
+                        </div>
                     </div>
                 </div>
             </section>
 
-            <section v-if="textPreview" class="preview-section">
-                <label class="section-label">文本预览（前 1KB）</label>
+            <section v-if="textPreview" class="tool-section">
+                <h2 class="section-title">文本预览（前 1KB）</h2>
                 <pre class="preview-box">{{ textPreview }}</pre>
             </section>
         </main>
@@ -296,118 +339,223 @@ async function previewIfText(f) {
 }
 </script>
 <style scoped>
-.main-content {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 25px;
-}
+/* 使用项目统一的设计系统 */
 
-.section-label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 10px;
-    color: #2c3e50;
-    font-size: 1.1rem;
+.main-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xl);
 }
 
 .input-row {
     display: flex;
-    gap: 10px;
+    gap: var(--space-md);
     align-items: center;
 }
 
-.btn {
-    padding: 8px 16px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    font-weight: 500;
-    transition: all 0.2s;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-}
-
-.clear-btn {
-    background-color: #f1f5f9;
-    color: #333;
-}
-
-.clear-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-.sample-btn {
-    background-color: #3498db;
-    color: #fff;
-}
-
-.sample-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-.options-container {
-    background-color: #f8fafc;
-    border-radius: 6px;
-    padding: 20px;
-    border: 1px solid #e2e8f0;
-}
-
-.option-item {
+.range-input-wrapper {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 15px;
+    gap: var(--space-md);
+    width: 100%;
 }
 
-.option-label {
-    min-width: 72px;
+.range-input {
+    flex: 1;
+    height: 6px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius);
+    outline: none;
+    border: 1px solid var(--border);
+    cursor: pointer;
 }
 
-.option-value {
-    color: #7f8c8d;
+.range-input::-webkit-slider-thumb {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: var(--accent);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s ease;
+}
+
+.range-input::-webkit-slider-thumb:hover {
+    background: var(--accent-light);
+    transform: scale(1.1);
+}
+
+.range-input::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: var(--accent);
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+    box-shadow: var(--shadow-sm);
+}
+
+.range-value {
+    color: var(--text-secondary);
+    font-weight: var(--font-weight-medium);
     min-width: 24px;
-    text-align: right;
+    text-align: center;
+    font-size: var(--font-size-sm);
+}
+
+.actions {
+    display: flex;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 .file-meta {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 8px 16px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+    border: 1px solid var(--border);
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-xs) 0;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.info-item:last-child {
+    border-bottom: none;
+}
+
+.info-item label {
+    font-weight: var(--font-weight-semibold);
+    color: var(--text);
+    font-size: var(--font-size-sm);
+}
+
+.info-item span {
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+    word-break: break-all;
+}
+
+.progress-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
 }
 
 .progress-bar {
-    height: 10px;
-    background: #e5e7eb;
-    border-radius: 999px;
+    height: 12px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius);
     overflow: hidden;
+    border: 1px solid var(--border);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .progress {
     height: 100%;
-    background: #2ecc71;
+    background: linear-gradient(90deg, var(--success), var(--info));
     width: 0%;
-    transition: width 0.2s linear;
+    transition: width 0.3s ease;
+    border-radius: var(--radius);
+    position: relative;
 }
 
-.stats {
+.progress::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.2),
+        transparent
+    );
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 8px 16px;
-    margin-top: 10px;
-    color: #555;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space-md);
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-sm) var(--space-md);
+    background: var(--bg-secondary);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+}
+
+.stat-item label {
+    font-weight: var(--font-weight-medium);
+    color: var(--text);
+    font-size: var(--font-size-sm);
+}
+
+.stat-item span {
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
 }
 
 .preview-box {
-    background-color: #f8fafc;
-    border: 1px solid #e2e8f0;
-    border-radius: 6px;
-    padding: 12px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
     white-space: pre-wrap;
     word-break: break-word;
+    font-family: var(--font-mono, "Courier New", monospace), serif;
+    font-size: var(--font-size-sm);
+    line-height: 1.5;
+    color: var(--text);
+    max-height: 300px;
+    overflow-y: auto;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .input-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--space-sm);
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: var(--space-sm);
+    }
+
+    .range-input-wrapper {
+        flex-direction: column;
+        gap: var(--space-sm);
+    }
 }
 </style>

@@ -23,24 +23,58 @@
                         <div class="color-value-inputs">
                             <div class="color-value-input">
                                 <label class="section-label">HEX</label>
-                                <input
-                                    type="text"
-                                    v-model="primaryColorHex"
-                                    @input="updateColorFromHex"
-                                    placeholder="#RRGGBB"
-                                    class="form-input"
-                                />
+                                <div class="hex-input-wrapper">
+                                    <span class="hex-prefix">#</span>
+                                    <input
+                                        ref="hexInput"
+                                        type="text"
+                                        :value="hexValueWithoutHash"
+                                        @input="updateColorFromHexInput"
+                                        @keydown="handleHexKeydown"
+                                        placeholder="165DFF"
+                                        class="form-input hex-input"
+                                        maxlength="6"
+                                    />
+                                </div>
                             </div>
 
                             <div class="color-value-input">
                                 <label class="section-label">RGB</label>
-                                <input
-                                    type="text"
-                                    :value="rgbString"
-                                    @input="updateColorFromRgb"
-                                    placeholder="r, g, b"
-                                    class="form-input"
-                                />
+                                <div class="rgb-input-wrapper">
+                                    <input
+                                        ref="rgbRInput"
+                                        type="number"
+                                        :value="rgb.r"
+                                        @input="updateRgbValue('r', $event)"
+                                        @keydown="handleRgbKeydown($event, 'r')"
+                                        placeholder="R"
+                                        class="form-input rgb-input"
+                                        min="0"
+                                        max="255"
+                                    />
+                                    <input
+                                        ref="rgbGInput"
+                                        type="number"
+                                        :value="rgb.g"
+                                        @input="updateRgbValue('g', $event)"
+                                        @keydown="handleRgbKeydown($event, 'g')"
+                                        placeholder="G"
+                                        class="form-input rgb-input"
+                                        min="0"
+                                        max="255"
+                                    />
+                                    <input
+                                        ref="rgbBInput"
+                                        type="number"
+                                        :value="rgb.b"
+                                        @input="updateRgbValue('b', $event)"
+                                        @keydown="handleRgbKeydown($event, 'b')"
+                                        placeholder="B"
+                                        class="form-input rgb-input"
+                                        min="0"
+                                        max="255"
+                                    />
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -178,10 +212,31 @@ const primaryColorHex = ref("#165DFF");
 const rgb = ref({ r: 22, g: 93, b: 255 });
 const hsl = ref({ h: 222, s: 100, l: 54 });
 
-// RGB字符串格式化
-const rgbString = computed(
-    () => `${rgb.value.r}, ${rgb.value.g}, ${rgb.value.b}`,
-);
+// 输入框引用
+const hexInput = ref(null);
+const rgbRInput = ref(null);
+const rgbGInput = ref(null);
+const rgbBInput = ref(null);
+
+// HEX值不带#号
+const hexValueWithoutHash = computed(() => {
+    return primaryColorHex.value.substring(1);
+});
+
+// 从HEX输入框更新颜色值（不带#号）
+const updateColorFromHexInput = (e) => {
+    const hexValue = e.target.value.trim().toUpperCase();
+
+    // 验证输入是否为有效的十六进制颜色值
+    if (!/^[0-9A-F]{0,6}$/i.test(hexValue)) return;
+
+    // 如果输入长度为3或6，则更新颜色
+    if (hexValue.length === 3 || hexValue.length === 6) {
+        const fullHex = "#" + hexValue;
+        primaryColorHex.value = fullHex;
+        updateColorFromHex({ target: { value: fullHex } });
+    }
+};
 
 // 从HEX更新颜色值
 const updateColorFromHex = (e) => {
@@ -207,30 +262,116 @@ const updateColorFromHex = (e) => {
     hsl.value = rgbToHsl(r, g, b);
 };
 
-// 从RGB更新颜色值
-const updateColorFromRgb = (e) => {
-    const inputValue = e.target.value.trim();
-    // 使用更宽松的正则匹配RGB值
-    const rgbMatch = inputValue.match(/^\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*$/);
+// 更新单个RGB值
+const updateRgbValue = (component, e) => {
+    const value = parseInt(e.target.value, 10);
 
-    if (rgbMatch) {
-        const r = parseInt(rgbMatch[1], 10);
-        const g = parseInt(rgbMatch[2], 10);
-        const b = parseInt(rgbMatch[3], 10);
+    // 验证值范围
+    if (isNaN(value) || value < 0 || value > 255) return;
 
-        // 验证RGB值范围
-        if (r >= 0 && r <= 255 && g >= 0 && g <= 255 && b >= 0 && b <= 255) {
-            rgb.value = { r, g, b };
-            hsl.value = rgbToHsl(r, g, b);
-            primaryColorHex.value = rgbToHex(r, g, b);
-            return;
+    // 更新对应的RGB分量
+    rgb.value[component] = value;
+
+    // 更新HEX和HSL值
+    hsl.value = rgbToHsl(rgb.value.r, rgb.value.g, rgb.value.b);
+    primaryColorHex.value = rgbToHex(rgb.value.r, rgb.value.g, rgb.value.b);
+
+    // 自动聚焦下一个输入框（当输入3位数字时）
+    const inputValue = e.target.value;
+    if (inputValue.length === 3) {
+        focusNextRgbInput(component);
+    }
+};
+
+// 处理RGB输入框的键盘事件
+const handleRgbKeydown = (e, component) => {
+    const { key, target } = e;
+
+    // Tab键或Enter键：跳转到下一个输入框
+    if (key === "Tab" || key === "Enter") {
+        if (key === "Enter") {
+            e.preventDefault();
+            focusNextRgbInput(component);
+        }
+        return;
+    }
+
+    // 方向键导航
+    if (key === "ArrowRight") {
+        // 如果光标在输入框末尾，跳转到下一个输入框
+        if (target.selectionStart === target.value.length) {
+            e.preventDefault();
+            focusNextRgbInput(component);
+        }
+    } else if (key === "ArrowLeft") {
+        // 如果光标在输入框开头，跳转到上一个输入框
+        if (target.selectionStart === 0) {
+            e.preventDefault();
+            focusPrevRgbInput(component);
         }
     }
 
-    // 输入无效时不更新
-    console.warn(
-        '无效的RGB格式，请使用 "r, g, b" 格式，其中每个值为0-255之间的整数',
-    );
+    // Backspace键：如果当前输入框为空，跳转到上一个输入框
+    if (key === "Backspace" && target.value === "") {
+        e.preventDefault();
+        focusPrevRgbInput(component);
+    }
+};
+
+// 聚焦下一个RGB输入框
+const focusNextRgbInput = (currentComponent) => {
+    const inputMap = {
+        r: rgbGInput,
+        g: rgbBInput,
+        b: rgbRInput, // 循环回到第一个
+    };
+
+    const nextInput = inputMap[currentComponent];
+    if (nextInput?.value) {
+        nextInput.value.focus();
+        nextInput.value.select(); // 选中所有文本，方便替换
+    }
+};
+
+// 聚焦上一个RGB输入框
+const focusPrevRgbInput = (currentComponent) => {
+    const inputMap = {
+        r: rgbBInput, // 循环到最后一个
+        g: rgbRInput,
+        b: rgbGInput,
+    };
+
+    const prevInput = inputMap[currentComponent];
+    if (prevInput?.value) {
+        prevInput.value.focus();
+        prevInput.value.select(); // 选中所有文本，方便替换
+    }
+};
+
+// 处理HEX输入框的键盘事件
+const handleHexKeydown = (e) => {
+    const { key } = e;
+
+    // Tab键或Enter键：跳转到RGB的R输入框
+    if (key === "Tab" || key === "Enter") {
+        if (key === "Enter") {
+            e.preventDefault();
+            if (rgbRInput.value) {
+                rgbRInput.value.focus();
+                rgbRInput.value.select();
+            }
+        }
+    }
+
+    // 当输入满6位时，自动跳转到RGB输入框
+    if (e.target.value.length === 5 && /^[0-9A-Fa-f]$/.test(key)) {
+        setTimeout(() => {
+            if (rgbRInput.value) {
+                rgbRInput.value.focus();
+                rgbRInput.value.select();
+            }
+        }, 0);
+    }
 };
 
 // RGB转HSL
@@ -627,161 +768,257 @@ watch(primaryColorHex, (newVal) => {
 });
 </script>
 
-<style>
-/* 样式保持不变 */
-.color-generator {
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 20px;
-    color: #333;
-    line-height: 1.6;
-}
+<style scoped>
+/* 使用统一的设计系统，保留颜色生成器特有的样式 */
 
-.app-header {
-    text-align: center;
-    margin-bottom: 30px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid #eee;
-}
-
-.app-header h1 {
-    color: #2c3e50;
-    margin-bottom: 10px;
-    font-size: 2rem;
-}
-
-.app-header p {
-    color: #7f8c8d;
-    font-size: 1.1rem;
-}
-
+/* 主内容布局 */
 .main-content {
     display: flex;
     flex-direction: column;
-    gap: 40px;
+    gap: var(--space-2xl);
 }
 
-section h2 {
-    color: #2c3e50;
-    font-size: 1.5rem;
-    margin-top: 0;
-    margin-bottom: 20px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #eee;
-}
-
-/* 主色输入区域 */
-.primary-color-input {
-    background-color: #f8f9fa;
-    border-radius: 8px;
-    padding: 25px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
+/* 颜色输入组 */
 .color-input-group {
-    margin-bottom: 25px;
+    margin-bottom: var(--space-xl);
 }
 
-.color-input-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 600;
-    color: #2c3e50;
+.color-input-group .section-label {
+    margin-bottom: var(--space-md);
 }
 
 .color-input-wrapper {
     display: flex;
     flex-wrap: wrap;
-    gap: 15px;
+    gap: var(--space-lg);
     align-items: center;
+    padding: var(--space-lg);
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
 }
 
 .color-picker {
     width: 60px;
     height: 60px;
-    border: none;
-    border-radius: 4px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
     cursor: pointer;
     padding: 0;
     overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s ease;
+    background: transparent;
+}
+
+.color-picker:hover {
+    box-shadow: var(--shadow-md);
+    transform: scale(1.05);
+    border-color: var(--accent);
 }
 
 .color-value-inputs {
     flex: 1;
     min-width: 300px;
     display: flex;
-    gap: 15px;
+    gap: var(--space-lg);
 }
 
 .color-value-input {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: var(--space-xs);
 }
 
-.color-value-input label {
-    font-size: 0.85rem;
-    color: #666;
-    margin-bottom: 0;
+.color-value-input .section-label {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--text);
+    margin-bottom: var(--space-xs);
+    display: block;
 }
 
-.color-value-input input {
+/* HEX输入框样式 */
+.hex-input-wrapper {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--bg);
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-sm);
+}
+
+.hex-input-wrapper:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.1);
+    transform: translateY(-1px);
+}
+
+.hex-prefix {
+    background: var(--bg-secondary);
+    padding: var(--space-sm) var(--space);
+    font-family: var(--font-mono, monospace);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-secondary);
+    border-right: 1px solid var(--border);
+    user-select: none;
+    font-size: var(--font-size-sm);
+}
+
+.hex-input {
+    border: none !important;
+    box-shadow: none !important;
+    font-family: var(--font-mono, monospace);
+    text-transform: uppercase;
+    background: var(--bg);
+    color: var(--text);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    letter-spacing: 0.5px;
+    padding: var(--space-sm);
     width: 100%;
-    padding: 10px 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-family: monospace;
+    transition: all 0.2s ease;
 }
 
-.color-value-input input:focus {
+.hex-input:focus {
     outline: none;
-    border-color: #3498db;
-    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+    border: none !important;
+    box-shadow: none !important;
+    background: var(--bg-secondary);
 }
 
+/* RGB输入框样式 */
+.rgb-input-wrapper {
+    display: flex;
+    gap: var(--space-sm);
+}
+
+.rgb-input {
+    flex: 1;
+    text-align: center;
+    font-family: var(--font-mono, monospace);
+    min-width: 0;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    box-shadow: var(--shadow-sm);
+    padding: var(--space-sm);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    transition: all 0.2s ease;
+}
+
+.rgb-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.1);
+    transform: translateY(-1px);
+    background: var(--bg-secondary);
+}
+
+.rgb-input::-webkit-outer-spin-button,
+.rgb-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.rgb-input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+/* 键盘导航优化 */
+.hex-input:focus,
+.rgb-input:focus {
+    transform: translateY(-1px);
+    box-shadow:
+        0 0 0 3px rgba(17, 24, 39, 0.15),
+        var(--shadow) !important;
+    transition: all 0.2s ease;
+}
+
+.hex-input-wrapper:focus-within {
+    transform: translateY(-1px);
+    transition: all 0.2s ease;
+}
+
+/* 输入框选中状态 */
+.hex-input::selection,
+.rgb-input::selection {
+    background-color: rgba(17, 24, 39, 0.2);
+}
+
+/* 提示用户可以使用键盘导航 */
+.color-value-inputs::after {
+    content: "💡 提示：使用 Tab、Enter 或方向键快速切换输入框";
+    display: block;
+    font-size: var(--font-size-xs);
+    color: var(--text-muted);
+    margin-top: var(--space-sm);
+    text-align: center;
+    opacity: 0.8;
+}
+
+/* 颜色预览 */
 .color-preview {
     display: flex;
     align-items: center;
-    gap: 15px;
-    margin-top: 10px;
+    gap: var(--space-lg);
+    margin-top: var(--space-lg);
+    padding: var(--space-xl);
+    background: var(--bg);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
 }
 
 .color-swatch {
     width: 80px;
     height: 80px;
-    border-radius: 4px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    border: 2px solid var(--border-light);
+    transition: all 0.2s ease;
+}
+
+.color-swatch:hover {
+    transform: scale(1.05);
+    box-shadow: var(--shadow-lg);
 }
 
 .color-info {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: var(--space-sm);
+    flex: 1;
 }
 
 .color-info div {
-    font-size: 0.95rem;
+    font-size: var(--font-size-sm);
+    color: var(--text);
+    padding: var(--space-xs) 0;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.color-info div:last-child {
+    border-bottom: none;
 }
 
 .color-info strong {
-    color: #2c3e50;
-    width: 50px;
+    color: var(--accent);
+    width: 60px;
     display: inline-block;
+    font-weight: var(--font-weight-semibold);
 }
 
-/* 颜色方案预览 */
-.color-scheme-preview {
-    background-color: #f8f9fa;
-    border-radius: 8px;
-    padding: 25px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
+/* 颜色组 */
 .color-group {
-    margin-bottom: 35px;
+    margin-bottom: var(--space-3xl);
+    padding: var(--space-xl);
+    background: var(--bg);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
 }
 
 .color-group:last-child {
@@ -789,125 +1026,113 @@ section h2 {
 }
 
 .color-group h3 {
-    color: #34495e;
-    font-size: 1.2rem;
-    margin-bottom: 15px;
+    color: var(--accent);
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    margin-bottom: var(--space-lg);
+    padding-bottom: var(--space-sm);
+    border-bottom: 2px solid var(--border);
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: var(--space-sm);
 }
 
 .color-group h3::before {
     content: "";
     width: 4px;
-    height: 18px;
-    background-color: #3498db;
-    border-radius: 2px;
+    height: 20px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-light));
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-sm);
 }
 
 .color-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 15px;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: var(--space-lg);
 }
 
 .color-item {
-    border-radius: 6px;
-    padding: 15px;
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
     min-height: 120px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    transition:
-        transform 0.2s,
-        box-shadow 0.2s;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.color-item::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.1),
+        rgba(255, 255, 255, 0)
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
 .color-item:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.color-item:hover::before {
+    opacity: 1;
 }
 
 .color-code {
-    font-family: monospace;
-    font-size: 0.9rem;
-    font-weight: 500;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
     word-break: break-all;
+    background: rgba(0, 0, 0, 0.1);
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius);
+    backdrop-filter: blur(4px);
 }
 
 .color-name {
-    font-size: 0.85rem;
+    font-size: var(--font-size-xs);
     opacity: 0.9;
-    margin-top: 8px;
+    margin-top: var(--space-sm);
+    font-weight: var(--font-weight-medium);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-/* 代码导出区域 */
-.code-export {
-    background-color: #f8f9fa;
-    border-radius: 8px;
-    padding: 25px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
+/* 导出选项 */
 .export-options {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 15px;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-lg);
 }
 
-.format-btn {
-    padding: 8px 16px;
-    background-color: white;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: all 0.2s;
+.code-output {
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: var(--bg);
 }
 
-.format-btn:hover {
-    background-color: #f1f5f9;
-    border-color: #b8c2cc;
-}
-
-.format-btn.active {
-    background-color: #3498db;
-    color: white;
-    border-color: #3498db;
-}
-
-/* 手机端适配优化 */
+/* 响应式设计 */
 @media (max-width: 768px) {
-    .color-generator {
-        padding: 16px;
-    }
-
-    .app-header h1 {
-        font-size: 1.5rem;
-    }
-
-    .app-header p {
-        font-size: 1rem;
-    }
-
-    .main-content {
-        gap: 24px;
-    }
-
-    section h2 {
-        font-size: 1.3rem;
-    }
-
-    /* 主色输入区域优化 */
-    .primary-color-input {
-        padding: 20px;
-    }
-
     .color-input-wrapper {
         flex-direction: column;
-        gap: 12px;
+        gap: var(--space-lg);
+        padding: var(--space-lg);
     }
 
     .color-picker {
@@ -919,18 +1144,14 @@ section h2 {
     .color-value-inputs {
         flex-direction: column;
         min-width: auto;
-        gap: 12px;
-    }
-
-    .color-value-input input {
-        padding: 12px;
-        font-size: 16px; /* 防止iOS缩放 */
+        gap: var(--space-lg);
     }
 
     .color-preview {
         flex-direction: column;
         text-align: center;
-        gap: 12px;
+        gap: var(--space-lg);
+        padding: var(--space-lg);
     }
 
     .color-swatch {
@@ -940,104 +1161,97 @@ section h2 {
     }
 
     .color-info {
-        gap: 8px;
-    }
-
-    .color-info div {
-        font-size: 0.9rem;
-    }
-
-    /* 颜色方案预览优化 */
-    .color-scheme-preview {
-        padding: 20px;
+        gap: var(--space-sm);
+        width: 100%;
     }
 
     .color-group {
-        margin-bottom: 24px;
-    }
-
-    .color-group h3 {
-        font-size: 1.1rem;
+        margin-bottom: var(--space-2xl);
+        padding: var(--space-lg);
     }
 
     .color-grid {
         grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
+        gap: var(--space-md);
     }
 
     .color-item {
-        min-height: 90px;
-        padding: 12px;
+        min-height: 100px;
+        padding: var(--space-md);
     }
 
     .color-code {
-        font-size: 0.8rem;
-        word-break: break-all;
+        font-size: var(--font-size-xs);
+        padding: var(--space-xs);
     }
 
     .color-name {
-        font-size: 0.75rem;
-        margin-top: 6px;
-    }
-
-    /* 代码导出区域优化 */
-    .code-export {
-        padding: 20px;
+        font-size: var(--font-size-xs);
+        margin-top: var(--space-xs);
     }
 
     .export-options {
-        flex-direction: column;
-        gap: 8px;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-sm);
     }
 
-    .format-btn {
-        padding: 12px 16px;
-        font-size: 14px;
-        text-align: center;
+    .color-value-inputs::after {
+        font-size: 10px;
+        margin-top: var(--space-xs);
     }
 }
 
 /* 超小屏幕优化 */
 @media (max-width: 480px) {
-    .color-generator {
-        padding: 12px;
-    }
-
-    .app-header h1 {
-        font-size: 1.3rem;
-    }
-
-    .app-header p {
-        font-size: 0.9rem;
-    }
-
-    .primary-color-input,
-    .color-scheme-preview,
-    .code-export {
-        padding: 16px;
+    .color-input-wrapper {
+        padding: var(--space-md);
+        gap: var(--space-md);
     }
 
     .color-grid {
         grid-template-columns: 1fr;
-        gap: 10px;
+        gap: var(--space-sm);
     }
 
     .color-item {
-        min-height: 80px;
-        padding: 10px;
+        min-height: 90px;
+        padding: var(--space-sm);
     }
 
     .color-code {
-        font-size: 0.75rem;
+        font-size: 10px;
+        padding: var(--space-xs);
     }
 
     .color-name {
-        font-size: 0.7rem;
+        font-size: 9px;
     }
 
-    .format-btn {
-        padding: 10px 12px;
-        font-size: 13px;
+    .color-preview {
+        padding: var(--space-md);
+        gap: var(--space-md);
+    }
+
+    .color-group {
+        padding: var(--space-md);
+        margin-bottom: var(--space-xl);
+    }
+
+    .export-options {
+        grid-template-columns: 1fr;
+    }
+
+    .rgb-input-wrapper {
+        gap: var(--space-xs);
+    }
+
+    .hex-input-wrapper {
+        max-width: 100%;
+    }
+
+    .color-value-inputs::after {
+        display: none; /* 在小屏幕上隐藏提示文本 */
     }
 }
 </style>

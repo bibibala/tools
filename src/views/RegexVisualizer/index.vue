@@ -7,33 +7,55 @@
 
         <main class="main-content">
             <section class="tool-section">
-                <div class="regex-input-group">
-                    <label for="regex-pattern">正则表达式</label>
+                <!-- 预设正则表达式 -->
+                <div class="config-item">
+                    <label class="section-label">常用正则表达式</label>
+                    <div class="preset-regex-grid">
+                        <button
+                            v-for="preset in presetRegexes"
+                            :key="preset.name"
+                            @click="applyPreset(preset)"
+                            class="btn btn-secondary preset-btn"
+                            :title="preset.description"
+                        >
+                            {{ preset.name }}
+                        </button>
+                    </div>
+                    <p class="form-hint">
+                        点击选择常用正则表达式模板，快速开始调试
+                    </p>
+                </div>
+
+                <div class="config-item">
+                    <label class="section-label" for="regex-pattern"
+                        >正则表达式</label
+                    >
                     <div class="regex-input-wrapper">
                         <input
                             id="regex-pattern"
                             v-model="regexPattern"
                             type="text"
                             placeholder="输入正则表达式，例如: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+                            class="form-input"
                         />
                         <div class="regex-flags">
                             <button
                                 @click="toggleFlag('g')"
-                                class="flag-btn"
+                                class="flag-btn btn"
                                 :class="{ active: flags.includes('g') }"
                             >
                                 g
                             </button>
                             <button
                                 @click="toggleFlag('i')"
-                                class="flag-btn"
+                                class="flag-btn btn"
                                 :class="{ active: flags.includes('i') }"
                             >
                                 i
                             </button>
                             <button
                                 @click="toggleFlag('m')"
-                                class="flag-btn"
+                                class="flag-btn btn"
                                 :class="{ active: flags.includes('m') }"
                             >
                                 m
@@ -42,30 +64,36 @@
                     </div>
                 </div>
 
-                <div class="test-text-group">
-                    <label for="test-text">测试文本</label>
-                    <textarea
+                <div class="config-item">
+                    <label class="section-label" for="test-text"
+                        >测试文本</label
+                    >
+                    <input
                         id="test-text"
                         v-model="testText"
-                        rows="4"
+                        type="text"
                         placeholder="输入要测试的文本..."
-                    ></textarea>
+                        class="form-input"
+                    />
                 </div>
             </section>
 
             <section class="tool-section">
                 <div class="results-header">
-                    <h2>匹配结果</h2>
+                    <h2 class="section-title">匹配结果</h2>
                     <div class="match-stats">
                         <span>匹配次数: {{ matches.length }}</span>
-                        <span v-if="errorMessage" class="error-message">{{
+                        <span v-if="errorMessage" class="status-error">{{
                             errorMessage
                         }}</span>
                     </div>
                 </div>
 
                 <div class="highlighted-text">
-                    <p v-if="highlightedText.length">
+                    <div
+                        v-if="highlightedText.length"
+                        class="highlight-content"
+                    >
                         <span
                             v-for="(part, index) in highlightedText"
                             :key="index"
@@ -73,35 +101,40 @@
                         >
                             {{ part.text }}
                         </span>
-                    </p>
-                    <p v-else-if="!errorMessage && testText">没有匹配结果</p>
+                    </div>
+                    <div
+                        v-else-if="!errorMessage && testText"
+                        class="text-muted"
+                    >
+                        没有匹配结果
+                    </div>
                 </div>
 
-                <div class="match-details">
-                    <h3>匹配详情</h3>
-                    <div
-                        class="match-item"
-                        v-for="(match, index) in matches"
-                        :key="index"
-                    >
-                        <div class="match-index">#{{ index + 1 }}</div>
-                        <div class="match-value">
-                            <strong>匹配值:</strong> {{ match[0] }}
-                        </div>
-                        <div class="match-position">
-                            <strong>位置:</strong> {{ match.index }} -
-                            {{ match.index + match[0].length }}
-                        </div>
-                        <div v-if="match.length > 1" class="match-groups">
-                            <strong>分组:</strong>
-                            <div class="groups-list">
-                                <div
+                <div class="match-details" v-if="matches.length > 0">
+                    <h3 class="section-title">匹配详情</h3>
+                    <div class="match-list">
+                        <div
+                            class="match-item"
+                            v-for="(match, index) in matches"
+                            :key="index"
+                        >
+                            <span class="match-index status-info"
+                                >#{{ index + 1 }}</span
+                            >
+                            <span class="match-value">{{ match[0] }}</span>
+                            <span class="match-position text-muted"
+                                >位置: {{ match.index }}-{{
+                                    match.index + match[0].length
+                                }}</span
+                            >
+                            <div v-if="match.length > 1" class="match-groups">
+                                <span
                                     v-for="(group, gIndex) in match.slice(1)"
                                     :key="gIndex"
+                                    class="group-item"
                                 >
-                                    分组 {{ gIndex + 1 }}:
-                                    {{ group || "无匹配" }}
-                                </div>
+                                    分组{{ gIndex + 1 }}: {{ group || "无" }}
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -123,6 +156,73 @@ const matches = ref([]);
 const errorMessage = ref("");
 const highlightedText = ref([]);
 
+// 预设正则表达式
+const presetRegexes = ref([
+    {
+        name: "邮箱地址",
+        pattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+        flags: [],
+        description: "匹配标准邮箱地址格式",
+    },
+    {
+        name: "手机号码",
+        pattern: "^1[3-9]\\d{9}$",
+        flags: [],
+        description: "匹配中国大陆手机号码",
+    },
+    {
+        name: "身份证号",
+        pattern:
+            "^[1-9]\\d{5}(18|19|20)\\d{2}((0[1-9])|(1[0-2]))(([0-2][1-9])|10|20|30|31)\\d{3}[0-9Xx]$",
+        flags: [],
+        description: "匹配18位身份证号码",
+    },
+    {
+        name: "URL链接",
+        pattern:
+            "https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)",
+        flags: ["g"],
+        description: "匹配HTTP/HTTPS URL链接",
+    },
+    {
+        name: "IP地址",
+        pattern:
+            "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
+        flags: [],
+        description: "匹配IPv4地址",
+    },
+    {
+        name: "中文字符",
+        pattern: "[\\u4e00-\\u9fa5]+",
+        flags: ["g"],
+        description: "匹配中文字符",
+    },
+    {
+        name: "数字",
+        pattern: "\\d+",
+        flags: ["g"],
+        description: "匹配连续数字",
+    },
+    {
+        name: "小数",
+        pattern: "\\d+\\.\\d+",
+        flags: ["g"],
+        description: "匹配小数格式",
+    },
+    {
+        name: "HTML标签",
+        pattern: "<[^>]+>",
+        flags: ["g"],
+        description: "匹配HTML标签",
+    },
+    {
+        name: "日期格式",
+        pattern: "\\d{4}-\\d{2}-\\d{2}",
+        flags: ["g"],
+        description: "匹配YYYY-MM-DD日期格式",
+    },
+]);
+
 // 切换正则表达式标志
 const toggleFlag = (flag) => {
     if (flags.value.includes(flag)) {
@@ -130,6 +230,13 @@ const toggleFlag = (flag) => {
     } else {
         flags.value.push(flag);
     }
+};
+
+// 应用预设正则表达式
+const applyPreset = (preset) => {
+    regexPattern.value = preset.pattern;
+    flags.value = [...preset.flags];
+    useToast.showInfo(`已应用预设：${preset.name}`);
 };
 
 // 计算当前正则表达式
@@ -203,66 +310,20 @@ const processMatches = () => {
     }
 };
 
-// 监听正则表达式或测试文本变化，重新处理匹配
 watch([regexPattern, flags, testText], processMatches, { immediate: true });
 </script>
 
-<style>
-.app-header h1 {
-    color: #2c3e50;
-    margin-bottom: 10px;
-    font-size: 2rem;
-}
-
-.app-header p {
-    color: #7f8c8d;
-    font-size: 1.1rem;
-}
-
+<style scoped>
 .main-content {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 30px;
+    gap: var(--space-2xl);
 }
 
 @media (min-width: 768px) {
     .main-content {
         grid-template-columns: 1fr;
     }
-}
-
-.regex-input-group,
-.test-text-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-label {
-    font-weight: 600;
-    color: #2c3e50;
-    font-size: 0.9rem;
-}
-
-#regex-pattern,
-#test-text {
-    padding: 10px 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-family: inherit;
-    font-size: 1rem;
-    transition: border-color 0.2s;
-}
-
-#regex-pattern:focus,
-#test-text:focus {
-    outline: none;
-    border-color: #3498db;
-    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
-}
-
-#test-text {
-    resize: vertical;
 }
 
 .regex-input-wrapper {
@@ -272,124 +333,199 @@ label {
 #regex-pattern {
     flex: 1;
     border-right: none;
-    border-radius: 4px 0 0 4px;
+    border-radius: var(--radius) 0 0 var(--radius);
 }
 
 .regex-flags {
     display: flex;
-    background-color: #f8f9fa;
-    border: 1px solid #ddd;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border);
     border-left: none;
-    border-radius: 0 4px 4px 0;
+    border-radius: 0 var(--radius) var(--radius) 0;
     overflow: hidden;
 }
 
 .flag-btn {
     border: none;
     background: none;
-    padding: 0 12px;
+    padding: 0 var(--space);
     cursor: pointer;
-    font-weight: 600;
-    color: #7f8c8d;
-    transition: all 0.2s;
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+    min-height: auto;
 }
 
 .flag-btn:hover {
-    background-color: #e9ecef;
+    background-color: var(--hover-bg);
 }
 
 .flag-btn.active {
-    background-color: #3498db;
+    background-color: var(--info);
     color: white;
+}
+
+.preset-regex-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: var(--space-sm);
+    margin-bottom: var(--space-sm);
+}
+
+.preset-btn {
+    font-size: var(--font-size-xs);
+    padding: var(--space-xs) var(--space-sm);
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.preset-btn:hover {
+    background-color: var(--accent);
+    color: white;
+    border-color: var(--accent);
+}
+
+/* 优化匹配结果显示 */
+.highlighted-text {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+}
+
+.highlight-content {
+    line-height: 1.5;
+    word-break: break-all;
+}
+
+/* 优化匹配详情 */
+.match-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.match-item {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 12px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.match-index {
+    font-weight: bold;
+    min-width: 30px;
+}
+
+.match-value {
+    font-family: monospace;
+    background: var(--bg-secondary);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.match-position {
+    font-size: 12px;
+}
+
+.match-groups {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    width: 100%;
+    margin-top: 4px;
+}
+
+.group-item {
+    background: var(--bg-secondary);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-family: monospace;
 }
 
 .results-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 15px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #e9ecef;
+    margin-bottom: var(--space-lg);
 }
 
-.results-header h2 {
+.results-header .section-title {
     margin: 0;
-    color: #2c3e50;
-    font-size: 1.3rem;
+    padding: 0;
+    border: none;
 }
 
 .match-stats {
-    font-size: 0.9rem;
-    color: #7f8c8d;
-}
-
-.error-message {
-    color: #e74c3c;
-    margin-left: 10px;
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
 }
 
 .highlighted-text {
-    background-color: white;
-    padding: 15px;
-    border-radius: 4px;
-    margin-bottom: 20px;
-    border: 1px solid #e9ecef;
     min-height: 60px;
     white-space: pre-wrap;
     word-break: break-all;
+    margin-bottom: var(--space-xl);
 }
 
 .match-highlight {
-    background-color: #fff3cd;
-    padding: 2px 0;
-    border-radius: 2px;
-    color: #856404;
-    font-weight: 500;
+    padding: 2px 3px;
+    border-radius: var(--radius-sm);
+    color: var(--info);
+    font-weight: var(--font-weight-medium);
 }
 
-.match-details h3 {
+.text-muted {
+    color: var(--error);
+}
+
+.match-details .section-title {
     margin-top: 0;
-    color: #2c3e50;
-    font-size: 1.1rem;
-    margin-bottom: 15px;
+    margin-bottom: var(--space-lg);
 }
 
 .match-item {
-    background-color: white;
-    padding: 12px;
-    border-radius: 4px;
-    margin-bottom: 10px;
-    border: 1px solid #e9ecef;
+    margin-bottom: var(--space-md);
     transition:
-        transform 0.2s,
-        box-shadow 0.2s;
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
 .match-item:hover {
     transform: translateY(-2px);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--shadow-md);
 }
 
 .match-index {
-    font-weight: bold;
-    color: #3498db;
-    margin-bottom: 5px;
+    font-weight: var(--font-weight-bold);
+    margin-bottom: var(--space-xs);
+}
+
+.match-value,
+.match-position {
+    margin-bottom: var(--space-xs);
 }
 
 .match-groups {
-    margin-top: 8px;
-    padding-top: 8px;
-    border-top: 1px dashed #eee;
-}
-
-.groups-list {
-    margin-top: 5px;
-    padding-left: 15px;
-    font-size: 0.9rem;
+    margin-top: var(--space-sm);
+    padding-top: var(--space-sm);
+    border-top: 1px dashed var(--border);
 }
 
 .groups-list div {
-    margin-bottom: 3px;
-    color: #555;
+    margin-bottom: var(--space-xs);
+    color: var(--text-secondary);
 }
 </style>

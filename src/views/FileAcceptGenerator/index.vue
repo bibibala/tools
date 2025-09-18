@@ -44,7 +44,7 @@
                             <input
                                 type="checkbox"
                                 :id="`category-${category.name}`"
-                                :checked="isCategorySelected(category)"
+                                :checked="isCategoryFullySelected(category)"
                                 @change="toggleCategory(category)"
                                 class="category-checkbox"
                             />
@@ -108,6 +108,10 @@
                             useJsObjectFormat ? "JS对象" : "字符串"
                         }}</span>
                     </div>
+                    <div class="stat-item">
+                        <span class="stat-label">优化状态：</span>
+                        <span class="stat-value">{{ optimizationStatus }}</span>
+                    </div>
                 </div>
             </section>
         </main>
@@ -128,6 +132,7 @@ const fileTypeCategories = ref([
         name: "images",
         label: "图片文件",
         key: "image",
+        mimeType: "image/*",
         types: [
             { extension: ".jpg", description: "JPEG图片" },
             { extension: ".jpeg", description: "JPEG图片" },
@@ -141,87 +146,85 @@ const fileTypeCategories = ref([
         ],
     },
     {
-        name: "microsoft_office",
-        label: "Microsoft Office",
-        key: "ms_office",
+        name: "documents",
+        label: "文档处理",
+        key: "documents",
+        mimeType:
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword,application/vnd.apple.pages",
         types: [
             { extension: ".doc", description: "Word文档(旧版)" },
             { extension: ".docx", description: "Word文档" },
             { extension: ".docm", description: "Word宏文件" },
+            { extension: ".pages", description: "Pages文档" },
+            { extension: ".template", description: "Pages模板" },
+        ],
+    },
+    {
+        name: "spreadsheets",
+        label: "表格处理",
+        key: "spreadsheets",
+        mimeType:
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,application/vnd.apple.numbers",
+        types: [
             { extension: ".xls", description: "Excel表格(旧版)" },
             { extension: ".xlsx", description: "Excel表格" },
             { extension: ".xlsm", description: "Excel宏文件" },
             { extension: ".xlsb", description: "Excel二进制文件" },
-            { extension: ".ppt", description: "PowerPoint(旧版)" },
-            { extension: ".pptx", description: "PowerPoint演示文稿" },
-            { extension: ".pptm", description: "PowerPoint宏文件" },
+            { extension: ".numbers", description: "Numbers表格" },
+            { extension: ".nmbtemplate", description: "Numbers模板" },
         ],
     },
     {
-        name: "apple_iwork",
-        label: "苹果 iWork 套件",
-        key: "apple_iwork",
+        name: "presentations",
+        label: "演示文稿",
+        key: "presentations",
+        mimeType:
+            "application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.ms-powerpoint,application/vnd.apple.keynote",
         types: [
-            { extension: ".pages", description: "Pages文档" },
-            { extension: ".numbers", description: "Numbers表格" },
+            { extension: ".ppt", description: "PowerPoint(旧版)" },
+            { extension: ".pptx", description: "PowerPoint演示文稿" },
+            { extension: ".pptm", description: "PowerPoint宏文件" },
             { extension: ".keynote", description: "Keynote演示文稿" },
             { extension: ".key", description: "Keynote演示文稿(旧版)" },
-            { extension: ".nmbtemplate", description: "Numbers模板" },
-            { extension: ".template", description: "Pages模板" },
             { extension: ".kth", description: "Keynote主题" },
         ],
     },
     {
-        name: "cad",
-        label: "CAD设计文件",
-        key: "cad",
-        types: [
-            { extension: ".dwg", description: "AutoCAD图纸" },
-            { extension: ".dxf", description: "CAD交换格式" },
-            { extension: ".dwf", description: "设计Web格式" },
-            { extension: ".step", description: "STEP 3D模型" },
-            { extension: ".stp", description: "STEP 3D模型" },
-            { extension: ".iges", description: "IGES 3D模型" },
-            { extension: ".igs", description: "IGES 3D模型" },
-            { extension: ".3dm", description: "Rhino 3D模型" },
-            { extension: ".skp", description: "SketchUp模型" },
-        ],
+        name: "pdf",
+        label: "PDF文档",
+        key: "pdf",
+        mimeType: "application/pdf",
+        types: [{ extension: ".pdf", description: "PDF文档" }],
     },
     {
-        name: "pdf_text",
-        label: "PDF和文本文档",
-        key: "pdf_text",
+        name: "text",
+        label: "文本文档",
+        key: "text",
+        mimeType: "text/*",
         types: [
-            { extension: ".pdf", description: "PDF文档" },
             { extension: ".txt", description: "纯文本文件" },
             { extension: ".rtf", description: "富文本格式" },
-            { extension: ".odt", description: "OpenDocument文本" },
-            { extension: ".ods", description: "OpenDocument表格" },
-            { extension: ".odp", description: "OpenDocument演示" },
             { extension: ".md", description: "Markdown文档" },
             { extension: ".tex", description: "LaTeX文档" },
         ],
     },
     {
-        name: "office",
-        label: "Office办公文档",
-        key: "office",
+        name: "opendocument",
+        label: "OpenDocument格式",
+        key: "opendocument",
+        mimeType:
+            "application/vnd.oasis.opendocument.text,application/vnd.oasis.opendocument.spreadsheet,application/vnd.oasis.opendocument.presentation",
         types: [
-            { extension: ".doc", description: "Word文档(旧版)" },
-            { extension: ".docx", description: "Word文档" },
-            { extension: ".xls", description: "Excel表格(旧版)" },
-            { extension: ".xlsx", description: "Excel表格" },
-            { extension: ".ppt", description: "PowerPoint(旧版)" },
-            { extension: ".pptx", description: "PowerPoint演示文稿" },
-            { extension: ".xlsm", description: "Excel宏文件" },
-            { extension: ".pptm", description: "PowerPoint宏文件" },
-            { extension: ".docm", description: "Word宏文件" },
+            { extension: ".odt", description: "OpenDocument文本" },
+            { extension: ".ods", description: "OpenDocument表格" },
+            { extension: ".odp", description: "OpenDocument演示" },
         ],
     },
     {
         name: "cad",
         label: "CAD设计文件",
         key: "cad",
+        mimeType: "application/acad,application/x-autocad,application/dwg",
         types: [
             { extension: ".dwg", description: "AutoCAD图纸" },
             { extension: ".dxf", description: "CAD交换格式" },
@@ -232,28 +235,13 @@ const fileTypeCategories = ref([
             { extension: ".igs", description: "IGES 3D模型" },
             { extension: ".3dm", description: "Rhino 3D模型" },
             { extension: ".skp", description: "SketchUp模型" },
-        ],
-    },
-    {
-        name: "documents",
-        label: "文档文件",
-        key: "docs",
-        types: [
-            { extension: ".pdf", description: "PDF文档" },
-            { extension: ".doc", description: "Word文档" },
-            { extension: ".docx", description: "Word文档" },
-            { extension: ".xls", description: "Excel表格" },
-            { extension: ".xlsx", description: "Excel表格" },
-            { extension: ".ppt", description: "PowerPoint" },
-            { extension: ".pptx", description: "PowerPoint" },
-            { extension: ".txt", description: "文本文件" },
-            { extension: ".rtf", description: "富文本格式" },
         ],
     },
     {
         name: "audio",
         label: "音频文件",
         key: "audio",
+        mimeType: "audio/*",
         types: [
             { extension: ".mp3", description: "MP3音频" },
             { extension: ".wav", description: "WAV音频" },
@@ -268,6 +256,7 @@ const fileTypeCategories = ref([
         name: "video",
         label: "视频文件",
         key: "video",
+        mimeType: "video/*",
         types: [
             { extension: ".mp4", description: "MP4视频" },
             { extension: ".avi", description: "AVI视频" },
@@ -283,6 +272,8 @@ const fileTypeCategories = ref([
         name: "archives",
         label: "压缩文件",
         key: "archive",
+        mimeType:
+            "application/zip,application/x-rar-compressed,application/x-7z-compressed",
         types: [
             { extension: ".zip", description: "ZIP压缩包" },
             { extension: ".rar", description: "RAR压缩包" },
@@ -296,6 +287,8 @@ const fileTypeCategories = ref([
         name: "code",
         label: "代码文件",
         key: "code",
+        mimeType:
+            "text/javascript,text/typescript,text/html,text/css,application/json,text/xml",
         types: [
             { extension: ".js", description: "JavaScript" },
             { extension: ".ts", description: "TypeScript" },
@@ -313,6 +306,7 @@ const fileTypeCategories = ref([
         name: "applications",
         label: "应用程序文件",
         key: "application",
+        mimeType: "application/octet-stream",
         types: [
             { extension: ".exe", description: "Windows可执行文件" },
             { extension: ".msi", description: "Windows安装包" },
@@ -335,26 +329,87 @@ const totalSelectedCount = computed(() => {
     return selectedTypes.value.length;
 });
 
-// 生成按分类的文件类型对象
+// 检查某个分类是否完全选中
+const isCategoryFullySelected = (category) => {
+    return category.types.every((type) =>
+        selectedTypes.value.includes(type.extension),
+    );
+};
+
+// 生成按分类的文件类型对象（智能MIME类型）
 const categorizedFileTypes = computed(() => {
     const result = {};
 
     fileTypeCategories.value.forEach((category) => {
-        const selectedInCategory = category.types
-            .filter((type) => selectedTypes.value.includes(type.extension))
-            .map((type) => type.extension);
+        const selectedInCategory = category.types.filter((type) =>
+            selectedTypes.value.includes(type.extension),
+        );
 
         if (selectedInCategory.length > 0) {
-            result[category.key] = selectedInCategory.join(",");
+            // 如果该分类的所有类型都被选中，使用MIME类型
+            if (selectedInCategory.length === category.types.length) {
+                result[category.key] = category.mimeType;
+            } else {
+                // 否则使用具体的扩展名
+                result[category.key] = selectedInCategory
+                    .map((type) => type.extension)
+                    .join(",");
+            }
         }
     });
 
     return result;
 });
 
-// 生成字符串格式
+// 生成字符串格式（智能MIME类型）
 const acceptString = computed(() => {
-    return selectedTypes.value.join(",");
+    const acceptValues = [];
+
+    fileTypeCategories.value.forEach((category) => {
+        const selectedInCategory = category.types.filter((type) =>
+            selectedTypes.value.includes(type.extension),
+        );
+
+        if (selectedInCategory.length > 0) {
+            // 如果该分类的所有类型都被选中，使用MIME类型
+            if (selectedInCategory.length === category.types.length) {
+                acceptValues.push(category.mimeType);
+            } else {
+                // 否则使用具体的扩展名
+                acceptValues.push(
+                    ...selectedInCategory.map((type) => type.extension),
+                );
+            }
+        }
+    });
+
+    return acceptValues.join(",");
+});
+
+// 优化状态统计
+const optimizationStatus = computed(() => {
+    let optimizedCategories = 0;
+    let totalCategories = 0;
+
+    fileTypeCategories.value.forEach((category) => {
+        const selectedInCategory = category.types.filter((type) =>
+            selectedTypes.value.includes(type.extension),
+        );
+
+        if (selectedInCategory.length > 0) {
+            totalCategories++;
+            // 如果该分类的所有类型都被选中，则为优化状态
+            if (selectedInCategory.length === category.types.length) {
+                optimizedCategories++;
+            }
+        }
+    });
+
+    if (totalCategories === 0) {
+        return "无选择";
+    }
+
+    return `${optimizedCategories}/${totalCategories} 分类使用MIME类型`;
 });
 
 // 生成的代码
@@ -397,18 +452,19 @@ const selectCommonTypes = () => {
         ".pdf",
         ".doc",
         ".docx",
+        ".pages",
+        ".xls",
+        ".xlsx",
+        ".numbers",
+        ".ppt",
+        ".pptx",
+        ".keynote",
         ".txt",
     ];
 };
 
-const isCategorySelected = (category) => {
-    return category.types.every((type) =>
-        selectedTypes.value.includes(type.extension),
-    );
-};
-
 const toggleCategory = (category) => {
-    const isSelected = isCategorySelected(category);
+    const isSelected = isCategoryFullySelected(category);
     const categoryExtensions = category.types.map((type) => type.extension);
 
     if (isSelected) {
