@@ -4,7 +4,6 @@ import {
     createMemoryHistory,
 } from "vue-router";
 import { hideLoading, showLoading } from "@/utils/useToast.js";
-import { useSEO } from "@/utils/useSEO.js";
 
 export const routes = [
     {
@@ -120,10 +119,8 @@ export const routes = [
     },
 ];
 
-// 创建路由实例，支持SSG
 export function createMyRouter() {
     const router = createRouter({
-        // 在SSG构建时使用内存历史，在浏览器中使用Web历史
         history:
             typeof window !== "undefined"
                 ? createWebHistory()
@@ -131,23 +128,13 @@ export function createMyRouter() {
         routes,
     });
 
-    // 只在浏览器环境中执行这些操作
     if (typeof window !== "undefined") {
         router.beforeEach(() => {
             showLoading();
         });
 
-        router.afterEach((to) => {
+        router.afterEach(() => {
             hideLoading();
-
-            if (to.meta) {
-                const { setPageMeta } = useSEO();
-                setPageMeta({
-                    title: to.meta.title,
-                    description: to.meta.description,
-                    keywords: to.meta.keywords,
-                });
-            }
         });
     }
 

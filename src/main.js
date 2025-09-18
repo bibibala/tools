@@ -14,7 +14,7 @@ export function createApp() {
     return {
         app,
         router,
-        routes, // vite-ssg需要routes来生成静态页面
+        routes, // 确保routes被传递给vite-ssg
     };
 }
 
