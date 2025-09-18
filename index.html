@@ -48,9 +48,35 @@
         />
         <meta name="twitter:site" content="@bababaZhao" />
         <meta http-equiv="Content-Language" content="zh-CN" />
-        <script type="module" src="/src/main.js"></script>
+
+        <!-- 添加结构化数据 -->
+        <script type="application/ld+json">
+            {
+                "@context": "https://schema.org",
+                "@type": "WebApplication",
+                "name": "MyTools",
+                "description": "实用在线工具集合，包括正则可视化、大文件处理、颜色转换、JSON转TS接口等开发工具",
+                "url": "https://develop-tools.netlify.app",
+                "applicationCategory": "DeveloperApplication",
+                "operatingSystem": "Web Browser",
+                "offers": {
+                    "@type": "Offer",
+                    "price": "0",
+                    "priceCurrency": "CNY"
+                },
+                "author": {
+                    "@type": "Person",
+                    "name": "bibibala",
+                    "url": "https://github.com/bibibala"
+                }
+            }
+        </script>
+
+        <!-- 添加网站地图链接 -->
+        <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
     </head>
     <body>
         <div id="app"></div>
+        <script type="module" src="/src/main.js"></script>
     </body>
 </html>

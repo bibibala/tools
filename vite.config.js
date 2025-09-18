@@ -9,6 +9,18 @@ export default defineConfig({
         cssMinify: true,
         cssCodeSplit: true,
     },
+    ssgOptions: {
+        script: "async",
+        formatting: "minify",
+        crittersOptions: {
+            reduceInlineStyles: false,
+        },
+        includedRoutes(paths, routes) {
+            return routes.flatMap((route) => {
+                return route.path === "/" ? ["/"] : [route.path];
+            });
+        },
+    },
     optimizeDeps: {
         include: [
             "vue",

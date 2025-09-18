@@ -1,9 +1,9 @@
-import { Notify } from "notiflix/build/notiflix-notify-aio";
-import { Loading } from "notiflix/build/notiflix-loading-aio";
+import Notify from "notiflix/build/notiflix-notify-aio";
+import pkg from "notiflix/build/notiflix-loading-aio";
 
 const useToast = {
     showSuccess(message) {
-        Notify.success(message, {
+        Notify.Notify.success(message, {
             position: "center-center",
             timeout: 1000,
             clickToClose: true,
@@ -11,7 +11,7 @@ const useToast = {
     },
 
     showError(message) {
-        Notify.failure(message, {
+        Notify.Notify.failure(message, {
             position: "center-center",
             timeout: 3000,
             clickToClose: true,
@@ -19,7 +19,7 @@ const useToast = {
     },
 
     showInfo(message) {
-        Notify.info(message, {
+        Notify.Notify.info(message, {
             position: "center-center",
             timeout: 2000,
             clickToClose: true,
@@ -30,11 +30,11 @@ const useToast = {
 export default useToast;
 
 export function showLoading() {
-    Loading.standard({
+    pkg.Loading.standard({
         clickToClose: false,
     });
 }
 
 export function hideLoading() {
-    Loading.remove();
+    pkg.Loading.remove();
 }

@@ -1,84 +1,148 @@
-import { createRouter, createWebHistory } from "vue-router";
+import {
+    createRouter,
+    createWebHistory,
+    createMemoryHistory,
+} from "vue-router";
 import { hideLoading, showLoading } from "@/utils/useToast.js";
+import { useSEO } from "@/utils/useSEO.js";
 
 export const routes = [
-        {
-            path: "/",
-            name: "RegexVisualizer",
-            component: () => import("@/views/RegexVisualizer/index.vue"),
-            meta: { title: "正则可视化调试" },
+    {
+        path: "/",
+        name: "RegexVisualizer",
+        component: () => import("@/views/RegexVisualizer/index.vue"),
+        meta: {
+            title: "正则可视化调试",
+            description:
+                "在线正则表达式可视化工具，帮助开发者理解和调试正则表达式，支持实时预览和语法高亮",
+            keywords: "正则表达式, 可视化, 调试工具, regex, 在线工具",
         },
-        {
-            path: "/file",
-            name: "FileAction",
-            component: () => import("@/views/FileAction/index.vue"),
-            meta: { title: "大文件处理" },
+    },
+    {
+        path: "/file",
+        name: "FileAction",
+        component: () => import("@/views/FileAction/index.vue"),
+        meta: {
+            title: "大文件处理",
+            description:
+                "在线大文件处理工具，支持文件分割、合并、压缩等操作，无需上传服务器",
+            keywords: "文件处理, 大文件, 文件分割, 文件合并, 在线工具",
         },
-        {
-            path: "/color",
-            name: "ColorSchemeGenerator",
-            component: () => import("@/views/ColorSchemeGenerator/index.vue"),
-            meta: { title: "颜色处理" },
+    },
+    {
+        path: "/color",
+        name: "ColorSchemeGenerator",
+        component: () => import("@/views/ColorSchemeGenerator/index.vue"),
+        meta: {
+            title: "颜色处理",
+            description:
+                "在线颜色转换工具，支持HEX、RGB、HSL等格式互转，颜色配色方案生成",
+            keywords: "颜色转换, HEX, RGB, HSL, 配色方案, 颜色工具",
         },
-        {
-            path: "/json-to-interface",
-            name: "JsonToTsConverter",
-            component: () => import("@/views/JsonToTsConverter/index.vue"),
-            meta: { title: "Json转Ts接口" },
+    },
+    {
+        path: "/json-to-interface",
+        name: "JsonToTsConverter",
+        component: () => import("@/views/JsonToTsConverter/index.vue"),
+        meta: {
+            title: "Json转Ts接口",
+            description:
+                "在线JSON转TypeScript接口工具，快速生成类型定义，提高开发效率",
+            keywords: "JSON, TypeScript, 接口生成, 类型定义, 前端工具",
         },
-        {
-            path: "/json",
-            name: "JsonEditor",
-            component: () => import("@/views/JsonPretty/index.vue"),
-            meta: { title: "Json格式化" },
+    },
+    {
+        path: "/json",
+        name: "JsonEditor",
+        component: () => import("@/views/JsonPretty/index.vue"),
+        meta: {
+            title: "Json格式化",
+            description:
+                "在线JSON格式化美化工具，支持JSON验证、压缩、格式化，提升代码可读性",
+            keywords: "JSON格式化, JSON美化, JSON验证, 在线工具",
         },
-        {
-            path: "/prettier",
-            name: "PrettierConfig",
-            component: () => import("@/views/PrettierConfig/index.vue"),
-            meta: { title: "前端项目配置" },
+    },
+    {
+        path: "/prettier",
+        name: "PrettierConfig",
+        component: () => import("@/views/PrettierConfig/index.vue"),
+        meta: {
+            title: "前端项目配置",
+            description:
+                "在线Prettier配置生成器，快速生成前端项目代码格式化配置文件",
+            keywords: "Prettier, 代码格式化, 前端配置, 项目配置",
         },
-        {
-            path: "/web-meta",
-            name: "WebMeta",
-            component: () => import("@/views/WebMeta/index.vue"),
-            meta: { title: "网站元信息配置" },
+    },
+    {
+        path: "/web-meta",
+        name: "WebMeta",
+        component: () => import("@/views/WebMeta/index.vue"),
+        meta: {
+            title: "网站元信息配置",
+            description:
+                "在线网站SEO元信息生成工具，快速生成meta标签、Open Graph、Twitter Card等",
+            keywords: "SEO, meta标签, Open Graph, Twitter Card, 网站优化",
         },
-        {
-            path: "/file-accept",
-            name: "FileAcceptGenerator",
-            component: () => import("@/views/FileAcceptGenerator/index.vue"),
-            meta: { title: "文件类型Accept生成" },
+    },
+    {
+        path: "/file-accept",
+        name: "FileAcceptGenerator",
+        component: () => import("@/views/FileAcceptGenerator/index.vue"),
+        meta: {
+            title: "文件类型Accept生成",
+            description:
+                "在线文件类型Accept属性生成器，快速生成HTML input文件选择器的accept属性",
+            keywords: "文件类型, Accept属性, HTML, input, 文件选择器",
         },
-        {
-            path: "/image-location",
-            name: "ImageLocationViewer",
-            component: () => import("@/views/ImageLocationViewer/index.vue"),
-            meta: { title: "图片元信息查看" },
+    },
+    {
+        path: "/image-location",
+        name: "ImageLocationViewer",
+        component: () => import("@/views/ImageLocationViewer/index.vue"),
+        meta: {
+            title: "图片元信息查看",
+            description:
+                "在线图片EXIF信息查看工具，查看照片拍摄时间、地理位置、相机参数等元数据",
+            keywords: "图片EXIF, 元信息, 照片信息, 地理位置, 相机参数",
         },
-        {
-            path: "/year",
-            name: "ChineseNewYearCountdown",
-            component: () =>
-                import("@/views/ChineseNewYearCountdown/index.vue"),
-            meta: { title: "农历新年倒计时" },
-        },
-    ],
-    router = createRouter({
-        history: createWebHistory(),
+    },
+];
+
+// 创建路由实例，支持SSG
+export function createMyRouter() {
+    const router = createRouter({
+        // 在SSG构建时使用内存历史，在浏览器中使用Web历史
+        history:
+            typeof window !== "undefined"
+                ? createWebHistory()
+                : createMemoryHistory(),
         routes,
     });
 
-router.beforeEach(() => {
-    showLoading();
-});
-router.afterEach((to) => {
-    hideLoading();
-    if (to.meta && to.meta.title) {
-        document.title = `${to.meta.title} · MyTools`;
-    } else {
-        document.title = "MyTools";
-    }
-});
+    // 只在浏览器环境中执行这些操作
+    if (typeof window !== "undefined") {
+        router.beforeEach(() => {
+            showLoading();
+        });
 
+        router.afterEach((to) => {
+            hideLoading();
+
+            // 设置页面SEO信息
+            if (to.meta) {
+                const { setPageMeta } = useSEO();
+                setPageMeta({
+                    title: to.meta.title,
+                    description: to.meta.description,
+                    keywords: to.meta.keywords,
+                });
+            }
+        });
+    }
+
+    return router;
+}
+
+// 导出默认路由实例
+const router = createMyRouter();
 export default router;
