@@ -19,7 +19,7 @@
                         type="text"
                         id="site-title"
                         v-model="metaConfig.title"
-                        placeholder="例如：MyTools - 实用工具集合"
+                        placeholder="例如：CodeForge - 实用工具集合"
                         class="form-input"
                         required
                     />
@@ -174,7 +174,7 @@
                         type="text"
                         id="author"
                         v-model="metaConfig.author"
-                        placeholder="例如：张三 / MyTools Team"
+                        placeholder="例如：张三 / CodeForge Team"
                         class="form-input"
                     />
                 </div>
@@ -188,7 +188,7 @@
                         type="text"
                         id="copyright"
                         v-model="metaConfig.copyright"
-                        placeholder="例如：© 2024 MyTools. 保留所有权利。"
+                        placeholder="例如：© 2024 CodeForge. 保留所有权利。"
                         class="form-input"
                     />
                 </div>
@@ -210,7 +210,7 @@
                         type="text"
                         id="og-title"
                         v-model="metaConfig.og.title"
-                        placeholder="例如：MyTools - 免费在线开发工具"
+                        placeholder="例如：CodeForge - 免费在线开发工具"
                         class="form-input"
                     />
                     <p class="config-hint">

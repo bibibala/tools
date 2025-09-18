@@ -6,16 +6,16 @@ export function useSEO() {
         }
 
         const {
-            title = "MyTools",
-            description = "MyTools - 实用在线工具集合",
-            keywords = "MyTools, 工具, 在线工具",
+            title = "CodeForge",
+            description = "CodeForge - 开发者工具集合",
+            keywords = "CodeForge, 开发者工具, 在线工具",
             ogImage = "/og-image.png",
         } = meta;
 
         // 设置页面标题
-        document.title = title.includes("MyTools")
+        document.title = title.includes("CodeForge")
             ? title
-            : `${title} · MyTools`;
+            : `${title} · CodeForge`;
 
         // 设置或更新meta标签
         setMetaTag("description", description);

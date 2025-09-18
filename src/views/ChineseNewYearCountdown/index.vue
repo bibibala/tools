@@ -61,6 +61,31 @@
                             </svg>
                         </div>
 
+                        <!-- 时钟指针 -->
+                        <div class="clock-hands">
+                            <!-- 时针 -->
+                            <div
+                                class="clock-hand hour-hand"
+                                :style="{
+                                    transform: `rotate(${hourAngle}deg)`,
+                                }"
+                            ></div>
+                            <!-- 分针 -->
+                            <div
+                                class="clock-hand minute-hand"
+                                :style="{
+                                    transform: `rotate(${minuteAngle}deg)`,
+                                }"
+                            ></div>
+                            <!-- 秒针 -->
+                            <div
+                                class="clock-hand second-hand"
+                                :style="{
+                                    transform: `rotate(${secondAngle}deg)`,
+                                }"
+                            ></div>
+                        </div>
+
                         <!-- 时钟中心内容 -->
                         <div class="clock-center">
                             <div v-if="daysLeft > 0" class="countdown-active">
@@ -242,6 +267,30 @@ const progressPercentage = computed(() => {
 // SVG 圆周长（与你现有 template 保持一致）
 const circumference = computed(() => 2 * Math.PI * 90);
 
+// ----- 时钟指针角度计算 -----
+const hourAngle = computed(() => {
+    const now = currentDate.value;
+    const hours = now.getHours() % 12;
+    const minutes = now.getMinutes();
+    // 时针每小时转30度，每分钟转0.5度
+    return hours * 30 + minutes * 0.5;
+});
+
+const minuteAngle = computed(() => {
+    const now = currentDate.value;
+    const minutes = now.getMinutes();
+    const seconds = now.getSeconds();
+    // 分针每分钟转6度，每秒钟转0.1度
+    return minutes * 6 + seconds * 0.1;
+});
+
+const secondAngle = computed(() => {
+    const now = currentDate.value;
+    const seconds = now.getSeconds();
+    // 秒针每秒钟转6度
+    return seconds * 6;
+});
+
 // ----- 生命周期 -----
 onMounted(() => {
     // 每秒更新 currentDate（使倒计时运行）
@@ -352,6 +401,59 @@ onBeforeUnmount(() => {
     filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
 }
 
+/* 时钟指针 */
+.clock-hands {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.clock-hand {
+    position: absolute;
+    left: 50%;
+    transform-origin: bottom center;
+    border-radius: 2px;
+    transition: transform 0.1s ease-out;
+}
+
+.hour-hand {
+    top: 30%;
+    width: 6px;
+    height: 20%;
+    background: linear-gradient(to top, var(--text), var(--text-secondary));
+    margin-left: -3px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    z-index: 3;
+}
+
+.minute-hand {
+    top: 20%;
+    width: 4px;
+    height: 30%;
+    background: linear-gradient(
+        to top,
+        var(--accent),
+        var(--accent-light, var(--accent))
+    );
+    margin-left: -2px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    z-index: 4;
+}
+
+.second-hand {
+    top: 15%;
+    width: 2px;
+    height: 35%;
+    background: linear-gradient(to top, #ff4444, #ff6666);
+    margin-left: -1px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    z-index: 5;
+    transition: transform 0.05s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 .clock-center {
     position: absolute;
     top: 50%;
@@ -432,7 +534,7 @@ onBeforeUnmount(() => {
     box-shadow:
         var(--shadow-sm),
         inset 0 1px 2px rgba(255, 255, 255, 0.3);
-    z-index: 3;
+    z-index: 6;
 }
 
 .countdown-today .celebration {
@@ -479,6 +581,21 @@ onBeforeUnmount(() => {
         left: 17px;
         right: 17px;
         bottom: 17px;
+    }
+
+    .hour-hand {
+        width: 5px;
+        margin-left: -2.5px;
+    }
+
+    .minute-hand {
+        width: 3px;
+        margin-left: -1.5px;
+    }
+
+    .second-hand {
+        width: 1.5px;
+        margin-left: -0.75px;
     }
 
     .time-number {
@@ -532,6 +649,21 @@ onBeforeUnmount(() => {
         left: 15px;
         right: 15px;
         bottom: 15px;
+    }
+
+    .hour-hand {
+        width: 4px;
+        margin-left: -2px;
+    }
+
+    .minute-hand {
+        width: 2.5px;
+        margin-left: -1.25px;
+    }
+
+    .second-hand {
+        width: 1px;
+        margin-left: -0.5px;
     }
 
     .time-number {
