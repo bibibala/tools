@@ -116,7 +116,7 @@
 </template>
 
 <script setup>
-import { ref, watch, defineEmits } from "vue";
+import { ref, watch } from "vue";
 
 const emit = defineEmits(["config-change"]);
 

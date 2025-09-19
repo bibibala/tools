@@ -30,7 +30,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, defineProps } from "vue";
+import { ref, computed, watch } from "vue";
 import CodeHighlighter from "@/components/CodeHighlighter.vue";
 import { copyToClipboard as copyToClipboardUtil } from "@/utils/useToClipboard.js";
 import useToast from "@/utils/useToast.js";

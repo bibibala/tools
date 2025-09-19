@@ -117,6 +117,17 @@ export const routes = [
             keywords: "图片EXIF, 元信息, 照片信息, 地理位置, 相机参数",
         },
     },
+    {
+        path: "/rtc",
+        name: "Web-Rtc",
+        component: () => import("@/views/WebRTC/index.vue"),
+        meta: {
+            title: "图片元信息查看",
+            description:
+                "在线图片EXIF信息查看工具，查看照片拍摄时间、地理位置、相机参数等元数据",
+            keywords: "图片EXIF, 元信息, 照片信息, 地理位置, 相机参数",
+        },
+    },
 ];
 
 export function createMyRouter() {
