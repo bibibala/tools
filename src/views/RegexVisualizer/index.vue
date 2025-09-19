@@ -236,7 +236,6 @@ const toggleFlag = (flag) => {
 const applyPreset = (preset) => {
     regexPattern.value = preset.pattern;
     flags.value = [...preset.flags];
-    useToast.showInfo(`已应用预设：${preset.name}`);
 };
 
 // 计算当前正则表达式
