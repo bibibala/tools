@@ -20,6 +20,9 @@ const petTabs = [
 ];
 const activePetTab = ref("cats");
 
+// Search state
+const searchQuery = ref("");
+
 // Pagination state
 const currentPage = ref(1);
 const itemsPerPage = 12;
@@ -31,9 +34,55 @@ const petDataMap = {
     horses: horsesData,
 };
 
-// Computed data for current pet type
+// Fuzzy search function
+const fuzzySearch = (query, text) => {
+    if (!query || !text) return false;
+    const lowerQuery = query.toLowerCase();
+    const lowerText = text.toLowerCase();
+
+    // Exact match
+    if (lowerText.includes(lowerQuery)) return true;
+
+    // Character-by-character fuzzy matching
+    let queryIndex = 0;
+    let textIndex = 0;
+
+    while (queryIndex < lowerQuery.length && textIndex < lowerText.length) {
+        if (lowerQuery[queryIndex] === lowerText[textIndex]) {
+            queryIndex++;
+        }
+        textIndex++;
+    }
+
+    return queryIndex === lowerQuery.length;
+};
+
+// Filtered plants based on search query
+const filteredPlants = computed(() => {
+    const plants = petDataMap[activePetTab.value] || [];
+    if (!searchQuery.value.trim()) return plants;
+
+    return plants.filter((plant) => {
+        const englishMatch = fuzzySearch(
+            searchQuery.value,
+            plant.commonName || "",
+        );
+        const chineseMatch = fuzzySearch(
+            searchQuery.value,
+            plant.chineseName || "",
+        );
+        const scientificMatch = fuzzySearch(
+            searchQuery.value,
+            plant.scientificName || "",
+        );
+
+        return englishMatch || chineseMatch || scientificMatch;
+    });
+});
+
+// Computed data for current pet type (now using filtered plants)
 const currentPlants = computed(() => {
-    return petDataMap[activePetTab.value] || [];
+    return filteredPlants.value;
 });
 
 // Paginated plants
@@ -61,8 +110,8 @@ const visiblePages = computed(() => {
     return pages;
 });
 
-// Reset page when tab changes
-watch(activePetTab, () => {
+// Reset page when tab changes or search query changes
+watch([activePetTab, searchQuery], () => {
     currentPage.value = 1;
 });
 
@@ -83,6 +132,11 @@ const nextPage = () => {
     if (currentPage.value < totalPages.value) {
         currentPage.value++;
     }
+};
+
+// Image error handler
+const handleImageError = (event) => {
+    event.target.style.display = "none";
 };
 </script>
 
@@ -150,6 +204,31 @@ const nextPage = () => {
                     </button>
                 </div>
 
+                <!-- Search Bar - Added below the sub-tabs -->
+                <div class="search-container" v-if="activeMainTab === 'pets'">
+                    <div class="search-input-wrapper">
+                        <input
+                            v-model="searchQuery"
+                            type="text"
+                            placeholder="Search plants by name (English/Chinese) 搜索植物名称（英文/中文）"
+                            class="search-input"
+                        />
+                        <div class="search-icon" v-if="!searchQuery">🔍</div>
+                        <button
+                            v-if="searchQuery"
+                            @click="searchQuery = ''"
+                            class="clear-search-btn"
+                        >
+                            ✕
+                        </button>
+                    </div>
+                    <div class="search-info" v-if="searchQuery">
+                        Found {{ currentPlants.length }} plants matching "{{
+                            searchQuery
+                        }}"
+                    </div>
+                </div>
+
                 <!-- Content -->
                 <div class="tab-content">
                     <!-- Pet Safety Tab -->
@@ -157,8 +236,33 @@ const nextPage = () => {
                         v-if="activeMainTab === 'pets'"
                         class="content-wrapper"
                     >
-                        <div class="plants-grid">
-                            <!-- 直接在模板中使用植物卡片结构 -->
+                        <!-- No results message -->
+                        <div
+                            v-if="currentPlants.length === 0 && searchQuery"
+                            class="no-results"
+                        >
+                            <div class="no-results-content">
+                                <div class="no-results-icon">🌱</div>
+                                <h3>No plants found</h3>
+                                <p>
+                                    No plants match your search for "{{
+                                        searchQuery
+                                    }}". Try different keywords.
+                                </p>
+                                <button
+                                    @click="searchQuery = ''"
+                                    class="btn btn-primary"
+                                >
+                                    Clear Search
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Plants Grid -->
+                        <div
+                            class="plants-grid"
+                            v-if="currentPlants.length > 0"
+                        >
                             <div
                                 v-for="plant in paginatedPlants"
                                 :key="plant.index"
@@ -210,7 +314,10 @@ const nextPage = () => {
                         </div>
 
                         <!-- Pagination -->
-                        <div class="pagination" v-if="totalPages > 1">
+                        <div
+                            class="pagination"
+                            v-if="totalPages > 1 && currentPlants.length > 0"
+                        >
                             <div class="pagination-info">
                                 Showing
                                 {{ (currentPage - 1) * itemsPerPage + 1 }}-{{
@@ -404,6 +511,109 @@ const nextPage = () => {
     gap: 2rem;
 }
 
+/* 搜索框样式优化 */
+.search-container {
+    margin-bottom: 1.5rem;
+    width: 100%;
+}
+
+.search-input-wrapper {
+    position: relative;
+    width: 100%;
+    margin-bottom: 0.5rem;
+}
+
+.search-input {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.search-icon {
+    position: absolute;
+    left: 0.875rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+}
+
+.clear-search-btn {
+    position: absolute;
+    right: 0.875rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.clear-search-btn:hover {
+    background-color: var(--hover-bg);
+    color: var(--text);
+}
+
+.search-info {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    padding-left: 0.25rem;
+}
+
+/* 无结果提示样式优化 */
+.no-results {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 3rem 1rem;
+    text-align: center;
+}
+
+.no-results-content {
+    max-width: 500px;
+    padding: 2rem;
+    background-color: var(--bg-secondary);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+.no-results-icon {
+    font-size: 3rem;
+    margin-bottom: 1.5rem;
+    opacity: 0.8;
+}
+
+.no-results h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 0.75rem;
+}
+
+.no-results p {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
 .plants-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -536,6 +746,11 @@ const nextPage = () => {
 
     .tool-title {
         font-size: 1.75rem;
+    }
+
+    .no-results-content {
+        padding: 1.5rem;
+        width: 90%;
     }
 }
 </style>
