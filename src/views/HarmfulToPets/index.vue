@@ -8,7 +8,7 @@ import HouseholdItemsList from "./components/HouseholdItemsList.vue";
 import ImageLoad from "@/views/HarmfulToPets/components/ImageLoad.vue";
 
 const mainTabs = [
-    { id: "pets", name: "Pet Safety 有害植物" },
+    { id: "pets", name: "Harmful Plants 有害植物" },
     { id: "foods", name: "Harmful Foods 有害食品" },
     { id: "household", name: "Harmful Household Items 有害家居用品" },
 ];

@@ -1,30 +1,21 @@
 <script setup>
 import { ref } from "vue";
 
-const { src } = defineProps({
-    src: {
-        type: String,
-    },
-    alt: {
-        type: String,
-    },
+const { src, alt } = defineProps({
+    src: String,
+    alt: String,
 });
+
+const url = ref(null);
+
+url.value = new URL(`../views/HarmfulToPets/${src}`, import.meta.url).href;
 
 const handleImageError = (event) => {
     event.target.style.display = "none";
     event.target.parentElement.style.display = "none";
 };
-
-function resolveRelativePath(path) {
-    return "src/views/HarmfulToPets/" + path;
-}
-
-const url = ref(null);
-url.value = resolveRelativePath(src);
 </script>
 
 <template>
     <img :src="url" :alt="alt" @error="handleImageError" />
 </template>
-
-<style scoped></style>
