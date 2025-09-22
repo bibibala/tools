@@ -75,7 +75,7 @@
             <router-view />
         </main>
 
-        <footer class="footer">© {{ year }} MyTools</footer>
+        <footer class="footer">© {{ year }} CodeForge</footer>
     </div>
 </template>
 

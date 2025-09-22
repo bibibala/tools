@@ -132,7 +132,7 @@ export const routes = [
         name: "HarmfulToPets",
         component: () => import("@/views/HarmfulToPets/index.vue"),
         meta: {
-            title: "养宠物注意指南",
+            title: "养宠注意指南",
             category: "生活工具",
             description:
                 "宠物安全指南，了解对宠物有害的食物、植物和家庭用品，保护宠物健康",
@@ -151,7 +151,8 @@ export function createMyRouter() {
     });
 
     if (typeof window !== "undefined") {
-        router.beforeEach(() => {
+        router.beforeEach((to) => {
+            document.title = `${to.meta.title} · CodeForge`;
             showLoading();
         });
 

@@ -143,7 +143,7 @@ const handleImageError = (event) => {
 <template>
     <div class="tool-page">
         <div class="tool-header">
-            <h1 class="tool-title">Pet Safety Guide 养宠物注意指南</h1>
+            <h1 class="tool-title">Pet Safety Guide 养宠注意指南</h1>
             <div class="disclaimer">
                 <p class="disclaimer-text">
                     <strong>Disclaimer 免责声明:</strong>
