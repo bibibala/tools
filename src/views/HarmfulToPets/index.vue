@@ -5,7 +5,6 @@ import dogsData from "./plants/aspca-toxic-to-dogs-data.json";
 import horsesData from "./plants/aspca-toxic-to-horses-data.json";
 import FoodsList from "./components/FoodsList.vue";
 import HouseholdItemsList from "./components/HouseholdItemsList.vue";
-import ImageLoad from "@/views/HarmfulToPets/components/ImageLoad.vue";
 
 const mainTabs = [
     { id: "pets", name: "Harmful Plants 有害植物" },
@@ -169,18 +168,14 @@ const nextPage = () => {
                                     class="plant-image-container"
                                     v-if="plant.imageUrl"
                                 >
-                                    <ImageLoad
-                                        class="plant-image"
+                                    <img
                                         :src="plant.imageUrl"
-                                    ></ImageLoad>
-                                    <!--                                    <img-->
-                                    <!--                                        :src="plant.imageUrl"-->
-                                    <!--                                        :alt="-->
-                                    <!--                                            plant.imageAlt || plant.commonName-->
-                                    <!--                                        "-->
-                                    <!--                                        class="plant-image"-->
-                                    <!--                                        @error="handleImageError"-->
-                                    <!--                                    />-->
+                                        :alt="
+                                            plant.imageAlt || plant.commonName
+                                        "
+                                        class="plant-image"
+                                        @error="handleImageError"
+                                    />
                                 </div>
                                 <div class="plant-info">
                                     <div class="plant-names">
