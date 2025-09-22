@@ -1,0 +1,141 @@
+{
+    "originalLink": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets",
+    "household_products_risk_for_pets": [
+        {
+            "product_name": {
+                "english": "Alcohol/Yeast Dough",
+                "chinese": "酒精/酵母面团"
+            },
+            "risk_description": {
+                "english": "Alcoholic beverages and food products containing alcohol can cause vomiting, diarrhea, incoordination, depression, difficulty breathing, tremors, changes in blood pH, coma and even death. Alcohol is rapidly absorbed after ingestion, so it’s important to take prompt action in seeking veterinary attention if your pet has had exposure. Yeast dough can rise and cause gas to accumulate in your pet’s digestive system. This can be painful and cause the stomach to bloat, and potentially twist, becoming a life-threatening emergency. The yeast also produces alcohol as a by-product in the stomach environment once ingested, so raw bread dough exposures can develop complications of alcohol toxicity as well (see above).",
+                "chinese": "含酒精饮品及含酒精食品可能导致宠物呕吐、腹泻、身体协调性差、精神沉郁、呼吸困难、震颤、血液pH值改变、昏迷甚至死亡。酒精在宠物摄入后会被快速吸收，因此若宠物接触过酒精，务必立即采取行动寻求兽医帮助。酵母面团会在宠物消化系统内发酵膨胀，导致气体积聚，可能引发宠物腹痛、胃胀气，严重时还可能造成胃扭转，属于危及生命的急症。酵母在被摄入后的胃部环境中还会产生酒精作为代谢副产品，因此宠物接触生面包面团后，也可能出现酒精中毒相关并发症（详见上文）。"
+            }
+        },
+        {
+            "product_name": {
+                "english": "Chocolate, Coffee and Caffeine",
+                "chinese": "巧克力、咖啡与咖啡因"
+            },
+            "risk_description": {
+                "english": "Chocolate, coffee, and caffeine are similar in that their toxicity concerns stem from their methylxanthine concentrations (a group of compounds found in these products). When ingested by pets, methylxanthines can cause vomiting and diarrhea, panting, excessive thirst and urination, hyperactivity, abnormal heart rhythm, tremors, seizures and even death. The darker (higher cacao percentage) the chocolate, or the higher the caffeine content, the greater the risk for toxicity. White chocolate has the lowest methylxanthine content while baking chocolate and cocoa powder have the highest concentrations.",
+                "chinese": "巧克力、咖啡与咖啡因的毒性风险来源相似，均源于其含有的甲基黄嘌呤类化合物（此类化合物存在于上述三种物质中）。宠物摄入甲基黄嘌呤后，可能出现呕吐、腹泻、呼吸急促、过度饮水与排尿、过度兴奋、心律异常、震颤、癫痫发作甚至死亡。巧克力颜色越深（可可含量越高）或咖啡因含量越高，毒性风险就越大。白巧克力的甲基黄嘌呤含量最低，而烘焙巧克力与可可粉的甲基黄嘌呤含量最高。"
+            }
+        },
+        {
+            "product_name": {
+                "english": "Fruits/Vegetables",
+                "chinese": "水果/蔬菜"
+            },
+            "sub_products": [
+                {
+                    "sub_product_name": {
+                        "english": "Avocado",
+                        "chinese": "牛油果"
+                    },
+                    "risk_description": {
+                        "english": "Avocado is primarily a problem for birds, rabbits, donkeys, horses and ruminants including sheep and goats. The biggest concern is for cardiovascular damage and death in birds and rabbits. Horses, donkeys and ruminants can develop swelling of the head/neck in addition to cardiac concerns.",
+                        "chinese": "牛油果的风险主要针对鸟类、兔子、驴、马以及包括绵羊和山羊在内的反刍动物。其中最需关注的是，牛油果可能导致鸟类和兔子出现心血管损伤甚至死亡；而马、驴及反刍动物除了可能面临心脏相关风险外，还可能出现头颈部肿胀。"
+                    }
+                },
+                {
+                    "sub_product_name": {
+                        "english": "Citrus",
+                        "chinese": "柑橘类"
+                    },
+                    "risk_description": {
+                        "english": "The stems, leaves, peels, fruit and seeds of citrus plants contain varying amounts of citric acid and essential oils that can cause irritation and possibly even depression if ingested in significant quantities. Small ingestions, such as eating the fruit, are not likely to present problems beyond minor stomach upset.",
+                        "chinese": "柑橘类植物的茎、叶、果皮、果实及种子中含有不同量的柠檬酸和精油。若宠物大量摄入，可能引发身体刺激，严重时甚至可能导致精神沉郁；而少量摄入（如误食少量柑橘果肉）通常仅可能引起轻微胃部不适，一般不会造成其他严重问题。"
+                    }
+                },
+                {
+                    "sub_product_name": {
+                        "english": "Grapes and Raisins",
+                        "chinese": "葡萄与葡萄干"
+                    },
+                    "risk_description": {
+                        "english": "Tartaric acid is speculated to be the toxic component in grapes and raisins. Since dogs are not able to process tartaric acid, exposure to grapes/raisins can lead to kidney damage.",
+                        "chinese": "酒石酸被认为是葡萄和葡萄干中的毒性成分。由于狗狗无法代谢酒石酸，接触葡萄或葡萄干可能导致其肾脏损伤。"
+                    }
+                },
+                {
+                    "sub_product_name": {
+                        "english": "Onion, Garlic, Chives",
+                        "chinese": "洋葱、大蒜、细香葱"
+                    },
+                    "risk_description": {
+                        "english": "Onion, garlic and chives are members of the Allium species of vegetables. Allium species can cause gastrointestinal irritation and red blood cell damage, which can lead to anemia (low red blood cells). Although cats are more susceptible, dogs are also at risk depending on the amount ingested.",
+                        "chinese": "洋葱、大蒜、细香葱均属于葱属蔬菜。葱属蔬菜可能导致宠物胃肠道刺激及红细胞损伤，进而引发贫血（红细胞数量过低）。尽管猫咪对这类物质更为敏感，但狗狗若摄入一定剂量，同样面临中毒风险。"
+                    }
+                }
+            ]
+        },
+        {
+            "product_name": {
+                "english": "Milk/Dairy",
+                "chinese": "牛奶/乳制品"
+            },
+            "risk_description": {
+                "english": "Because pets do not possess significant amounts of lactase (the enzyme that breaks down lactose in milk), milk and other dairy-based products can cause diarrhea or other digestive upset.",
+                "chinese": "由于宠物体内缺乏足量的乳糖酶（用于分解牛奶中乳糖的酶），因此牛奶及其他乳制品可能导致宠物腹泻或其他消化系统不适。"
+            }
+        },
+        {
+            "product_name": {
+                "english": "Nuts/Fatty Foods",
+                "chinese": "坚果/高脂食物"
+            },
+            "sub_products": [
+                {
+                    "sub_product_name": {
+                        "english": "Macadamia Nuts",
+                        "chinese": "夏威夷果"
+                    },
+                    "risk_description": {
+                        "english": "Macadamia nuts can cause weakness, incoordination, depression, vomiting, tremors and hyperthermia in dogs. Symptoms usually appear within 12 hours of ingestion, with recovery expected within 24-72 hours.",
+                        "chinese": "夏威夷果可能导致狗狗出现虚弱、身体协调性差、精神沉郁、呕吐、震颤及体温升高。症状通常在摄入后12小时内出现，一般可在24-72小时内恢复。"
+                    }
+                },
+                {
+                    "sub_product_name": {
+                        "english": "Nuts (including almonds, pecans and walnuts)",
+                        "chinese": "坚果（包括杏仁、山核桃、核桃）"
+                    },
+                    "risk_description": {
+                        "english": "Nuts, including almonds, pecans and walnuts, contain high amounts of oils and fats. These fats can cause vomiting and diarrhea, and potentially pancreatitis in some pets.",
+                        "chinese": "包括杏仁、山核桃、核桃在内的坚果含有大量油脂。这些油脂可能导致宠物呕吐、腹泻，部分宠物还可能因此引发胰腺炎。"
+                    }
+                },
+                {
+                    "sub_product_name": {
+                        "english": "Coconut and Coconut Oil",
+                        "chinese": "椰子与椰子油"
+                    },
+                    "risk_description": {
+                        "english": "When ingested in small amounts, coconut and coconut-based products are not likely to cause serious harm to your pet. However, the flesh and milk of fresh coconuts do contain oils that may cause stomach upset, loose stools and diarrhea.",
+                        "chinese": "宠物少量摄入椰子及椰子制品通常不会造成严重伤害，但新鲜椰子的果肉和椰汁中含有油脂，可能导致宠物胃部不适、大便松散及腹泻。"
+                    }
+                }
+            ]
+        },
+        {
+            "product_name": {
+                "english": "Raw/Undercooked Meat, Eggs, and Bones",
+                "chinese": "生肉/未煮熟的肉、鸡蛋及骨头"
+            },
+            "risk_description": {
+                "english": "Raw meat and raw eggs can contain bacteria such as Salmonella and E. coli that can be harmful to pets and humans alike. Raw eggs contain an enzyme that can interfere with absorption of certain vitamins, leading to skin/coat problems. Feeding your pet raw bones may seem like a natural and healthy option that might occur if your pet lived in the wild, however, this can be dangerous for a domestic pet. Dogs/cats might sustain injury or obstruction to the gastrointestinal tract when ingesting bones, which could be serious and require surgery.",
+                "chinese": "生肉和生鸡蛋可能含有沙门氏菌、大肠杆菌等细菌，这类细菌对宠物和人类均有危害。生鸡蛋中含有一种酶，会干扰宠物对某些维生素的吸收，进而导致皮肤和被毛出现问题。给宠物喂食生骨头看似符合宠物野外生存的自然习性，是健康选择，但对家养宠物而言存在危险。狗狗或猫咪摄入骨头时，可能造成胃肠道损伤或梗阻，情况严重时需通过手术治疗。"
+            }
+        },
+        {
+            "product_name": {
+                "english": "Sweet and Salty Foods",
+                "chinese": "甜食与咸食"
+            },
+            "risk_description": {
+                "english": "Sweet foods often contain xylitol (a common artificial sweetener), which is highly toxic to pets—even small amounts can cause rapid blood sugar drops (hypoglycemia) and liver damage, potentially leading to seizures or death. Other sweeteners or high sugar content can cause obesity, dental decay, and diabetes in pets over time. Salty foods, such as chips, processed meats, or salty snacks, can lead to excessive thirst and urination in pets, and large ingestions may cause sodium ion poisoning (hypernatremia). Symptoms of sodium ion poisoning include vomiting, diarrhea, tremors, incoordination, seizures, and even coma, as high sodium levels disrupt normal fluid balance in the body.",
+                "chinese": "甜食中常含有木糖醇（一种常见人工甜味剂），这种物质对宠物有剧毒——即使少量摄入也可能导致宠物血糖快速下降（低血糖）和肝损伤，严重时可能引发癫痫发作或死亡。其他甜味剂或高糖成分长期摄入会导致宠物肥胖、龋齿及糖尿病。咸食（如薯片、加工肉类、咸味零食等）会导致宠物过度饮水和排尿，大量摄入还可能引发钠离子中毒（高钠血症）。钠离子中毒的症状包括呕吐、腹泻、震颤、身体协调性差、癫痫发作甚至昏迷，这是因为过高的钠含量会破坏体内正常的体液平衡。"
+            }
+        }
+    ]
+}

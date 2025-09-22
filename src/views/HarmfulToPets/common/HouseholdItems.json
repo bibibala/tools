@@ -1,0 +1,73 @@
+{
+    "originalLink": "https://www.aspca.org/pet-care/aspca-poison-control/poisonous-household-products",
+    "household_products_risk_for_pets": [
+        {
+            "product_name": {
+                "english": "Petroleum Jelly",
+                "chinese": "凡士林"
+            },
+            "risk_description": {
+                "english": "Petroleum Jelly is a laxative and any ingestion can cause stomach upset. Larger ingestions can cause more severe stomach upset. If your pet vomits, there is a potential for the petroleum jelly to be inhaled into the lungs and cause aspiration pneumonia, which can be serious.",
+                "chinese": "凡士林具有通便作用，宠物摄入任何剂量都可能引起胃部不适。摄入剂量较大时，会导致更严重的胃部不适。如果宠物发生呕吐，凡士林有可能被吸入肺部，引发吸入性肺炎，这种情况可能十分严重。"
+            }
+        },
+        {
+            "product_name": {
+                "english": "Bar Soap",
+                "chinese": "块状肥皂"
+            },
+            "risk_description": {
+                "english": "Dogs especially love to eat bar soap, so it’s best to keep it out of reach at all times. However, if they do ingest some, it generally only causes mild stomach upset. If they vomit, bubbles sometimes come out of their noses, which can be disconcerting and make them sneeze a bit, but severe signs are not expected.",
+                "chinese": "狗狗尤其喜欢啃食块状肥皂，因此最好始终将其放在宠物够不到的地方。不过，即便宠物摄入少量肥皂，通常也只会引起轻微的胃部不适。若宠物呕吐，有时会有泡沫从鼻孔流出，这可能会让人不安，也可能导致宠物轻微打喷嚏，但一般不会出现严重症状。"
+            }
+        },
+        {
+            "product_name": {
+                "english": "Toothpaste",
+                "chinese": "牙膏"
+            },
+            "risk_description": {
+                "english": "Toothpaste can contain fluoride or xylitol. In most cases, there is not enough fluoride ingested to see significant signs, but if a large amount is ingested, fluoride can cause severe stomach upset, irregular heartbeats, low blood pressure and life-threatening electrolyte changes. Xylitol is a sweetener that can cause low blood sugar levels or damage to the liver, if enough is ingested. The amount of xylitol present in toothpaste can vary significantly from brand to brand, with some toothpaste containing none and some containing higher amounts, so it’s best to keep all away from pets.",
+                "chinese": "牙膏中可能含有氟化物或木糖醇。多数情况下，宠物摄入的氟化物剂量不足以引发明显症状，但如果大量摄入，氟化物可能导致严重胃部不适、心律不齐、低血压以及危及生命的电解质紊乱。木糖醇是一种甜味剂，宠物摄入足量木糖醇可能导致低血糖或肝损伤。不同品牌牙膏中的木糖醇含量差异较大，部分牙膏不含木糖醇，而有些牙膏的木糖醇含量则较高，因此最好将所有牙膏都放在宠物接触不到的地方。"
+            }
+        },
+        {
+            "product_name": {
+                "english": "Laundry Products",
+                "chinese": "洗衣相关产品"
+            },
+            "sub_products": [
+                {
+                    "sub_product_name": {
+                        "english": "Laundry Detergent Pods and Liquid Laundry Detergent",
+                        "chinese": "洗衣凝珠和液体洗衣液"
+                    },
+                    "risk_description": {
+                        "english": "Liquid laundry detergent and laundry detergent pods can cause stomach upset and irritation to the mouth and throat. In some cases, serious and life-threatening symptoms can occur.",
+                        "chinese": "液体洗衣液和洗衣凝珠可能导致宠物胃部不适，并对口腔和喉咙造成刺激。在某些情况下，还可能引发严重且危及生命的症状。"
+                    }
+                },
+                {
+                    "sub_product_name": {
+                        "english": "Dryer Sheets",
+                        "chinese": "衣物柔顺纸（烘干纸）"
+                    },
+                    "risk_description": {
+                        "english": "Most laundry dryer sheets, especially those that are unused, contain cationic detergents. These detergents can cause severe chemical burns and ulcers to the pet’s mouth, esophagus and stomach. Additionally, the sheets can pose a risk of a foreign body obstruction in the stomach or intestines and can be a medical emergency.",
+                        "chinese": "大多数衣物柔顺纸（尤其是未使用过的）含有阳离子表面活性剂。这类表面活性剂会对宠物的口腔、食道和胃部造成严重化学灼伤和溃疡。此外，柔顺纸还可能导致宠物胃肠道异物梗阻，属于医疗急症。"
+                    }
+                },
+                {
+                    "sub_product_name": {
+                        "english": "Fabric Softeners",
+                        "chinese": "织物柔顺剂"
+                    },
+                    "risk_description": {
+                        "english": "Most fabric softeners also contain cationic detergents which can cause severe chemical burns and ulcers to the pet’s mouth, esophagus and stomach.",
+                        "chinese": "大多数织物柔顺剂也含有阳离子表面活性剂，这类物质会对宠物的口腔、食道和胃部造成严重化学灼伤和溃疡。"
+                    }
+                }
+            ]
+        }
+    ]
+}

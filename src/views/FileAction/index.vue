@@ -18,7 +18,7 @@
                                 class="form-input"
                             />
                             <button
-                                class="btn btn-secondary"
+                                class="btn btn-secondary btn-reset"
                                 @click="reset"
                                 :disabled="!file || isReading"
                             >
@@ -339,7 +339,12 @@ async function previewIfText(f) {
 }
 </script>
 <style scoped>
-/* 使用项目统一的设计系统 */
+.btn-reset {
+    min-width: 30px;
+    padding-left: var(--space-sm);
+    padding-right: var(--space-sm);
+    white-space: nowrap;
+}
 
 .main-content {
     display: flex;
@@ -543,7 +548,6 @@ async function previewIfText(f) {
     }
 
     .input-row {
-        flex-direction: column;
         align-items: stretch;
         gap: var(--space-sm);
     }
