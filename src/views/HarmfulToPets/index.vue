@@ -7,9 +7,9 @@ import FoodsList from "./components/FoodsList.vue";
 import HouseholdItemsList from "./components/HouseholdItemsList.vue";
 
 const mainTabs = [
-    { id: "pets", name: "Harmful Plants 有害植物" },
-    { id: "foods", name: "Harmful Foods 有害食品" },
-    { id: "household", name: "Harmful Household Items 有害家居用品" },
+    { id: "pets", name: "Pet-toxic Plants 有害植物" },
+    { id: "foods", name: "Pet-toxic Foods 有害食品" },
+    { id: "household", name: "Pet-toxic Household Items 有害家居用品" },
 ];
 const activeMainTab = ref("pets");
 

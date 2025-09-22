@@ -223,7 +223,7 @@ const nextPage = () => {
 }
 
 .original-link-btn:hover {
-    background: var(--accent-hover, var(--accent));
+    background: var(--accent, var(--accent));
     transform: translateY(-1px);
     box-shadow: var(--shadow-md);
 }
@@ -266,7 +266,7 @@ const nextPage = () => {
 .food-title-zh {
     font-size: 1.25rem;
     font-weight: 500;
-    color: var(--text-secondary);
+    color: var(--info);
     margin-bottom: 1rem;
     line-height: 1.4;
 }
@@ -280,7 +280,7 @@ const nextPage = () => {
     padding: 0.375rem 0.75rem;
     background: var(--bg-secondary);
     color: var(--accent);
-    border: 1px solid var(--accent);
+    border: 1px solid var(--info);
     border-radius: var(--radius-sm);
     font-size: 0.875rem;
     font-weight: 500;
