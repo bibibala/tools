@@ -332,7 +332,8 @@ const nextPage = () => {
 }
 
 .source-link:hover {
-    color: var(--hover-bg);
+    color: var(--info);
+    background-color: var(--hover-bg);
     text-decoration: underline;
 }
 
