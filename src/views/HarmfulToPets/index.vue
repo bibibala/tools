@@ -283,9 +283,17 @@ const handleImageError = (event) => {
                                 </div>
                                 <div class="plant-info">
                                     <div class="plant-names">
-                                        <h3 class="plant-name-en">
-                                            {{ plant.commonName }}
-                                        </h3>
+                                        <div class="name-item">
+                                            <div
+                                                class="name-label"
+                                                v-if="plant.commonName"
+                                            >
+                                                Common Name（常用名）
+                                            </div>
+                                            <h3 class="plant-name-en">
+                                                {{ plant.commonName }}
+                                            </h3>
+                                        </div>
                                         <h4
                                             class="plant-name-zh"
                                             v-if="plant.chineseName"
@@ -293,9 +301,17 @@ const handleImageError = (event) => {
                                             {{ plant.chineseName }}
                                         </h4>
                                     </div>
-                                    <p class="plant-scientific">
-                                        {{ plant.scientificName }}
-                                    </p>
+                                    <div class="name-item">
+                                        <div
+                                            class="name-label"
+                                            v-if="plant.scientificName"
+                                        >
+                                            Scientific Name（学名）
+                                        </div>
+                                        <p class="plant-scientific">
+                                            {{ plant.scientificName }}
+                                        </p>
+                                    </div>
                                     <div
                                         class="plant-link"
                                         v-if="plant.detailLink"
@@ -672,6 +688,28 @@ const handleImageError = (event) => {
     font-style: italic;
     color: var(--text-secondary);
     margin-bottom: 1rem;
+}
+
+.name-with-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.name-with-label .plant-scientific {
+    margin-bottom: 0;
+}
+
+.name-label {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    opacity: 0.7;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 500;
+    white-space: nowrap;
 }
 
 .plant-link {
