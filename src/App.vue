@@ -6,50 +6,100 @@
                     <img :src="logo" alt="MyTools Logo" class="logo-img" />
                 </div>
 
-                <div class="dropdown-container">
-                    <button
-                        class="dropdown-btn"
-                        @click.stop="isMenuOpen = !isMenuOpen"
-                        aria-label="打开工具菜单"
-                    >
-                        <svg
-                            width="20"
-                            height="20"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                        >
-                            <line x1="4" x2="20" y1="6" y2="6"></line>
-                            <line x1="4" x2="20" y1="12" y2="12"></line>
-                            <line x1="4" x2="20" y1="18" y2="18"></line>
-                        </svg>
-                        <span class="btn-text">工具菜单</span>
-                        <svg
-                            width="16"
-                            height="16"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            class="dropdown-arrow"
-                        >
-                            <polyline points="6 9 12 15 18 9"></polyline>
-                        </svg>
-                    </button>
+                <!-- 桌面端和平板的分类菜单 -->
+                <div class="desktop-menu">
                     <div
-                        class="dropdown-menu"
-                        :class="{ show: isMenuOpen }"
-                        ref="dropdownMenu"
+                        v-for="(category, categoryName) in categorizedRoutes"
+                        :key="categoryName"
+                        class="dropdown-container"
                     >
-                        <div v-for="(item, index) in routes" :key="index">
+                        <button
+                            class="dropdown-btn"
+                            @click.stop="toggleCategory(categoryName)"
+                            :aria-label="`打开${categoryName}菜单`"
+                        >
+                            <span class="btn-text">{{ categoryName }}</span>
+                            <svg
+                                width="16"
+                                height="16"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                class="dropdown-arrow"
+                                :class="{
+                                    rotated: openCategory === categoryName,
+                                }"
+                            >
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </button>
+                        <div
+                            class="dropdown-menu"
+                            :class="{ show: openCategory === categoryName }"
+                        >
                             <RouterLink
+                                v-for="item in category"
+                                :key="item.path"
                                 :to="item.path"
                                 class="dropdown-item"
                                 active-class="active"
-                                @click.stop="isMenuOpen = false"
-                                >{{ item.meta.title }}
+                                @click.stop="openCategory = null"
+                            >
+                                {{ item.meta.title }}
                             </RouterLink>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 移动端菜单（保持原有样式） -->
+                <div class="mobile-menu">
+                    <div class="dropdown-container">
+                        <button
+                            class="dropdown-btn"
+                            @click.stop="isMenuOpen = !isMenuOpen"
+                            aria-label="打开工具菜单"
+                        >
+                            <svg
+                                width="20"
+                                height="20"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                            >
+                                <line x1="4" x2="20" y1="6" y2="6"></line>
+                                <line x1="4" x2="20" y1="12" y2="12"></line>
+                                <line x1="4" x2="20" y1="18" y2="18"></line>
+                            </svg>
+                            <span class="btn-text">工具菜单</span>
+                            <svg
+                                width="16"
+                                height="16"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                class="dropdown-arrow"
+                                :class="{ rotated: isMenuOpen }"
+                            >
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </button>
+                        <div
+                            class="dropdown-menu"
+                            :class="{ show: isMenuOpen }"
+                            ref="dropdownMenu"
+                        >
+                            <div v-for="(item, index) in routes" :key="index">
+                                <RouterLink
+                                    :to="item.path"
+                                    class="dropdown-item"
+                                    active-class="active"
+                                    @click.stop="isMenuOpen = false"
+                                    >{{ item.meta.title }}
+                                </RouterLink>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -95,18 +145,48 @@ onMounted(async () => {
     const { time, stars } = await getRepoInfo();
     lastUpdateTime.value = time;
     star.value = stars;
+    initCategorizedRoutes();
 });
 
 const isMenuOpen = ref(false);
 const dropdownMenu = ref(null);
+const openCategory = ref(null);
+
+// 按分类分组路由
+const categorizedRoutes = ref({});
+
+// 初始化分类路由
+const initCategorizedRoutes = () => {
+    const categories = {};
+    routes.forEach((route) => {
+        const category = route.meta.category || "其他工具";
+        if (!categories[category]) {
+            categories[category] = [];
+        }
+        categories[category].push(route);
+    });
+    categorizedRoutes.value = categories;
+};
+
+// 切换分类下拉菜单
+const toggleCategory = (categoryName) => {
+    openCategory.value =
+        openCategory.value === categoryName ? null : categoryName;
+};
 
 const handleClickOutside = (e) => {
+    // 检查是否点击在移动端菜单外部
     if (
         dropdownMenu.value &&
         !dropdownMenu.value.contains(e.target) &&
-        !e.target.closest(".dropdown-btn")
+        !e.target.closest(".mobile-menu .dropdown-btn")
     ) {
         isMenuOpen.value = false;
+    }
+
+    // 检查是否点击在桌面端分类菜单外部
+    if (!e.target.closest(".desktop-menu")) {
+        openCategory.value = null;
     }
 };
 
@@ -200,6 +280,10 @@ onBeforeUnmount(() => {
 
 .dropdown-arrow {
     transition: transform 0.2s ease;
+}
+
+.dropdown-arrow.rotated {
+    transform: rotate(180deg);
 }
 
 .dropdown-container .show + .dropdown-btn .dropdown-arrow {
@@ -306,6 +390,30 @@ onBeforeUnmount(() => {
     font-size: var(--font-size-xs);
 }
 
+/* 桌面端菜单样式 */
+.desktop-menu {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+/* 移动端菜单样式 */
+.mobile-menu {
+    display: none;
+}
+
+/* 桌面端下拉菜单位置调整 */
+.desktop-menu .dropdown-container {
+    position: relative;
+}
+
+.desktop-menu .dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 4px;
+}
+
 /* 移动端优化 - 防止横向滚动 */
 @media (max-width: 768px) {
     .app-shell {
@@ -335,6 +443,15 @@ onBeforeUnmount(() => {
         max-width: 100%;
         overflow: hidden;
     }
+
+    /* 移动端显示移动端菜单，隐藏桌面端菜单 */
+    .desktop-menu {
+        display: none;
+    }
+
+    .mobile-menu {
+        display: block;
+    }
 }
 
 @media (max-width: 480px) {
@@ -350,6 +467,15 @@ onBeforeUnmount(() => {
         padding: 6px 8px;
         max-width: 100%;
         box-sizing: border-box;
+    }
+
+    /* 移动端显示移动端菜单，隐藏桌面端菜单 */
+    .desktop-menu {
+        display: none;
+    }
+
+    .mobile-menu {
+        display: block;
     }
 }
 </style>
