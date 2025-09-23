@@ -366,9 +366,11 @@ watch([regexPattern, flags, testText], processMatches, { immediate: true });
 
 .preset-regex-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
     gap: var(--space-sm);
     margin-bottom: var(--space-sm);
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .preset-btn {
@@ -384,6 +386,56 @@ watch([regexPattern, flags, testText], processMatches, { immediate: true });
     background-color: var(--accent);
     color: white;
     border-color: var(--accent);
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+    .preset-regex-grid {
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+        gap: var(--space-xs);
+    }
+
+    .preset-btn {
+        font-size: 11px;
+        padding: var(--space-xs);
+        min-height: 32px;
+    }
+
+    .regex-input-wrapper {
+        flex-direction: column;
+    }
+
+    #regex-pattern {
+        border-right: 1px solid var(--border);
+        border-radius: var(--radius);
+        border-bottom-right-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+
+    .regex-flags {
+        border-left: 1px solid var(--border);
+        border-top: none;
+        border-radius: 0 0 var(--radius) var(--radius);
+        justify-content: center;
+    }
+
+    .flag-btn {
+        flex: 1;
+        padding: var(--space-sm);
+    }
+}
+
+@media (max-width: 480px) {
+    .preset-regex-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+    }
+
+    .preset-btn {
+        font-size: 10px;
+        padding: 6px 4px;
+        min-height: 28px;
+    }
 }
 
 /* 优化匹配结果显示 */

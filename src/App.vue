@@ -135,8 +135,10 @@ onBeforeUnmount(() => {
 }
 
 .app-bar {
-    position: sticky;
+    position: fixed;
     top: 0;
+    left: 0;
+    right: 0;
     z-index: 10;
     display: flex;
     align-items: center;
@@ -278,6 +280,11 @@ onBeforeUnmount(() => {
     max-width: 1100px;
     margin: 0 auto;
     width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    padding-top: 72px; /* 为固定的header bar留出空间 */
+    padding-left: 16px;
+    padding-right: 16px;
 }
 
 .github-img {
@@ -297,5 +304,52 @@ onBeforeUnmount(() => {
     color: var(--text-muted);
     text-align: center;
     font-size: var(--font-size-xs);
+}
+
+/* 移动端优化 - 防止横向滚动 */
+@media (max-width: 768px) {
+    .app-shell {
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    .content {
+        padding: 12px 16px;
+        padding-top: 72px; /* 为固定的header bar留出空间 */
+        max-width: 100%;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .app-bar {
+        padding: 8px 12px;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .header-right {
+        max-width: 100%;
+    }
+
+    .github-info {
+        max-width: 100%;
+        overflow: hidden;
+    }
+}
+
+@media (max-width: 480px) {
+    .content {
+        padding: 8px 12px;
+        padding-top: 72px; /* 为固定的header bar留出空间 */
+        max-width: 100%;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .app-bar {
+        padding: 6px 8px;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
 }
 </style>
