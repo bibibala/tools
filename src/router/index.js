@@ -37,7 +37,7 @@ export const routes = [
         component: () => import("@/views/FileAction/index.vue"),
         meta: {
             title: "大文件处理",
-            category: "文件处理",
+            category: "开发工具",
             description:
                 "在线大文件处理工具，支持文件分割、合并、压缩等操作，无需上传服务器",
             keywords: "文件处理, 大文件, 文件分割, 文件合并, 在线工具",
@@ -49,7 +49,7 @@ export const routes = [
         component: () => import("@/views/ColorSchemeGenerator/index.vue"),
         meta: {
             title: "颜色处理",
-            category: "设计工具",
+            category: "开发工具",
             description:
                 "在线颜色转换工具，支持HEX、RGB、HSL等格式互转，颜色配色方案生成",
             keywords: "颜色转换, HEX, RGB, HSL, 配色方案, 颜色工具",
@@ -97,7 +97,7 @@ export const routes = [
         component: () => import("@/views/WebMeta/index.vue"),
         meta: {
             title: "网站元信息配置",
-            category: "网站工具",
+            category: "开发工具",
             description:
                 "在线网站SEO元信息生成工具，快速生成meta标签、Open Graph、Twitter Card等",
             keywords: "SEO, meta标签, Open Graph, Twitter Card, 网站优化",
@@ -109,7 +109,7 @@ export const routes = [
         component: () => import("@/views/FileAcceptGenerator/index.vue"),
         meta: {
             title: "文件类型Accept生成",
-            category: "文件处理",
+            category: "开发工具",
             description:
                 "在线文件类型Accept属性生成器，快速生成HTML input文件选择器的accept属性",
             keywords: "文件类型, Accept属性, HTML, input, 文件选择器",
