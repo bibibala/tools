@@ -152,7 +152,7 @@ export function createMyRouter() {
 
     if (typeof window !== "undefined") {
         router.beforeEach((to) => {
-            document.title = `${to.meta.title} · CodeForge`;
+            document.title = `${to.meta.title}`;
             showLoading();
         });
 

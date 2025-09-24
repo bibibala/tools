@@ -1,9 +1,85 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
+import { VitePWA } from "vite-plugin-pwa";
 import { fileURLToPath, URL } from "node:url";
 
 export default defineConfig({
-    plugins: [vue()],
+    plugins: [
+        vue(),
+        VitePWA({
+            registerType: "autoUpdate",
+            workbox: {
+                globDirectory: "dev-dist",
+                globPatterns: ["**/*.js"],
+                globIgnores: ["**/node_modules/**/*", "sw.js", "workbox-*.js"],
+                navigateFallback: null, // 禁用离线页面，支持完全离线使用
+                navigateFallbackDenylist: [/^\/api/],
+                runtimeCaching: [
+                    {
+                        urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+                        handler: "CacheFirst",
+                        options: {
+                            cacheName: "google-fonts-cache",
+                            expiration: {
+                                maxEntries: 10,
+                                maxAgeSeconds: 60 * 60 * 24 * 365, // 365 days
+                            },
+                            cacheableResponse: {
+                                statuses: [0, 200],
+                            },
+                        },
+                    },
+                    {
+                        urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+                        handler: "CacheFirst",
+                        options: {
+                            cacheName: "google-fonts-static-cache",
+                            expiration: {
+                                maxEntries: 10,
+                                maxAgeSeconds: 60 * 60 * 24 * 365, // 365 days
+                            },
+                            cacheableResponse: {
+                                statuses: [0, 200],
+                            },
+                        },
+                    },
+                ],
+            },
+            manifest: {
+                name: "CodeForge",
+                short_name: "CodeForge",
+                description:
+                    "Professional code generation and development tools",
+                theme_color: "#2563eb",
+                background_color: "#ffffff",
+                display: "standalone",
+                scope: "/",
+                start_url: "/",
+                icons: [
+                    {
+                        src: "android-chrome-192x192.png",
+                        sizes: "192x192",
+                        type: "image/png",
+                    },
+                    {
+                        src: "android-chrome-512x512.png",
+                        sizes: "512x512",
+                        type: "image/png",
+                    },
+                ],
+                categories: ["developer", "productivity", "utilities"],
+                lang: "zh-CN",
+                dir: "ltr",
+                orientation: "any",
+                prefer_related_applications: false,
+            },
+            devOptions: {
+                enabled: true,
+                type: "module",
+                // suppressWarnings: true, // 抑制开发模式下的警告
+            },
+        }),
+    ],
     build: {
         minify: true,
         cssMinify: true,
@@ -96,6 +172,8 @@ export default defineConfig({
             "shiki",
             "exif-js",
             "lunar-javascript",
+            "workbox-window",
+            "vite-plugin-pwa",
         ],
         exclude: [
             "eslint",

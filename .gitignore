@@ -2,6 +2,7 @@
 .thumbs.db
 /.trae
 node_modules
+dev-dist
 release
 preview
 production

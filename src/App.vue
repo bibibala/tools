@@ -1,5 +1,6 @@
 <template>
     <div class="app-shell">
+        <OfflineIndicator />
         <header class="app-bar">
             <div class="header-left">
                 <div class="logo-container">
@@ -136,6 +137,7 @@ import github from "@/assets/github.png";
 import logo from "@/assets/logo.svg";
 import { ref, onMounted, onBeforeUnmount } from "vue";
 import { getRepoInfo, REPO_URL } from "@/utils/useGetRepo.js";
+import OfflineIndicator from "@/components/OfflineIndicator.vue";
 
 const year = ref(new Date().getFullYear());
 const lastUpdateTime = ref("2024-01-01");
