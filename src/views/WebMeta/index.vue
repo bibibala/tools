@@ -365,6 +365,11 @@
                         >
                             禁止缩放
                         </option>
+                        <option
+                            value="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+                        >
+                            禁止缩放（防误触）
+                        </option>
                         <option value="width=768, initial-scale=1.0">
                             强制平板宽度（不推荐）
                         </option>
@@ -387,6 +392,95 @@
                     />
                     <p class="config-hint">
                         匹配网站主色调，影响浏览器地址栏/工具栏颜色（部分浏览器支持）
+                    </p>
+                </div>
+
+                <!-- iOS Web App 配置 -->
+                <div class="config-item">
+                    <label
+                        class="section-label"
+                        for="apple-mobile-web-app-capable"
+                        >iOS Web App 模式</label
+                    >
+                    <select
+                        id="apple-mobile-web-app-capable"
+                        v-model="metaConfig.appleMobileWebAppCapable"
+                        class="form-input form-select"
+                    >
+                        <option value="yes">启用</option>
+                        <option value="no">禁用</option>
+                    </select>
+                    <p class="config-hint">
+                        允许网站以全屏模式运行，类似原生应用
+                    </p>
+                </div>
+
+                <!-- iOS 状态栏样式 -->
+                <div class="config-item">
+                    <label
+                        class="section-label"
+                        for="apple-mobile-web-app-status-bar-style"
+                        >iOS 状态栏样式</label
+                    >
+                    <select
+                        id="apple-mobile-web-app-status-bar-style"
+                        v-model="metaConfig.appleMobileWebAppStatusBarStyle"
+                        class="form-input form-select"
+                    >
+                        <option value="black-translucent">黑色半透明</option>
+                        <option value="black">黑色</option>
+                        <option value="default">默认</option>
+                    </select>
+                    <p class="config-hint">设置iOS设备上状态栏的外观样式</p>
+                </div>
+
+                <!-- 格式检测 -->
+                <div class="config-item">
+                    <label class="section-label" for="format-detection"
+                        >格式检测</label
+                    >
+                    <select
+                        id="format-detection"
+                        v-model="metaConfig.formatDetection"
+                        class="form-input form-select"
+                    >
+                        <option value="telephone=no,email=no,address=no">
+                            全部禁用
+                        </option>
+                        <option value="telephone=yes,email=no,address=no">
+                            仅电话号码
+                        </option>
+                        <option value="telephone=no,email=yes,address=no">
+                            仅邮箱
+                        </option>
+                        <option value="telephone=yes,email=yes,address=no">
+                            电话和邮箱
+                        </option>
+                        <option value="telephone=yes,email=yes,address=yes">
+                            全部启用
+                        </option>
+                    </select>
+                    <p class="config-hint">
+                        控制移动设备是否自动检测电话号码、邮箱等格式
+                    </p>
+                </div>
+
+                <!-- iOS Web App 标题 -->
+                <div class="config-item">
+                    <label
+                        class="section-label"
+                        for="apple-mobile-web-app-title"
+                        >iOS Web App 标题</label
+                    >
+                    <input
+                        type="text"
+                        id="apple-mobile-web-app-title"
+                        v-model="metaConfig.appleMobileWebAppTitle"
+                        placeholder="例如：我的应用"
+                        class="form-input"
+                    />
+                    <p class="config-hint">
+                        iOS设备上添加到主屏幕时显示的标题（留空则使用网站标题）
                     </p>
                 </div>
             </div>
@@ -435,7 +529,7 @@ const defaultConfig = {
     canonical: "",
     robots: "index,follow",
     author: "",
-    copyright: `© ${new Date().getFullYear()} 网站名称. 保留所有权利.`,
+    copyright: `© ${new Date().getFullYear()} 网站名称. 保留所有权利。`,
     og: {
         title: "",
         image: "",
@@ -448,8 +542,14 @@ const defaultConfig = {
     },
     favicon: "",
     appleTouchIcon: "",
-    viewport: "width=device-width, initial-scale=1.0",
+    viewport:
+        "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no",
     themeColor: "#111827", // 与项目主题色（--accent）一致
+    // 移动端优化配置
+    appleMobileWebAppCapable: "yes",
+    appleMobileWebAppStatusBarStyle: "black-translucent",
+    formatDetection: "telephone=no,email=no,address=no",
+    appleMobileWebAppTitle: "",
 };
 
 const metaConfig = ref({ ...defaultConfig });
@@ -568,6 +668,28 @@ const generatedHtml = computed(() => {
     tags.push(
         `${indent}${indent}<meta name="theme-color" content="${c.themeColor}">`,
     );
+
+    // 移动端优化配置
+    if (c.appleMobileWebAppCapable) {
+        tags.push(
+            `${indent}${indent}<meta name="apple-mobile-web-app-capable" content="${c.appleMobileWebAppCapable}">`,
+        );
+    }
+    if (c.appleMobileWebAppStatusBarStyle) {
+        tags.push(
+            `${indent}${indent}<meta name="apple-mobile-web-app-status-bar-style" content="${c.appleMobileWebAppStatusBarStyle}">`,
+        );
+    }
+    if (c.formatDetection) {
+        tags.push(
+            `${indent}${indent}<meta name="format-detection" content="${c.formatDetection}">`,
+        );
+    }
+    if (c.appleMobileWebAppTitle) {
+        tags.push(
+            `${indent}${indent}<meta name="apple-mobile-web-app-title" content="${escapeHtml(c.appleMobileWebAppTitle)}">`,
+        );
+    }
 
     // 图标设置
     if (c.favicon.trim()) {
@@ -691,10 +813,11 @@ const resetConfig = () => {
 @media (max-width: 768px) {
     .tool-page {
         padding: var(--space-sm);
-        max-width: 100vw;
-        width: 100vw;
-        margin: 0;
+        max-width: 100%;
+        width: 100%;
+        margin: 0 auto;
         overflow-x: hidden;
+        box-sizing: border-box;
     }
 
     .tool-section {
@@ -702,6 +825,8 @@ const resetConfig = () => {
         margin-bottom: var(--space-md);
         width: 100%;
         box-sizing: border-box;
+        margin-left: auto;
+        margin-right: auto;
     }
 
     .config-grid {
@@ -709,17 +834,22 @@ const resetConfig = () => {
         gap: var(--space-sm);
         width: 100%;
         min-width: 0;
+        margin: 0;
+        padding: 0;
     }
 
     .config-item {
         width: 100%;
         box-sizing: border-box;
+        padding: 0;
+        margin: 0;
     }
 
     .form-input {
         width: 100%;
         box-sizing: border-box;
-        font-size: var(--font-size);
+        font-size: 16px !important; /* iOS Safari需要至少16px来防止缩放 */
+        -webkit-text-size-adjust: 100%;
     }
 
     .form-hint {
@@ -744,6 +874,10 @@ const resetConfig = () => {
 @media (max-width: 480px) {
     .tool-page {
         padding: var(--space-xs);
+        max-width: 100%;
+        width: 100%;
+        margin: 0 auto;
+        box-sizing: border-box;
     }
 
     .tool-section {
@@ -752,7 +886,8 @@ const resetConfig = () => {
 
     .form-input {
         padding: var(--space-sm);
-        font-size: var(--font-size-sm);
+        font-size: 16px !important; /* iOS Safari需要至少16px来防止缩放 */
+        -webkit-text-size-adjust: 100%;
     }
 
     .color-input {
