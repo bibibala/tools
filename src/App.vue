@@ -210,8 +210,8 @@ onBeforeUnmount(() => {
 <style>
 .app-shell {
     min-height: 100vh;
-    display: grid;
-    grid-template-rows: auto 1fr auto;
+    display: flex;
+    flex-direction: column;
 }
 
 .app-bar {
@@ -369,6 +369,7 @@ onBeforeUnmount(() => {
     padding-top: 72px; /* 为固定的header bar留出空间 */
     padding-left: 16px;
     padding-right: 16px;
+    flex: 1;
 }
 
 .github-img {
@@ -388,6 +389,7 @@ onBeforeUnmount(() => {
     color: var(--text-muted);
     text-align: center;
     font-size: var(--font-size-xs);
+    flex-shrink: 0;
 }
 
 /* 桌面端菜单样式 */

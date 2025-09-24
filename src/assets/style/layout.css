@@ -4,6 +4,7 @@
     margin: 0 auto;
     padding: var(--space-xl);
     color: var(--text);
+    min-height: calc(100vh - 200px); /* 确保页面至少有视口高度减去header和footer的高度 */
 }
 
 .tool-header {
