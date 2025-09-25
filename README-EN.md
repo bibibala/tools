@@ -1,5 +1,6 @@
 # Developer Toolbox
 
+[Switch to English](README-EN.md) | [切换中文](README.md)
 Just some fun little tools I made. Thought they were cool so I put them online.
 
 ## 🎯 Features
@@ -15,7 +16,7 @@ Just some fun little tools I made. Thought they were cool so I put them online.
 - **PNG to ICNS Converter** - Convert PNG images to Mac icons
 - **File Processing Tools** - Various file-related functions
 - **Prettier Config Generator** - Generate code formatting configs
-- **Web Meta Info Viewer** - View webpage meta tag information
+- **html meta information configuration** - Simplify the generation of html meta information configuration
 
 ## 🚀 Quick Start
 
