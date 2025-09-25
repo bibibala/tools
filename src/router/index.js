@@ -139,6 +139,18 @@ export const routes = [
             keywords: "宠物安全, 宠物健康, 有害食物, 有害植物, 宠物护理",
         },
     },
+    {
+        path: "/icns",
+        name: "ImageIcns",
+        component: () => import("@/views/ImageIcns/index.vue"),
+        meta: {
+            title: "PNG转ICNS图标",
+            category: "文件处理",
+            description:
+                "在线PNG转ICNS图标工具，使用WebAssembly技术将PNG图片转换为macOS图标格式",
+            keywords: "PNG转ICNS, 图标转换, macOS图标, WebAssembly, 图片转换",
+        },
+    },
 ];
 
 export function createMyRouter() {

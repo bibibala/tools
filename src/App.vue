@@ -144,9 +144,15 @@ const lastUpdateTime = ref("2024-01-01");
 const star = ref(0);
 
 onMounted(async () => {
-    const { time, stars } = await getRepoInfo();
-    lastUpdateTime.value = time;
-    star.value = stars;
+    try {
+        const { time, stars } = await getRepoInfo();
+        lastUpdateTime.value = time;
+        star.value = stars;
+    } catch (error) {
+        console.info("GitHub API 获取失败，使用默认值:", error);
+        lastUpdateTime.value = new Date().toISOString().split("T")[0];
+        star.value = 0;
+    }
     initCategorizedRoutes();
 });
 

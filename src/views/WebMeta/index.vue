@@ -395,23 +395,21 @@
                     </p>
                 </div>
 
-                <!-- iOS Web App 配置 -->
+                <!-- 移动 Web App 配置（现代标准） -->
                 <div class="config-item">
-                    <label
-                        class="section-label"
-                        for="apple-mobile-web-app-capable"
-                        >iOS Web App 模式</label
+                    <label class="section-label" for="mobile-web-app-capable"
+                        >移动 Web App 模式</label
                     >
                     <select
-                        id="apple-mobile-web-app-capable"
-                        v-model="metaConfig.appleMobileWebAppCapable"
+                        id="mobile-web-app-capable"
+                        v-model="metaConfig.mobileWebAppCapable"
                         class="form-input form-select"
                     >
                         <option value="yes">启用</option>
                         <option value="no">禁用</option>
                     </select>
                     <p class="config-hint">
-                        允许网站以全屏模式运行，类似原生应用
+                        允许网站以全屏模式运行，类似原生应用（现代浏览器标准）
                     </p>
                 </div>
 
@@ -546,7 +544,7 @@ const defaultConfig = {
         "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no",
     themeColor: "#111827", // 与项目主题色（--accent）一致
     // 移动端优化配置
-    appleMobileWebAppCapable: "yes",
+    mobileWebAppCapable: "yes", // 现代标准
     appleMobileWebAppStatusBarStyle: "black-translucent",
     formatDetection: "telephone=no,email=no,address=no",
     appleMobileWebAppTitle: "",
@@ -669,10 +667,10 @@ const generatedHtml = computed(() => {
         `${indent}${indent}<meta name="theme-color" content="${c.themeColor}">`,
     );
 
-    // 移动端优化配置
-    if (c.appleMobileWebAppCapable) {
+    // 移动端优化配置 - 使用现代标准，移除过时的apple-mobile-web-app-capable
+    if (c.mobileWebAppCapable) {
         tags.push(
-            `${indent}${indent}<meta name="apple-mobile-web-app-capable" content="${c.appleMobileWebAppCapable}">`,
+            `${indent}${indent}<meta name="mobile-web-app-capable" content="${c.mobileWebAppCapable}">`,
         );
     }
     if (c.appleMobileWebAppStatusBarStyle) {
