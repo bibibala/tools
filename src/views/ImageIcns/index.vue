@@ -406,7 +406,9 @@ const convertToPngs = async () => {
         if (result === 0) {
             // 创建ZIP文件包含所有PNG
             const zip = new JSZip();
-            const sizes = [16, 32, 48, 64, 128, 256, 512, 1024];
+            const sizes = [
+                16, 24, 30, 32, 40, 48, 64, 72, 80, 96, 128, 256, 512, 1024,
+            ];
             let pngCount = 0;
 
             for (const size of sizes) {
