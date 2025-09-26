@@ -1,0 +1,3 @@
+[submodule "https:/github.com/bibibala/image_to_ico_and_icns.git"]
+	path = https:/github.com/bibibala/image_to_ico_and_icns.git
+	url = https://github.com/bibibala/tools.git
