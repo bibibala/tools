@@ -1,7 +1,6 @@
 # 开发者工具箱
 
-[Switch to English](README-EN.md) | [切换中文](README.md)
-随便写的一些小工具，觉得好玩就放上来了。
+[Switch to English](README-EN.md)
 
 ## 🎯 功能列表
 

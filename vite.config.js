@@ -174,6 +174,7 @@ export default defineConfig({
             "lunar-javascript",
             "workbox-window",
             "vite-plugin-pwa",
+            "jszip",
         ],
         exclude: [
             "eslint",
