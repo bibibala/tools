@@ -144,11 +144,12 @@ export const routes = [
         name: "ImageIcns",
         component: () => import("@/views/ImageIcns/index.vue"),
         meta: {
-            title: "PNG转ICNS图标",
+            title: "图片转图标工具",
             category: "文件处理",
             description:
-                "在线PNG转ICNS图标工具，使用WebAssembly技术将PNG图片转换为macOS图标格式",
-            keywords: "PNG转ICNS, 图标转换, macOS图标, WebAssembly, 图片转换",
+                "在线图片转图标工具，使用WebAssembly技术将PNG图片转换为ICNS、ICO、PNG等多种图标格式",
+            keywords:
+                "PNG转ICNS, PNG转ICO, 图标转换, macOS图标, Windows图标, WebAssembly, 图片转换, 图标生成",
         },
     },
 ];

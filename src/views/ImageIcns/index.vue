@@ -1,8 +1,8 @@
 <template>
     <div class="tool-page">
         <header class="tool-header">
-            <h1>图片 转 ICNS</h1>
-            <p>将图片转换为macOS图标格式(ICNS)</p>
+            <h1>图片转图标</h1>
+            <p>将图片转换为多种图标格式（ICNS、ICO、PNG）</p>
         </header>
 
         <main class="main-content">
@@ -77,29 +77,88 @@
                             <line x1="4.93" y1="19.07" x2="7.76" y2="16.24" />
                             <line x1="16.24" y1="7.76" x2="19.07" y2="4.93" />
                         </svg>
-                        {{ isConverting ? "转换中..." : "转换为 ICNS" }}
+                        {{ isConverting ? "转换中..." : "生成 ICNS" }}
                     </button>
 
                     <button
-                        @click="downloadIcns"
-                        :disabled="!outputData"
-                        class="btn btn-secondary"
+                        @click="convertToIco"
+                        :disabled="!selectedFile || isConverting || !wasmReady"
+                        class="btn btn-primary"
                     >
                         <svg
+                            v-if="isConverting"
                             width="16"
                             height="16"
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
                             stroke-width="2"
+                            class="spinning"
                         >
-                            <path
-                                d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
-                            />
-                            <polyline points="7 10 12 15 17 10" />
-                            <line x1="12" y1="15" x2="12" y2="3" />
+                            <line x1="12" y1="2" x2="12" y2="6" />
+                            <line x1="12" y1="18" x2="12" y2="22" />
+                            <line x1="4.93" y1="4.93" x2="7.76" y2="7.76" />
+                            <line x1="16.24" y1="16.24" x2="19.07" y2="19.07" />
+                            <line x1="2" y1="12" x2="6" y2="12" />
+                            <line x1="18" y1="12" x2="22" y2="12" />
+                            <line x1="4.93" y1="19.07" x2="7.76" y2="16.24" />
+                            <line x1="16.24" y1="7.76" x2="19.07" y2="4.93" />
                         </svg>
-                        下载 ICNS
+                        {{ isConverting ? "转换中..." : "生成 ICO" }}
+                    </button>
+
+                    <button
+                        @click="convertToPngs"
+                        :disabled="!selectedFile || isConverting || !wasmReady"
+                        class="btn btn-primary"
+                    >
+                        <svg
+                            v-if="isConverting"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            class="spinning"
+                        >
+                            <line x1="12" y1="2" x2="12" y2="6" />
+                            <line x1="12" y1="18" x2="12" y2="22" />
+                            <line x1="4.93" y1="4.93" x2="7.76" y2="7.76" />
+                            <line x1="16.24" y1="16.24" x2="19.07" y2="19.07" />
+                            <line x1="2" y1="12" x2="6" y2="12" />
+                            <line x1="18" y1="12" x2="22" y2="12" />
+                            <line x1="4.93" y1="19.07" x2="7.76" y2="16.24" />
+                            <line x1="16.24" y1="7.76" x2="19.07" y2="4.93" />
+                        </svg>
+                        {{ isConverting ? "转换中..." : "生成 PNGs" }}
+                    </button>
+
+                    <button
+                        @click="convertToAll"
+                        :disabled="!selectedFile || isConverting || !wasmReady"
+                        class="btn btn-primary"
+                    >
+                        <svg
+                            v-if="isConverting"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            class="spinning"
+                        >
+                            <line x1="12" y1="2" x2="12" y2="6" />
+                            <line x1="12" y1="18" x2="12" y2="22" />
+                            <line x1="4.93" y1="4.93" x2="7.76" y2="7.76" />
+                            <line x1="16.24" y1="16.24" x2="19.07" y2="19.07" />
+                            <line x1="2" y1="12" x2="6" y2="12" />
+                            <line x1="18" y1="12" x2="22" y2="12" />
+                            <line x1="4.93" y1="19.07" x2="7.76" y2="16.24" />
+                            <line x1="16.24" y1="7.76" x2="19.07" y2="4.93" />
+                        </svg>
+                        {{ isConverting ? "转换中..." : "生成全部" }}
                     </button>
                 </div>
 
@@ -195,13 +254,13 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
+import JSZip from "jszip";
 import createModule from "./fun.js";
 
 const wasmModule = ref(null);
 const wasmReady = ref(false);
 const selectedFile = ref(null);
 const previewUrl = ref("");
-const outputData = ref(null);
 const isConverting = ref(false);
 const statusMessage = ref("");
 const statusType = ref("info");
@@ -245,7 +304,7 @@ const convertToIcns = async () => {
 
     isConverting.value = true;
     showStatus("正在转换...", "info");
-    addLog("🚀 开始转换...");
+    addLog("🚀 开始转换 ICNS...");
 
     try {
         // 将文件写入WASM文件系统
@@ -262,39 +321,237 @@ const convertToIcns = async () => {
 
         if (result === 0) {
             // 读取输出文件
-            outputData.value = wasmModule.value.FS_readFile("output.icns");
-            showStatus("转换完成 ✅", "success");
+            const icnsData = wasmModule.value.FS_readFile("output.icns");
+            downloadFile(icnsData, `${getBaseFileName()}.icns`, "image/icns");
+            showStatus("ICNS 转换完成 ✅", "success");
             addLog("✅ ICNS 文件生成成功！");
         } else {
-            showStatus("转换失败 ❌", "error");
+            showStatus("ICNS 转换失败 ❌", "error");
             addLog("❌ 转换函数返回错误码");
         }
     } catch (err) {
-        showStatus("转换失败 ❌", "error");
+        showStatus("ICNS 转换失败 ❌", "error");
         addLog(`❌ 转换异常: ${err.message}`);
     } finally {
         isConverting.value = false;
     }
 };
 
-// 下载ICNS文件
-const downloadIcns = () => {
-    if (!outputData.value) {
-        addLog("⚠️ 没有可下载的数据");
+// 转换为ICO
+const convertToIco = async () => {
+    if (!selectedFile.value || !wasmModule.value || !wasmReady.value) {
+        addLog("⚠️ 没有文件或 WASM 未加载");
         return;
     }
 
-    const blob = new Blob([outputData.value], { type: "image/icns" });
+    isConverting.value = true;
+    showStatus("正在转换...", "info");
+    addLog("🚀 开始转换 ICO...");
+
+    try {
+        // 将文件写入WASM文件系统
+        const buffer = new Uint8Array(await selectedFile.value.arrayBuffer());
+        wasmModule.value.FS_writeFile("input.png", buffer);
+
+        // 调用C函数进行转换
+        const result = wasmModule.value.ccall(
+            "wasm_convert_to_ico",
+            "number",
+            ["string", "string"],
+            ["input.png", "output.ico"],
+        );
+
+        if (result === 0) {
+            // 读取输出文件
+            const icoData = wasmModule.value.FS_readFile("output.ico");
+            downloadFile(icoData, `${getBaseFileName()}.ico`, "image/x-icon");
+            showStatus("ICO 转换完成 ✅", "success");
+            addLog("✅ ICO 文件生成成功！");
+        } else {
+            showStatus("ICO 转换失败 ❌", "error");
+            addLog("❌ 转换函数返回错误码");
+        }
+    } catch (err) {
+        showStatus("ICO 转换失败 ❌", "error");
+        addLog(`❌ 转换异常: ${err.message}`);
+    } finally {
+        isConverting.value = false;
+    }
+};
+
+// 转换为PNGs
+const convertToPngs = async () => {
+    if (!selectedFile.value || !wasmModule.value || !wasmReady.value) {
+        addLog("⚠️ 没有文件或 WASM 未加载");
+        return;
+    }
+
+    isConverting.value = true;
+    showStatus("正在转换...", "info");
+    addLog("🚀 开始转换 PNGs...");
+
+    try {
+        // 将文件写入WASM文件系统
+        const buffer = new Uint8Array(await selectedFile.value.arrayBuffer());
+        wasmModule.value.FS_writeFile("input.png", buffer);
+
+        // 调用C函数进行转换
+        const result = wasmModule.value.ccall(
+            "wasm_convert_to_pngs",
+            "number",
+            ["string"],
+            ["input.png"],
+        );
+
+        if (result === 0) {
+            // 创建ZIP文件包含所有PNG
+            const zip = new JSZip();
+            const sizes = [16, 32, 48, 64, 128, 256, 512, 1024];
+            let pngCount = 0;
+
+            for (const size of sizes) {
+                try {
+                    const pngData = wasmModule.value.FS_readFile(
+                        `/${size}.png`,
+                    );
+                    zip.file(`${size}.png`, pngData);
+                    pngCount++;
+                } catch (e) {
+                    addLog(`⚠️ 缺少 ${size}.png，${e}`);
+                }
+            }
+
+            if (pngCount > 0) {
+                const zipBlob = await zip.generateAsync({ type: "blob" });
+                downloadFile(
+                    zipBlob,
+                    `${getBaseFileName()}_pngs.zip`,
+                    "application/zip",
+                );
+                showStatus(`PNGs 转换完成 ✅ (${pngCount} 个文件)`, "success");
+                addLog(`✅ ${pngCount} 个 PNG 文件生成成功！`);
+            } else {
+                showStatus("没有生成任何 PNG 文件 ❌", "error");
+                addLog("❌ 没有生成任何 PNG 文件");
+            }
+        } else {
+            showStatus("PNGs 转换失败 ❌", "error");
+            addLog("❌ 转换函数返回错误码");
+        }
+    } catch (err) {
+        showStatus("PNGs 转换失败 ❌", "error");
+        addLog(`❌ 转换异常: ${err.message}`);
+    } finally {
+        isConverting.value = false;
+    }
+};
+
+// 转换为所有格式
+const convertToAll = async () => {
+    if (!selectedFile.value || !wasmModule.value || !wasmReady.value) {
+        addLog("⚠️ 没有文件或 WASM 未加载");
+        return;
+    }
+
+    isConverting.value = true;
+    showStatus("正在转换...", "info");
+    addLog("🚀 开始转换所有格式...");
+
+    try {
+        // 将文件写入WASM文件系统
+        const buffer = new Uint8Array(await selectedFile.value.arrayBuffer());
+        wasmModule.value.FS_writeFile("input.png", buffer);
+
+        // 调用C函数进行转换
+        const result = wasmModule.value.ccall(
+            "wasm_convert_to_both",
+            "number",
+            ["string", "string"],
+            ["input.png", "output_both"],
+        );
+
+        if (result === 0) {
+            // 创建ZIP文件包含所有输出
+            const zip = new JSZip();
+            let fileCount = 0;
+
+            // 添加ICNS文件
+            try {
+                const icnsData =
+                    wasmModule.value.FS_readFile("/output_both.icns");
+                zip.file(`${getBaseFileName()}.icns`, icnsData);
+                fileCount++;
+            } catch (e) {
+                addLog(`⚠️ 缺少 ICNS 文件，${e}`);
+            }
+
+            // 添加ICO文件
+            try {
+                const icoData =
+                    wasmModule.value.FS_readFile("/output_both.ico");
+                zip.file(`${getBaseFileName()}.ico`, icoData);
+                fileCount++;
+            } catch (e) {
+                addLog(`⚠️ 缺少 ICO 文件，${e}`);
+            }
+
+            // 添加PNG文件
+            const sizes = [16, 32, 48, 64, 128, 256, 512, 1024];
+            for (const size of sizes) {
+                try {
+                    const pngData = wasmModule.value.FS_readFile(
+                        `/${size}.png`,
+                    );
+                    zip.file(`${size}.png`, pngData);
+                    fileCount++;
+                } catch (e) {
+                    addLog(`⚠️ 缺少 ${size}.png,${e}`);
+                }
+            }
+
+            if (fileCount > 0) {
+                const zipBlob = await zip.generateAsync({ type: "blob" });
+                downloadFile(
+                    zipBlob,
+                    `${getBaseFileName()}_all_formats.zip`,
+                    "application/zip",
+                );
+                showStatus(`全部转换完成 ✅ (${fileCount} 个文件)`, "success");
+                addLog(`✅ ${fileCount} 个文件生成成功！`);
+            } else {
+                showStatus("没有生成任何文件 ❌", "error");
+                addLog("❌ 没有生成任何文件");
+            }
+        } else {
+            showStatus("全部转换失败 ❌", "error");
+            addLog("❌ 转换函数返回错误码");
+        }
+    } catch (err) {
+        showStatus("全部转换失败 ❌", "error");
+        addLog(`❌ 转换异常: ${err.message}`);
+    } finally {
+        isConverting.value = false;
+    }
+};
+
+// 获取基础文件名（不含扩展名）
+const getBaseFileName = () => {
+    return selectedFile.value?.name.replace(/\.[^/.]+$/, "") || "output";
+};
+
+// 下载文件
+const downloadFile = (data, filename, mimeType) => {
+    const blob = new Blob([data], { type: mimeType });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${selectedFile.value.name.replace(/\.[^/.]+$/, "")}.icns`;
+    a.download = filename;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 
-    addLog("💾 已触发下载 ICNS 文件");
+    addLog(`💾 已下载: ${filename}`);
 };
 
 // 工具函数
@@ -458,7 +715,7 @@ const showStatus = (message, type) => {
 }
 
 .btn:hover {
-    background: var(--hover-bg);
+    background: var(--info);
     border-color: var(--border);
 }
 
@@ -476,17 +733,6 @@ const showStatus = (message, type) => {
 .btn-primary:hover:not(:disabled) {
     background: var(--accent-light);
     border-color: var(--accent-light);
-}
-
-.btn-secondary {
-    background: var(--bg-secondary);
-    color: var(--text);
-    border-color: var(--border);
-}
-
-.btn-secondary:hover:not(:disabled) {
-    background: var(--hover-bg);
-    border-color: var(--border);
 }
 
 .btn-small {

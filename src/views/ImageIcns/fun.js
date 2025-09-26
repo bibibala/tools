@@ -25,25 +25,10 @@ async function Module(moduleArg = {}) {
     // Determine the runtime environment we are in. You can customize this by
     // setting the ENVIRONMENT setting at compile time (see settings.js).
 
-    // Attempt to auto-detect the environment
-    var ENVIRONMENT_IS_WEB = typeof window == "object";
-    var ENVIRONMENT_IS_WORKER = typeof WorkerGlobalScope != "undefined";
-    // N.b. Electron.js environment is simultaneously a NODE-environment, but
-    // also a web environment.
-    var ENVIRONMENT_IS_NODE =
-        typeof process == "object" &&
-        process.versions?.node &&
-        process.type != "renderer";
-    var ENVIRONMENT_IS_SHELL =
-        !ENVIRONMENT_IS_WEB && !ENVIRONMENT_IS_NODE && !ENVIRONMENT_IS_WORKER;
-
-    if (ENVIRONMENT_IS_NODE) {
-        // When building an ES module `require` is not normally available.
-        // We need to use `createRequire()` to construct the require()` function.
-        const { createRequire } = await import("module");
-        /** @suppress{duplicate} */
-        var require = createRequire(import.meta.url);
-    }
+    var ENVIRONMENT_IS_WEB = true;
+    var ENVIRONMENT_IS_WORKER = false;
+    var ENVIRONMENT_IS_NODE = false;
+    var ENVIRONMENT_IS_SHELL = false;
 
     // --pre-jses are emitted after the Module integration code, so that they can
     // refer to Module (if they choose; they can also define Module)
@@ -68,69 +53,7 @@ async function Module(moduleArg = {}) {
     // Hooks that are implemented differently in different runtime environments.
     var readAsync, readBinary;
 
-    if (ENVIRONMENT_IS_NODE) {
-        const isNode =
-            typeof process == "object" &&
-            process.versions?.node &&
-            process.type != "renderer";
-        if (!isNode)
-            throw new Error(
-                "not compiled for this environment (did you build to HTML and try to run it not on the web, or set ENVIRONMENT to something - like node - and run it someplace else - like on the web?)",
-            );
-
-        var nodeVersion = process.versions.node;
-        var numericVersion = nodeVersion.split(".").slice(0, 3);
-        numericVersion =
-            numericVersion[0] * 10000 +
-            numericVersion[1] * 100 +
-            numericVersion[2].split("-")[0] * 1;
-        if (numericVersion < 160000) {
-            throw new Error(
-                "This emscripten-generated code requires node v16.0.0 (detected v" +
-                    nodeVersion +
-                    ")",
-            );
-        }
-
-        // These modules will usually be used on Node.js. Load them eagerly to avoid
-        // the complexity of lazy-loading.
-        var fs = require("fs");
-
-        if (_scriptName.startsWith("file:")) {
-            scriptDirectory =
-                require("path").dirname(
-                    require("url").fileURLToPath(_scriptName),
-                ) + "/";
-        }
-
-        // include: node_shell_read.js
-        readBinary = (filename) => {
-            // We need to re-wrap `file://` strings to URLs.
-            filename = isFileURI(filename) ? new URL(filename) : filename;
-            var ret = fs.readFileSync(filename);
-            assert(Buffer.isBuffer(ret));
-            return ret;
-        };
-
-        readAsync = async (filename, binary = true) => {
-            // See the comment in the `readBinary` function.
-            filename = isFileURI(filename) ? new URL(filename) : filename;
-            var ret = fs.readFileSync(filename, binary ? undefined : "utf8");
-            assert(binary ? Buffer.isBuffer(ret) : typeof ret == "string");
-            return ret;
-        };
-        // end include: node_shell_read.js
-        if (process.argv.length > 1) {
-            thisProgram = process.argv[1].replace(/\\/g, "/");
-        }
-
-        arguments_ = process.argv.slice(2);
-
-        quit_ = (status, toThrow) => {
-            process.exitCode = status;
-            throw toThrow;
-        };
-    } else if (ENVIRONMENT_IS_SHELL) {
+    if (ENVIRONMENT_IS_SHELL) {
         const isNode =
             typeof process == "object" &&
             process.versions?.node &&
@@ -166,43 +89,11 @@ async function Module(moduleArg = {}) {
 
         {
             // include: web_or_worker_shell_read.js
-            if (ENVIRONMENT_IS_WORKER) {
-                readBinary = (url) => {
-                    var xhr = new XMLHttpRequest();
-                    xhr.open("GET", url, false);
-                    xhr.responseType = "arraybuffer";
-                    xhr.send(null);
-                    return new Uint8Array(
-                        /** @type{!ArrayBuffer} */ (xhr.response),
-                    );
-                };
-            }
-
             readAsync = async (url) => {
-                // Fetch has some additional restrictions over XHR, like it can't be used on a file:// url.
-                // See https://github.com/github/fetch/pull/92#issuecomment-140665932
-                // Cordova or Electron apps are typically loaded from a file:// url.
-                // So use XHR on webview if URL is a file URL.
-                if (isFileURI(url)) {
-                    return new Promise((resolve, reject) => {
-                        var xhr = new XMLHttpRequest();
-                        xhr.open("GET", url, true);
-                        xhr.responseType = "arraybuffer";
-                        xhr.onload = () => {
-                            if (
-                                xhr.status == 200 ||
-                                (xhr.status == 0 && xhr.response)
-                            ) {
-                                // file URLs can return 0
-                                resolve(xhr.response);
-                                return;
-                            }
-                            reject(xhr.status);
-                        };
-                        xhr.onerror = reject;
-                        xhr.send(null);
-                    });
-                }
+                assert(
+                    !isFileURI(url),
+                    "readAsync does not work with file:// URLs",
+                );
                 var response = await fetch(url, { credentials: "same-origin" });
                 if (response.ok) {
                     return response.arrayBuffer();
@@ -236,6 +127,16 @@ async function Module(moduleArg = {}) {
 
     // perform assertions in shell.js after we set up out() and err(), as otherwise
     // if an assertion fails it cannot print the message
+
+    assert(
+        !ENVIRONMENT_IS_WORKER,
+        "worker environment detected but not enabled at build time.  Add `worker` to `-sENVIRONMENT` to enable.",
+    );
+
+    assert(
+        !ENVIRONMENT_IS_NODE,
+        "node environment detected but not enabled at build time.  Add `node` to `-sENVIRONMENT` to enable.",
+    );
 
     assert(
         !ENVIRONMENT_IS_SHELL,
@@ -653,18 +554,7 @@ async function Module(moduleArg = {}) {
     }
 
     async function instantiateAsync(binary, binaryFile, imports) {
-        if (
-            !binary &&
-            // Don't use streaming for file:// delivered objects in a webview, fetch them synchronously.
-            !isFileURI(binaryFile) &&
-            // Avoid instantiateStreaming() on Node.js environment for now, as while
-            // Node.js v18.1.0 implements it, it does not have a full fetch()
-            // implementation yet.
-            //
-            // Reference:
-            //   https://github.com/emscripten-core/emscripten/pull/16917
-            !ENVIRONMENT_IS_NODE
-        ) {
+        if (!binary) {
             try {
                 var response = fetch(binaryFile, {
                     credentials: "same-origin",
@@ -863,7 +753,6 @@ async function Module(moduleArg = {}) {
         warnOnce.shown ||= {};
         if (!warnOnce.shown[text]) {
             warnOnce.shown[text] = 1;
-            if (ENVIRONMENT_IS_NODE) text = "warning: " + text;
             err(text);
         }
     };
@@ -1058,12 +947,6 @@ async function Module(moduleArg = {}) {
     };
 
     var initRandomFill = () => {
-        // This block is not needed on v19+ since crypto.getRandomValues is builtin
-        if (ENVIRONMENT_IS_NODE) {
-            var nodeCrypto = require("crypto");
-            return (view) => nodeCrypto.randomFillSync(view);
-        }
-
         return (view) => crypto.getRandomValues(view);
     };
     var randomFill = (view) => {
@@ -1219,35 +1102,7 @@ async function Module(moduleArg = {}) {
     var FS_stdin_getChar = () => {
         if (!FS_stdin_getChar_buffer.length) {
             var result = null;
-            if (ENVIRONMENT_IS_NODE) {
-                // we will read data by chunks of BUFSIZE
-                var BUFSIZE = 256;
-                var buf = Buffer.alloc(BUFSIZE);
-                var bytesRead = 0;
-
-                // For some reason we must suppress a closure warning here, even though
-                // fd definitely exists on process.stdin, and is even the proper way to
-                // get the fd of stdin,
-                // https://github.com/nodejs/help/issues/2136#issuecomment-523649904
-                // This started to happen after moving this logic out of library_tty.js,
-                // so it is related to the surrounding code in some unclear manner.
-                /** @suppress {missingProperties} */
-                var fd = process.stdin.fd;
-
-                try {
-                    bytesRead = fs.readSync(fd, buf, 0, BUFSIZE);
-                } catch (e) {
-                    // Cross-platform differences: on Windows, reading EOF throws an
-                    // exception, but on other OSes, reading EOF returns 0. Uniformize
-                    // behavior by treating the EOF exception to return 0.
-                    if (e.toString().includes("EOF")) bytesRead = 0;
-                    else throw e;
-                }
-
-                if (bytesRead > 0) {
-                    result = buf.slice(0, bytesRead).toString("utf-8");
-                }
-            } else if (
+            if (
                 typeof window != "undefined" &&
                 typeof window.prompt == "function"
             ) {
@@ -2020,9 +1875,6 @@ async function Module(moduleArg = {}) {
                     err("(end of list)");
                 }
             }, 10000);
-            // Prevent this timer from keeping the runtime alive if nothing
-            // else is.
-            runDependencyWatcher.unref?.();
         }
     };
 
@@ -4959,10 +4811,14 @@ async function Module(moduleArg = {}) {
     }
 
     // Imports from the Wasm binary.
-    var _convertToICNS = (Module["_convertToICNS"] =
-        makeInvalidEarlyAccess("_convertToICNS"));
+    var _wasm_convert_to_pngs = (Module["_wasm_convert_to_pngs"] =
+        makeInvalidEarlyAccess("_wasm_convert_to_pngs"));
     var _wasm_convert_to_icns = (Module["_wasm_convert_to_icns"] =
         makeInvalidEarlyAccess("_wasm_convert_to_icns"));
+    var _wasm_convert_to_ico = (Module["_wasm_convert_to_ico"] =
+        makeInvalidEarlyAccess("_wasm_convert_to_ico"));
+    var _wasm_convert_to_both = (Module["_wasm_convert_to_both"] =
+        makeInvalidEarlyAccess("_wasm_convert_to_both"));
     var _fflush = makeInvalidEarlyAccess("_fflush");
     var _emscripten_stack_get_end = makeInvalidEarlyAccess(
         "_emscripten_stack_get_end",
@@ -4988,12 +4844,14 @@ async function Module(moduleArg = {}) {
     );
 
     function assignWasmExports(wasmExports) {
-        Module["_convertToICNS"] = _convertToICNS = createExportWrapper(
-            "convertToICNS",
-            2,
-        );
+        Module["_wasm_convert_to_pngs"] = _wasm_convert_to_pngs =
+            createExportWrapper("wasm_convert_to_pngs", 1);
         Module["_wasm_convert_to_icns"] = _wasm_convert_to_icns =
             createExportWrapper("wasm_convert_to_icns", 2);
+        Module["_wasm_convert_to_ico"] = _wasm_convert_to_ico =
+            createExportWrapper("wasm_convert_to_ico", 2);
+        Module["_wasm_convert_to_both"] = _wasm_convert_to_both =
+            createExportWrapper("wasm_convert_to_both", 2);
         _fflush = createExportWrapper("fflush", 1);
         _emscripten_stack_get_end = wasmExports["emscripten_stack_get_end"];
         _emscripten_stack_get_base = wasmExports["emscripten_stack_get_base"];
