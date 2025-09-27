@@ -152,6 +152,19 @@ export const routes = [
                 "PNG转ICNS, PNG转ICO, 图标转换, macOS图标, Windows图标, WebAssembly, 图片转换, 图标生成",
         },
     },
+    {
+        path: "/images",
+        name: "ImageCompress",
+        component: () => import("@/views/ImageCompress/index.vue"),
+        meta: {
+            title: "图片压缩工具",
+            category: "文件处理",
+            description:
+                "在线图片压缩工具，支持批量压缩JPEG、PNG、WebP等格式图片，提供自定义压缩质量和尺寸调整功能，保留原本的目录结构，支持多层级嵌套",
+            keywords:
+                "图片压缩, 在线压缩, JPEG压缩, PNG压缩, WebP压缩, 批量压缩, 图片优化, 文件大小压缩",
+        },
+    },
 ];
 
 export function createMyRouter() {

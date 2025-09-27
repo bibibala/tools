@@ -13,6 +13,7 @@
 - **Image EXIF Viewer** - View photo EXIF information
 - **Pet Safety Guide** - Check foods harmful to pets
 - **Image to Icon Tool** - Convert images to multiple icon formats (ICNS, ICO, PNG)
+- **Image Compress Tool** - Online batch compression for JPEG, PNG, WebP images
 - **File Processing Tools** - Various file-related functions
 - **Prettier Config Generator** - Generate code formatting configs
 - **html meta information configuration** - Simplify the generation of html meta information configuration
