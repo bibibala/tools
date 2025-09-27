@@ -54,7 +54,7 @@
                 id="format"
                 :value="format"
                 @change="updateFormat"
-                class="form-select"
+                class="form-input form-select"
             >
                 <option value="original">保持原格式</option>
                 <option value="jpeg">JPEG</option>
@@ -83,6 +83,7 @@ defineProps({
         type: String,
         default: "original",
     },
+
     isProcessing: {
         type: Boolean,
         default: false,

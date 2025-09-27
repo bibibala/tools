@@ -90,6 +90,7 @@ import ProgressDisplay from "./components/ProgressDisplay.vue";
 import {
     compressImage,
     downloadCompressedFiles,
+    validateImageFile,
 } from "./utils/imageCompressor";
 import {
     processDirectoryStructure,
@@ -125,8 +126,33 @@ const handleFilesSelected = (files) => {
         return;
     }
 
-    // 添加文件到列表
-    const newFiles = imageFileList.map((file) => ({
+    // 验证每个图片文件
+    const validFiles = [];
+    const invalidFiles = [];
+
+    imageFileList.forEach((file) => {
+        const validation = validateImageFile(file);
+        if (validation.valid) {
+            validFiles.push(file);
+        } else {
+            invalidFiles.push({ name: file.name, error: validation.error });
+        }
+    });
+
+    if (invalidFiles.length > 0) {
+        console.warn("以下文件验证失败:", invalidFiles);
+        invalidFiles.forEach((invalidFile) => {
+            showError(`${invalidFile.name}: ${invalidFile.error}`);
+        });
+    }
+
+    if (validFiles.length === 0) {
+        showError("没有有效的图片文件被添加");
+        return;
+    }
+
+    // 添加验证通过的文件到列表
+    const newFiles = validFiles.map((file) => ({
         file,
         path: file.name,
         relativePath: file.name,
@@ -138,7 +164,9 @@ const handleFilesSelected = (files) => {
     }));
 
     imageFiles.value = [...imageFiles.value, ...newFiles];
-    showSuccess(`已添加 ${newFiles.length} 张图片`);
+    showSuccess(
+        `已添加 ${newFiles.length} 张图片${invalidFiles.length > 0 ? `，${invalidFiles.length} 个文件验证失败` : ""}`,
+    );
 };
 
 // 处理目录选择
@@ -147,18 +175,33 @@ const handleDirectorySelected = async (items) => {
         // 处理目录结构，保持原有层级
         const processedFiles = await processDirectoryStructure(items);
 
-        // 过滤图片文件
-        const imageFilesOnly = processedFiles.filter((item) =>
-            item.type.startsWith("image/"),
-        );
+        // 验证每个图片文件
+        const validFiles = [];
+        const invalidFiles = [];
 
-        if (imageFilesOnly.length === 0) {
-            showInfo("目录中没有找到图片文件");
+        processedFiles.forEach((item) => {
+            const validation = validateImageFile(item.file);
+            if (validation.valid) {
+                validFiles.push(item);
+            } else {
+                invalidFiles.push({ name: item.path, error: validation.error });
+            }
+        });
+
+        if (invalidFiles.length > 0) {
+            console.warn("目录中以下文件验证失败:", invalidFiles);
+            invalidFiles.forEach((invalidFile) => {
+                showError(`${invalidFile.name}: ${invalidFile.error}`);
+            });
+        }
+
+        if (validFiles.length === 0) {
+            showError("目录中没有有效的图片文件");
             return;
         }
 
-        // 为每个图片文件创建预览URL
-        const filesWithPreview = imageFilesOnly.map((file) => ({
+        // 为每个验证通过的图片文件创建预览URL
+        const filesWithPreview = validFiles.map((file) => ({
             ...file,
             preview: URL.createObjectURL(file.file), // 创建预览URL
         }));
@@ -169,7 +212,7 @@ const handleDirectorySelected = async (items) => {
         // 显示目录统计信息
         const stats = getDirectoryStats(filesWithPreview);
         showSuccess(
-            `已添加 ${imageFilesOnly.length} 张图片，共 ${formatFileSize(stats.totalSize)}`,
+            `已添加 ${validFiles.length} 张图片${invalidFiles.length > 0 ? `，${invalidFiles.length} 个文件验证失败` : ""}，共 ${formatFileSize(stats.totalSize)}`,
         );
 
         console.log("目录结构:", buildDirectoryTree(filesWithPreview));
@@ -266,7 +309,7 @@ const startCompression = async () => {
             await downloadCompressedFiles(
                 successfulFiles,
                 outputFormat.value,
-                true,
+                false,
             );
             showSuccess(
                 `压缩完成！成功压缩 ${successfulFiles.length} 张图片，用时 ${(compressionTime / 1000).toFixed(1)} 秒`,

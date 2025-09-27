@@ -30,7 +30,7 @@
                                 : "拖拽文件或目录到这里"
                         }}
                     </h3>
-                    <p>支持 JPG、PNG、WebP 等格式</p>
+                    <p>支持输出 JPG、PNG、WebP 等格式</p>
                     <p class="directory-hint">支持拖拽目录，保持原有结构</p>
                 </div>
                 <div class="upload-actions">

@@ -21,8 +21,26 @@ export async function compressImage(file, options = {}) {
     } = options;
 
     // 如果使用原始格式，从文件类型中提取格式
-    const actualFormat =
-        format === "original" ? file.type.split("/")[1] : format;
+    let actualFormat = format === "original" ? file.type.split("/")[1] : format;
+
+    // 检查浏览器是否支持 WebP 格式
+    if (actualFormat === "webp") {
+        // 使用 canvas.toDataURL 来测试 WebP 支持
+        const testCanvas = document.createElement("canvas");
+        testCanvas.width = 1;
+        testCanvas.height = 1;
+        try {
+            const webpData = testCanvas.toDataURL("image/webp");
+            // 如果返回的数据以 data:image/webp 开头，说明支持 WebP
+            if (!webpData.startsWith("data:image/webp")) {
+                console.warn("浏览器不支持 WebP 格式，将回退到 PNG 格式");
+                actualFormat = "png";
+            }
+        } catch (error) {
+            console.warn("检测 WebP 支持时出错，将回退到 PNG 格式:", error);
+            actualFormat = "png";
+        }
+    }
 
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -60,6 +78,73 @@ export async function compressImage(file, options = {}) {
                     canvas.toBlob(
                         (blob) => {
                             if (blob) {
+                                // 验证实际的格式转换是否成功
+                                if (actualFormat !== "original") {
+                                    // 检查Blob类型是否匹配目标格式
+                                    const expectedType = `image/${actualFormat}`;
+                                    if (blob.type !== expectedType) {
+                                        console.warn(
+                                            `⚠️ Blob类型不匹配: 期望=${expectedType}, 实际=${blob.type}`,
+                                        );
+                                    } else {
+                                        // 进一步验证文件头（前几个字节）
+                                        const reader = new FileReader();
+                                        reader.onload = function (e) {
+                                            const arrayBuffer = e.target.result;
+                                            const uint8Array = new Uint8Array(
+                                                arrayBuffer,
+                                            );
+
+                                            let headerCheck = "";
+                                            if (actualFormat === "webp") {
+                                                // WebP文件头: RIFF....WEBP
+                                                const isWebP =
+                                                    uint8Array[0] === 0x52 &&
+                                                    uint8Array[1] === 0x49 &&
+                                                    uint8Array[2] === 0x46 &&
+                                                    uint8Array[3] === 0x46 &&
+                                                    uint8Array[8] === 0x57 &&
+                                                    uint8Array[9] === 0x45 &&
+                                                    uint8Array[10] === 0x42 &&
+                                                    uint8Array[11] === 0x50;
+                                                headerCheck = isWebP
+                                                    ? "✅ WebP文件头正确"
+                                                    : "❌ WebP文件头错误";
+                                            } else if (actualFormat === "png") {
+                                                // PNG文件头: 89 50 4E 47 0D 0A 1A 0A
+                                                const isPng =
+                                                    uint8Array[0] === 0x89 &&
+                                                    uint8Array[1] === 0x50 &&
+                                                    uint8Array[2] === 0x4e &&
+                                                    uint8Array[3] === 0x47;
+                                                headerCheck = isPng
+                                                    ? "✅ PNG文件头正确"
+                                                    : "❌ PNG文件头错误";
+                                            } else if (
+                                                actualFormat === "jpeg"
+                                            ) {
+                                                // JPEG文件头: FF D8 FF
+                                                const isJpeg =
+                                                    uint8Array[0] === 0xff &&
+                                                    uint8Array[1] === 0xd8 &&
+                                                    uint8Array[2] === 0xff;
+                                                headerCheck = isJpeg
+                                                    ? "✅ JPEG文件头正确"
+                                                    : "❌ JPEG文件头错误";
+                                            }
+
+                                            if (headerCheck) {
+                                                console.log(
+                                                    `文件头验证: ${headerCheck}`,
+                                                );
+                                            }
+                                        };
+                                        reader.readAsArrayBuffer(
+                                            blob.slice(0, 20),
+                                        );
+                                    }
+                                }
+
                                 resolve(blob);
                             } else {
                                 reject(new Error("压缩失败：无法创建Blob"));
@@ -138,12 +223,7 @@ export async function downloadCompressedFiles(
         // 单个文件直接下载
         const file = files[0];
         const blob = file.compressed;
-        const fileName = generateFileName(
-            file.path,
-            file.compressionRatio,
-            format,
-            file.file,
-        );
+        const fileName = generateFileName(file.path, format);
         downloadFile(blob, fileName);
     } else {
         // 多个文件打包成ZIP下载，保持目录结构
@@ -154,12 +234,29 @@ export async function downloadCompressedFiles(
 /**
  * 生成压缩后的文件名
  * @param {string} originalPath - 原始文件路径
+ * @param {string} format - 目标格式
  * @returns {string} - 新的文件名
  */
-function generateFileName(originalPath) {
-    // 始终返回原始文件名，不做任何修改
+function generateFileName(originalPath, format = "jpeg") {
     const pathParts = originalPath.split("/");
-    return pathParts[pathParts.length - 1];
+    const fileName = pathParts[pathParts.length - 1];
+
+    // 根据目标格式修改文件扩展名
+    const nameWithoutExt =
+        fileName.substring(0, fileName.lastIndexOf(".")) || fileName;
+
+    // 确保扩展名格式正确（小写，带点）
+    let newExtension;
+    if (format === "original") {
+        // 保持原始扩展名，但确保小写
+        const originalExt = fileName.substring(fileName.lastIndexOf("."));
+        newExtension = originalExt.toLowerCase();
+    } else {
+        // 使用新格式，确保小写
+        newExtension = `.${format.toLowerCase()}`;
+    }
+
+    return nameWithoutExt + newExtension;
 }
 
 /**
@@ -183,10 +280,15 @@ import JSZip from "jszip";
 /**
  * 打包成ZIP下载
  * @param {Array} files - 文件数组
+ * @param format
  * @param {boolean} preserveStructure - 是否保持目录结构
  * @returns {Promise<void>}
  */
-async function downloadAsZip(files, preserveStructure = false) {
+async function downloadAsZip(
+    files,
+    format = "jpeg",
+    preserveStructure = false,
+) {
     try {
         const zip = new JSZip();
 
@@ -194,12 +296,16 @@ async function downloadAsZip(files, preserveStructure = false) {
         files.forEach((file) => {
             let fileName;
             if (preserveStructure && file.path) {
-                // 保持原始目录结构，始终使用原始文件名
-                fileName = file.path;
+                // 保持原始目录结构，根据格式修改文件名
+                const pathParts = file.path.split("/");
+                const originalFileName = pathParts[pathParts.length - 1];
+                const newFileName = generateFileName(originalFileName, format);
+                fileName = file.path.replace(originalFileName, newFileName);
             } else {
-                // 使用原始文件名
+                // 使用新格式文件名
                 const pathParts = (file.relativePath || file.path).split("/");
-                fileName = pathParts[pathParts.length - 1];
+                const originalFileName = pathParts[pathParts.length - 1];
+                fileName = generateFileName(originalFileName, format);
             }
             zip.file(fileName, file.compressed);
         });
@@ -216,43 +322,6 @@ async function downloadAsZip(files, preserveStructure = false) {
     } catch (error) {
         throw new Error(`打包下载失败：${error.message}`);
     }
-}
-
-/**
- * 获取图片信息
- * @param {File} file - 图片文件
- * @returns {Promise<Object>} - 图片信息对象
- */
-export function getImageInfo(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-
-        reader.onload = (e) => {
-            const img = new Image();
-
-            img.onload = () => {
-                resolve({
-                    width: img.width,
-                    height: img.height,
-                    size: file.size,
-                    type: file.type,
-                    name: file.name,
-                });
-            };
-
-            img.onerror = () => {
-                reject(new Error("无法加载图片"));
-            };
-
-            img.src = e.target.result;
-        };
-
-        reader.onerror = () => {
-            reject(new Error("无法读取文件"));
-        };
-
-        reader.readAsDataURL(file);
-    });
 }
 
 /**
