@@ -154,55 +154,12 @@ export async function downloadCompressedFiles(
 /**
  * 生成压缩后的文件名
  * @param {string} originalPath - 原始文件路径
- * @param {number} compressionRatio - 压缩率
- * @param {string} format - 输出格式
  * @returns {string} - 新的文件名
  */
-function generateFileName(
-    originalPath,
-    compressionRatio,
-    format = null,
-    originalFile = null,
-) {
+function generateFileName(originalPath) {
+    // 始终返回原始文件名，不做任何修改
     const pathParts = originalPath.split("/");
-    const fileName = pathParts[pathParts.length - 1];
-    const nameParts = fileName.split(".");
-
-    if (nameParts.length > 1) {
-        nameParts.pop(); // 移除原始扩展名
-        const name = nameParts.join(".");
-        const ratio = Math.round(compressionRatio);
-
-        // 如果格式是original，使用原始文件的扩展名
-        let extension;
-        if (format === "original" && originalFile) {
-            const originalNameParts = originalFile.name.split(".");
-            extension =
-                originalNameParts.length > 1
-                    ? originalNameParts[originalNameParts.length - 1]
-                    : "jpeg";
-        } else {
-            extension = format || "jpeg";
-        }
-
-        return `${name}_compressed_${ratio}%.${extension}`;
-    } else {
-        const ratio = Math.round(compressionRatio);
-
-        // 如果格式是original，使用原始文件的扩展名
-        let extension;
-        if (format === "original" && originalFile) {
-            const originalNameParts = originalFile.name.split(".");
-            extension =
-                originalNameParts.length > 1
-                    ? originalNameParts[originalNameParts.length - 1]
-                    : "jpeg";
-        } else {
-            extension = format || "jpeg";
-        }
-
-        return `${fileName}_compressed_${ratio}%.${extension}`;
-    }
+    return pathParts[pathParts.length - 1];
 }
 
 /**
@@ -226,15 +183,10 @@ import JSZip from "jszip";
 /**
  * 打包成ZIP下载
  * @param {Array} files - 文件数组
- * @param {string} format - 输出格式
  * @param {boolean} preserveStructure - 是否保持目录结构
  * @returns {Promise<void>}
  */
-async function downloadAsZip(
-    files,
-    format = "jpeg",
-    preserveStructure = false,
-) {
+async function downloadAsZip(files, preserveStructure = false) {
     try {
         const zip = new JSZip();
 
@@ -242,30 +194,12 @@ async function downloadAsZip(
         files.forEach((file) => {
             let fileName;
             if (preserveStructure && file.path) {
-                // 保持原始目录结构，但使用指定格式
-                const pathParts = file.path.split("/");
-                const originalFileName = pathParts[pathParts.length - 1];
-                const nameWithoutExt = originalFileName.split(".")[0];
-                // 如果格式是original，使用原始文件的扩展名
-                const extension =
-                    format === "original"
-                        ? originalFileName.split(".").length > 1
-                            ? originalFileName.split(".").pop()
-                            : "jpeg"
-                        : format;
-
-                fileName = file.path.replace(
-                    originalFileName,
-                    `${nameWithoutExt}_compressed_${Math.round(file.compressionRatio)}%.${extension}`,
-                );
+                // 保持原始目录结构，始终使用原始文件名
+                fileName = file.path;
             } else {
-                // 使用指定格式生成新文件名
-                fileName = generateFileName(
-                    file.relativePath || file.path,
-                    file.compressionRatio,
-                    format,
-                    file.file,
-                );
+                // 使用原始文件名
+                const pathParts = (file.relativePath || file.path).split("/");
+                fileName = pathParts[pathParts.length - 1];
             }
             zip.file(fileName, file.compressed);
         });
@@ -278,13 +212,7 @@ async function downloadAsZip(
                 level: 6,
             },
         });
-
-        // 下载ZIP文件
-        const timestamp = new Date()
-            .toISOString()
-            .slice(0, 19)
-            .replace(/:/g, "-");
-        downloadFile(zipBlob, `compressed_images_${timestamp}.zip`);
+        downloadFile(zipBlob, `compressed_images.zip`);
     } catch (error) {
         throw new Error(`打包下载失败：${error.message}`);
     }
