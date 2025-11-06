@@ -1,4 +1,4 @@
-# 有趣好玩的工具
+# 实用的开发和生活工具合集
 
 [Switch to English](README-EN.md)
 
@@ -27,7 +27,7 @@ pnpm run dev
 
 ## 🛠 技术栈
 
-Vue 3 + Vite + Vue Router，就这么简单。
+Vue 3 + Vite + Vue Router
 
 ## ⭐ Star
 

@@ -7,6 +7,19 @@ import { hideLoading, showLoading } from "@/utils/useToast.js";
 
 export const routes = [
     {
+        path: "/sheet2code",
+        name: "Sheet2Code",
+        component: { template: "<div></div>" },
+        meta: {
+            title: "Excel 代码模板生成器",
+            category: "开发工具",
+            description: "在线Excel代码模板生成器，快速将表格数据转为代码模板",
+            keywords: "Excel, 代码模板, 生成器, 数据转代码, 在线工具",
+            external: true,
+            href: "https://sheet2code.netlify.app/",
+        },
+    },
+    {
         path: "/",
         name: "RegexVisualizer",
         component: () => import("@/views/RegexVisualizer/index.vue"),

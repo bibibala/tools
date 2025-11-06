@@ -38,16 +38,31 @@
                             class="dropdown-menu"
                             :class="{ show: openCategory === categoryName }"
                         >
-                            <RouterLink
-                                v-for="item in category"
-                                :key="item.path"
-                                :to="item.path"
-                                class="dropdown-item"
-                                active-class="active"
-                                @click.stop="openCategory = null"
-                            >
-                                {{ item.meta.title }}
-                            </RouterLink>
+                            <template v-for="item in category" :key="item.path">
+                                <a
+                                    v-if="
+                                        item.meta &&
+                                        item.meta.external &&
+                                        item.meta.href
+                                    "
+                                    :href="item.meta.href"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="dropdown-item"
+                                    @click.stop="openCategory = null"
+                                >
+                                    {{ item.meta.title }}
+                                </a>
+                                <RouterLink
+                                    v-else
+                                    :to="item.path"
+                                    class="dropdown-item"
+                                    active-class="active"
+                                    @click.stop="openCategory = null"
+                                >
+                                    {{ item.meta.title }}
+                                </RouterLink>
+                            </template>
                         </div>
                     </div>
                 </div>
@@ -92,12 +107,28 @@
                             ref="dropdownMenu"
                         >
                             <div v-for="(item, index) in routes" :key="index">
+                                <a
+                                    v-if="
+                                        item.meta &&
+                                        item.meta.external &&
+                                        item.meta.href
+                                    "
+                                    :href="item.meta.href"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="dropdown-item"
+                                    @click.stop="isMenuOpen = false"
+                                >
+                                    {{ item.meta.title }}
+                                </a>
                                 <RouterLink
+                                    v-else
                                     :to="item.path"
                                     class="dropdown-item"
                                     active-class="active"
                                     @click.stop="isMenuOpen = false"
-                                    >{{ item.meta.title }}
+                                >
+                                    {{ item.meta.title }}
                                 </RouterLink>
                             </div>
                         </div>
