@@ -20,6 +20,20 @@ export const routes = [
         },
     },
     {
+        path: "/resume-maker",
+        name: "ResumeMaker",
+        component: { template: "<div></div>" },
+        meta: {
+            title: "简历制作",
+            category: "开发工具",
+            description:
+                "在线简历制作工具，填写信息并预览，支持导出PDF与栏目的拖拽排序",
+            keywords: "简历制作, 简历, PDF导出, 栏目排序, 在线工具",
+            external: true,
+            href: "https://gentle-choux-392e42.netlify.app/",
+        },
+    },
+    {
         path: "/",
         name: "RegexVisualizer",
         component: () => import("@/views/RegexVisualizer/index.vue"),
