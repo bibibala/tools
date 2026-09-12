@@ -1,264 +1,111 @@
 <template>
-    <div class="tool-page">
-        <header class="tool-header">
-            <h1>图片转图标</h1>
-            <p>将图片转换为多种图标格式（ICNS、ICO、PNG）</p>
-        </header>
+  <div class="page">
+    <RouterLink to="/" class="back">
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <path d="M19 12H5M12 19l-7-7 7-7" />
+      </svg>
+      返回
+    </RouterLink>
 
-        <main class="main-content">
-            <section class="tool-section">
-                <div class="upload-area">
-                    <div class="file-input-wrapper">
-                        <input
-                            type="file"
-                            id="fileInput"
-                            accept="image/*"
-                            @change="handleFileSelect"
-                            class="file-input"
-                        />
-                        <label for="fileInput" class="file-input-label">
-                            <svg
-                                width="24"
-                                height="24"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="2"
-                            >
-                                <path
-                                    d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
-                                />
-                                <polyline points="17 8 12 3 7 8" />
-                                <line x1="12" y1="3" x2="12" y2="15" />
-                            </svg>
-                            选择图片文件
-                        </label>
-                    </div>
+    <div class="card">
+      <div class="card-header">
+        <h1 class="title">图片转图标</h1>
+        <p class="subtitle">支持 ICNS、ICO、PNG 格式</p>
+      </div>
 
-                    <div v-if="previewUrl" class="preview-container">
-                        <img
-                            :src="previewUrl"
-                            alt="预览图"
-                            class="preview-image"
-                        />
-                        <div class="file-info">
-                            <span class="file-name">{{
-                                selectedFile?.name
-                            }}</span>
-                            <span class="file-size">{{
-                                formatFileSize(selectedFile?.size)
-                            }}</span>
-                        </div>
-                    </div>
-                </div>
+      <label class="upload" :class="{ active: previewUrl }">
+        <input type="file" accept="image/*" @change="handleFileSelect" />
+        <template v-if="!previewUrl">
+          <svg
+            class="upload-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+          >
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="17 8 12 3 7 8" />
+            <line x1="12" y1="3" x2="12" y2="15" />
+          </svg>
+          <span class="upload-text">选择图片</span>
+        </template>
+        <template v-else>
+          <img :src="previewUrl" alt="预览" class="preview" />
+          <div class="file-info">
+            <span class="file-name">{{ selectedFile?.name }}</span>
+            <span class="file-size">{{
+              formatFileSize(selectedFile?.size)
+            }}</span>
+          </div>
+        </template>
+      </label>
 
-                <div class="action-buttons">
-                    <button
-                        @click="convertToIcns"
-                        :disabled="!selectedFile || isConverting || !wasmReady"
-                        class="btn btn-primary"
-                    >
-                        <svg
-                            v-if="isConverting"
-                            width="16"
-                            height="16"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            class="spinning"
-                        >
-                            <line x1="12" y1="2" x2="12" y2="6" />
-                            <line x1="12" y1="18" x2="12" y2="22" />
-                            <line x1="4.93" y1="4.93" x2="7.76" y2="7.76" />
-                            <line x1="16.24" y1="16.24" x2="19.07" y2="19.07" />
-                            <line x1="2" y1="12" x2="6" y2="12" />
-                            <line x1="18" y1="12" x2="22" y2="12" />
-                            <line x1="4.93" y1="19.07" x2="7.76" y2="16.24" />
-                            <line x1="16.24" y1="7.76" x2="19.07" y2="4.93" />
-                        </svg>
-                        {{ isConverting ? "转换中..." : "生成 ICNS" }}
-                    </button>
+      <div class="actions">
+        <button
+          @click="convertToIcns"
+          :disabled="!selectedFile || isConverting"
+          class="btn"
+        >
+          <span v-if="isConverting" class="spinner"></span>
+          ICNS
+        </button>
+        <button
+          @click="convertToIco"
+          :disabled="!selectedFile || isConverting"
+          class="btn"
+        >
+          <span v-if="isConverting" class="spinner"></span>
+          ICO
+        </button>
+        <button
+          @click="convertToPngs"
+          :disabled="!selectedFile || isConverting"
+          class="btn"
+        >
+          <span v-if="isConverting" class="spinner"></span>
+          PNGs
+        </button>
+        <button
+          @click="convertToAll"
+          :disabled="!selectedFile || isConverting"
+          class="btn primary"
+        >
+          <span v-if="isConverting" class="spinner"></span>
+          全部
+        </button>
+      </div>
 
-                    <button
-                        @click="convertToIco"
-                        :disabled="!selectedFile || isConverting || !wasmReady"
-                        class="btn btn-primary"
-                    >
-                        <svg
-                            v-if="isConverting"
-                            width="16"
-                            height="16"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            class="spinning"
-                        >
-                            <line x1="12" y1="2" x2="12" y2="6" />
-                            <line x1="12" y1="18" x2="12" y2="22" />
-                            <line x1="4.93" y1="4.93" x2="7.76" y2="7.76" />
-                            <line x1="16.24" y1="16.24" x2="19.07" y2="19.07" />
-                            <line x1="2" y1="12" x2="6" y2="12" />
-                            <line x1="18" y1="12" x2="22" y2="12" />
-                            <line x1="4.93" y1="19.07" x2="7.76" y2="16.24" />
-                            <line x1="16.24" y1="7.76" x2="19.07" y2="4.93" />
-                        </svg>
-                        {{ isConverting ? "转换中..." : "生成 ICO" }}
-                    </button>
+      <div v-if="statusMessage" class="status" :class="statusType">
+        {{ statusMessage }}
+      </div>
 
-                    <button
-                        @click="convertToPngs"
-                        :disabled="!selectedFile || isConverting || !wasmReady"
-                        class="btn btn-primary"
-                    >
-                        <svg
-                            v-if="isConverting"
-                            width="16"
-                            height="16"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            class="spinning"
-                        >
-                            <line x1="12" y1="2" x2="12" y2="6" />
-                            <line x1="12" y1="18" x2="12" y2="22" />
-                            <line x1="4.93" y1="4.93" x2="7.76" y2="7.76" />
-                            <line x1="16.24" y1="16.24" x2="19.07" y2="19.07" />
-                            <line x1="2" y1="12" x2="6" y2="12" />
-                            <line x1="18" y1="12" x2="22" y2="12" />
-                            <line x1="4.93" y1="19.07" x2="7.76" y2="16.24" />
-                            <line x1="16.24" y1="7.76" x2="19.07" y2="4.93" />
-                        </svg>
-                        {{ isConverting ? "转换中..." : "生成 PNGs" }}
-                    </button>
-
-                    <button
-                        @click="convertToAll"
-                        :disabled="!selectedFile || isConverting || !wasmReady"
-                        class="btn btn-primary"
-                    >
-                        <svg
-                            v-if="isConverting"
-                            width="16"
-                            height="16"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            class="spinning"
-                        >
-                            <line x1="12" y1="2" x2="12" y2="6" />
-                            <line x1="12" y1="18" x2="12" y2="22" />
-                            <line x1="4.93" y1="4.93" x2="7.76" y2="7.76" />
-                            <line x1="16.24" y1="16.24" x2="19.07" y2="19.07" />
-                            <line x1="2" y1="12" x2="6" y2="12" />
-                            <line x1="18" y1="12" x2="22" y2="12" />
-                            <line x1="4.93" y1="19.07" x2="7.76" y2="16.24" />
-                            <line x1="16.24" y1="7.76" x2="19.07" y2="4.93" />
-                        </svg>
-                        {{ isConverting ? "转换中..." : "生成全部" }}
-                    </button>
-                </div>
-
-                <div class="status-container">
-                    <div
-                        class="status-message"
-                        :class="statusType"
-                        v-if="statusMessage"
-                    >
-                        <svg
-                            width="16"
-                            height="16"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                        >
-                            <path
-                                v-if="statusType === 'success'"
-                                d="M22 11.08V12a10 10 0 1 1-5.93-9.14"
-                            />
-                            <polyline
-                                v-if="statusType === 'success'"
-                                points="22 4 12 14.01 9 11.01"
-                            />
-                            <circle
-                                v-if="statusType === 'error'"
-                                cx="12"
-                                cy="12"
-                                r="10"
-                            />
-                            <line
-                                v-if="statusType === 'error'"
-                                x1="15"
-                                y1="9"
-                                x2="9"
-                                y2="15"
-                            />
-                            <line
-                                v-if="statusType === 'error'"
-                                x1="9"
-                                y1="9"
-                                x2="15"
-                                y2="15"
-                            />
-                            <circle
-                                v-if="statusType === 'info'"
-                                cx="12"
-                                cy="12"
-                                r="10"
-                            />
-                            <line
-                                v-if="statusType === 'info'"
-                                x1="12"
-                                y1="16"
-                                x2="12"
-                                y2="12"
-                            />
-                            <line
-                                v-if="statusType === 'info'"
-                                x1="12"
-                                y1="8"
-                                x2="12.01"
-                                y2="8"
-                            />
-                        </svg>
-                        {{ statusMessage }}
-                    </div>
-                </div>
-
-                <div class="log-container" v-if="logMessages.length > 0">
-                    <div class="log-header">
-                        <h3>转换日志</h3>
-                        <button @click="clearLogs" class="btn btn-small">
-                            清除日志
-                        </button>
-                    </div>
-                    <div class="log-content">
-                        <div
-                            v-for="(log, index) in logMessages"
-                            :key="index"
-                            class="log-item"
-                        >
-                            <span class="log-time">[{{ log.time }}]</span>
-                            <span class="log-message">{{ log.message }}</span>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </main>
+      <div v-if="logMessages.length > 0" class="logs">
+        <div class="logs-header">
+          <span>日志</span>
+          <button @click="clearLogs" class="clear">清除</button>
+        </div>
+        <div class="logs-body">
+          <div v-for="(log, index) in logMessages" :key="index" class="log">
+            <span class="log-time">{{ log.time }}</span>
+            <span class="log-msg">{{ log.message }}</span>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref } from "vue";
+import { RouterLink } from "vue-router";
 import JSZip from "jszip";
-import createModule from "./fun.js";
+import { getIco, getIcns, getPngs, getImageBoth } from "@bilibaba/ts-lab/wasm";
 
-const wasmModule = ref(null);
-const wasmReady = ref(false);
 const selectedFile = ref(null);
 const previewUrl = ref("");
 const isConverting = ref(false);
@@ -266,590 +113,409 @@ const statusMessage = ref("");
 const statusType = ref("info");
 const logMessages = ref([]);
 
-const ImageSizes = [
-    16, 24, 30, 32, 40, 48, 64, 72, 80, 96, 128, 256, 512, 1024,
-];
-
-onMounted(async () => {
-    addLog("🔄 正在加载 WASM 模块...");
-    try {
-        wasmModule.value = await createModule();
-        wasmReady.value = true;
-        addLog("✅ WASM 模块加载完成！");
-        showStatus("WASM 已就绪 ✅", "success");
-    } catch (err) {
-        addLog(`❌ WASM 加载失败: ${err.message}`);
-        showStatus("WASM 加载失败 ❌", "error");
-    }
-});
-
-// 文件选择处理
 const handleFileSelect = (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    selectedFile.value = file;
-
-    // 创建预览URL
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        previewUrl.value = e.target.result;
-        addLog(`📂 已选择文件: ${file.name}`);
-    };
-    reader.readAsDataURL(file);
+  const file = event.target.files[0];
+  if (!file) return;
+  selectedFile.value = file;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    previewUrl.value = e.target.result;
+    addLog(`已选择: ${file.name}`);
+  };
+  reader.readAsDataURL(file);
 };
 
-// 转换为ICNS
 const convertToIcns = async () => {
-    if (!selectedFile.value || !wasmModule.value || !wasmReady.value) {
-        addLog("⚠️ 没有文件或 WASM 未加载");
-        return;
-    }
-
-    isConverting.value = true;
-    showStatus("正在转换...", "info");
-    addLog("🚀 开始转换 ICNS...");
-
-    try {
-        // 将文件写入WASM文件系统
-        const buffer = new Uint8Array(await selectedFile.value.arrayBuffer());
-        wasmModule.value.FS_writeFile("input.png", buffer);
-
-        // 调用C函数进行转换
-        const result = wasmModule.value.ccall(
-            "wasm_convert_to_icns",
-            "number",
-            ["string", "string"],
-            ["input.png", "output.icns"],
-        );
-
-        if (result === 0) {
-            // 读取输出文件
-            const icnsData = wasmModule.value.FS_readFile("output.icns");
-            downloadFile(icnsData, `${getBaseFileName()}.icns`, "image/icns");
-            showStatus("ICNS 转换完成 ✅", "success");
-            addLog("✅ ICNS 文件生成成功！");
-        } else {
-            showStatus("ICNS 转换失败 ❌", "error");
-            addLog("❌ 转换函数返回错误码");
-        }
-    } catch (err) {
-        showStatus("ICNS 转换失败 ❌", "error");
-        addLog(`❌ 转换异常: ${err.message}`);
-    } finally {
-        isConverting.value = false;
-    }
+  if (!selectedFile.value) return;
+  isConverting.value = true;
+  showStatus("转换中...", "info");
+  addLog("开始转换 ICNS...");
+  try {
+    const buffer = new Uint8Array(await selectedFile.value.arrayBuffer());
+    const icnsData = await getIcns(buffer);
+    downloadFile(icnsData, `${getBaseFileName()}.icns`, "image/icns");
+    showStatus("ICNS 转换完成", "success");
+    addLog("ICNS 生成成功");
+  } catch (err) {
+    showStatus("ICNS 转换失败", "error");
+    addLog(`异常: ${err.message}`);
+  } finally {
+    isConverting.value = false;
+  }
 };
 
-// 转换为ICO
 const convertToIco = async () => {
-    if (!selectedFile.value || !wasmModule.value || !wasmReady.value) {
-        addLog("⚠️ 没有文件或 WASM 未加载");
-        return;
-    }
-
-    isConverting.value = true;
-    showStatus("正在转换...", "info");
-    addLog("🚀 开始转换 ICO...");
-
-    try {
-        // 将文件写入WASM文件系统
-        const buffer = new Uint8Array(await selectedFile.value.arrayBuffer());
-        wasmModule.value.FS_writeFile("input.png", buffer);
-
-        // 调用C函数进行转换
-        const result = wasmModule.value.ccall(
-            "wasm_convert_to_ico",
-            "number",
-            ["string", "string"],
-            ["input.png", "output.ico"],
-        );
-
-        if (result === 0) {
-            // 读取输出文件
-            const icoData = wasmModule.value.FS_readFile("output.ico");
-            downloadFile(icoData, `${getBaseFileName()}.ico`, "image/x-icon");
-            showStatus("ICO 转换完成 ✅", "success");
-            addLog("✅ ICO 文件生成成功！");
-        } else {
-            showStatus("ICO 转换失败 ❌", "error");
-            addLog("❌ 转换函数返回错误码");
-        }
-    } catch (err) {
-        showStatus("ICO 转换失败 ❌", "error");
-        addLog(`❌ 转换异常: ${err.message}`);
-    } finally {
-        isConverting.value = false;
-    }
+  if (!selectedFile.value) return;
+  isConverting.value = true;
+  showStatus("转换中...", "info");
+  addLog("开始转换 ICO...");
+  try {
+    const buffer = new Uint8Array(await selectedFile.value.arrayBuffer());
+    const icoData = await getIco(buffer);
+    downloadFile(icoData, `${getBaseFileName()}.ico`, "image/x-icon");
+    showStatus("ICO 转换完成", "success");
+    addLog("ICO 生成成功");
+  } catch (err) {
+    showStatus("ICO 转换失败", "error");
+    addLog(`异常: ${err.message}`);
+  } finally {
+    isConverting.value = false;
+  }
 };
 
-// 转换为PNGs
 const convertToPngs = async () => {
-    if (!selectedFile.value || !wasmModule.value || !wasmReady.value) {
-        addLog("⚠️ 没有文件或 WASM 未加载");
-        return;
+  if (!selectedFile.value) return;
+  isConverting.value = true;
+  showStatus("转换中...", "info");
+  addLog("开始转换 PNGs...");
+  try {
+    const buffer = new Uint8Array(await selectedFile.value.arrayBuffer());
+    const pngs = await getPngs(buffer);
+    const sizes = Object.keys(pngs);
+    if (sizes.length > 0) {
+      const zip = new JSZip();
+      for (const [size, data] of Object.entries(pngs)) {
+        zip.file(`${size}.png`, data);
+      }
+      const zipBlob = await zip.generateAsync({ type: "blob" });
+      downloadFile(zipBlob, `${getBaseFileName()}_pngs.zip`, "application/zip");
+      showStatus(`PNGs 完成 (${sizes.length} 个)`, "success");
+      addLog(`${sizes.length} 个 PNG 生成成功`);
+    } else {
+      showStatus("没有生成 PNG", "error");
     }
-
-    isConverting.value = true;
-    showStatus("正在转换...", "info");
-    addLog("🚀 开始转换 PNGs...");
-
-    try {
-        // 将文件写入WASM文件系统
-        const buffer = new Uint8Array(await selectedFile.value.arrayBuffer());
-        wasmModule.value.FS_writeFile("input.png", buffer);
-
-        // 调用C函数进行转换
-        const result = wasmModule.value.ccall(
-            "wasm_convert_to_pngs",
-            "number",
-            ["string"],
-            ["input.png"],
-        );
-
-        if (result === 0) {
-            // 创建ZIP文件包含所有PNG
-            const zip = new JSZip();
-            let pngCount = 0;
-
-            for (const size of ImageSizes) {
-                try {
-                    const pngData = wasmModule.value.FS_readFile(
-                        `/${size}.png`,
-                    );
-                    zip.file(`${size}.png`, pngData);
-                    pngCount++;
-                } catch (e) {
-                    addLog(`⚠️ 缺少 ${size}.png，${e}`);
-                }
-            }
-
-            if (pngCount > 0) {
-                const zipBlob = await zip.generateAsync({ type: "blob" });
-                downloadFile(
-                    zipBlob,
-                    `${getBaseFileName()}_pngs.zip`,
-                    "application/zip",
-                );
-                showStatus(`PNGs 转换完成 ✅ (${pngCount} 个文件)`, "success");
-                addLog(`✅ ${pngCount} 个 PNG 文件生成成功！`);
-            } else {
-                showStatus("没有生成任何 PNG 文件 ❌", "error");
-                addLog("❌ 没有生成任何 PNG 文件");
-            }
-        } else {
-            showStatus("PNGs 转换失败 ❌", "error");
-            addLog("❌ 转换函数返回错误码");
-        }
-    } catch (err) {
-        showStatus("PNGs 转换失败 ❌", "error");
-        addLog(`❌ 转换异常: ${err.message}`);
-    } finally {
-        isConverting.value = false;
-    }
+  } catch (err) {
+    showStatus("PNGs 转换失败", "error");
+    addLog(`异常: ${err.message}`);
+  } finally {
+    isConverting.value = false;
+  }
 };
 
-// 转换为所有格式
 const convertToAll = async () => {
-    if (!selectedFile.value || !wasmModule.value || !wasmReady.value) {
-        addLog("⚠️ 没有文件或 WASM 未加载");
-        return;
+  if (!selectedFile.value) return;
+  isConverting.value = true;
+  showStatus("转换中...", "info");
+  addLog("开始转换所有格式...");
+  try {
+    const buffer = new Uint8Array(await selectedFile.value.arrayBuffer());
+    const { ico, icns, pngs } = await getImageBoth(buffer);
+    const zip = new JSZip();
+    let fileCount = 0;
+    zip.file(`${getBaseFileName()}.icns`, icns);
+    zip.file(`${getBaseFileName()}.ico`, ico);
+    fileCount += 2;
+    for (const [size, data] of Object.entries(pngs)) {
+      zip.file(`${size}.png`, data);
+      fileCount++;
     }
-
-    isConverting.value = true;
-    showStatus("正在转换...", "info");
-    addLog("🚀 开始转换所有格式...");
-
-    try {
-        // 将文件写入WASM文件系统
-        const buffer = new Uint8Array(await selectedFile.value.arrayBuffer());
-        wasmModule.value.FS_writeFile("input.png", buffer);
-
-        // 调用C函数进行转换
-        const result = wasmModule.value.ccall(
-            "wasm_convert_to_both",
-            "number",
-            ["string", "string"],
-            ["input.png", "output_both"],
-        );
-
-        if (result === 0) {
-            // 创建ZIP文件包含所有输出
-            const zip = new JSZip();
-            let fileCount = 0;
-
-            // 添加ICNS文件
-            try {
-                const icnsData =
-                    wasmModule.value.FS_readFile("/output_both.icns");
-                zip.file(`${getBaseFileName()}.icns`, icnsData);
-                fileCount++;
-            } catch (e) {
-                addLog(`⚠️ 缺少 ICNS 文件，${e}`);
-            }
-
-            // 添加ICO文件
-            try {
-                const icoData =
-                    wasmModule.value.FS_readFile("/output_both.ico");
-                zip.file(`${getBaseFileName()}.ico`, icoData);
-                fileCount++;
-            } catch (e) {
-                addLog(`⚠️ 缺少 ICO 文件，${e}`);
-            }
-
-            for (const size of ImageSizes) {
-                try {
-                    const pngData = wasmModule.value.FS_readFile(
-                        `/${size}.png`,
-                    );
-                    zip.file(`${size}.png`, pngData);
-                    fileCount++;
-                } catch (e) {
-                    addLog(`⚠️ 缺少 ${size}.png,${e}`);
-                }
-            }
-
-            if (fileCount > 0) {
-                const zipBlob = await zip.generateAsync({ type: "blob" });
-                downloadFile(
-                    zipBlob,
-                    `${getBaseFileName()}_all_formats.zip`,
-                    "application/zip",
-                );
-                showStatus(`全部转换完成 ✅ (${fileCount} 个文件)`, "success");
-                addLog(`✅ ${fileCount} 个文件生成成功！`);
-            } else {
-                showStatus("没有生成任何文件 ❌", "error");
-                addLog("❌ 没有生成任何文件");
-            }
-        } else {
-            showStatus("全部转换失败 ❌", "error");
-            addLog("❌ 转换函数返回错误码");
-        }
-    } catch (err) {
-        showStatus("全部转换失败 ❌", "error");
-        addLog(`❌ 转换异常: ${err.message}`);
-    } finally {
-        isConverting.value = false;
-    }
+    const zipBlob = await zip.generateAsync({ type: "blob" });
+    downloadFile(zipBlob, `${getBaseFileName()}_all.zip`, "application/zip");
+    showStatus(`全部完成 (${fileCount} 个)`, "success");
+    addLog(`${fileCount} 个文件生成成功`);
+  } catch (err) {
+    showStatus("转换失败", "error");
+    addLog(`异常: ${err.message}`);
+  } finally {
+    isConverting.value = false;
+  }
 };
 
-// 获取基础文件名（不含扩展名）
-const getBaseFileName = () => {
-    return selectedFile.value?.name.replace(/\.[^/.]+$/, "") || "output";
-};
+const getBaseFileName = () =>
+  selectedFile.value?.name.replace(/\.[^/.]+$/, "") || "output";
 
-// 下载文件
 const downloadFile = (data, filename, mimeType) => {
-    const blob = new Blob([data], { type: mimeType });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-
-    addLog(`💾 已下载: ${filename}`);
+  const blob = new Blob([data], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  addLog(`已下载: ${filename}`);
 };
 
-// 工具函数
 const formatFileSize = (bytes) => {
-    if (!bytes) return "0 B";
-    const k = 1024;
-    const sizes = ["B", "KB", "MB", "GB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+  if (!bytes) return "0 B";
+  const k = 1024;
+  const sizes = ["B", "KB", "MB", "GB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
 };
 
 const addLog = (message) => {
-    const time = new Date().toLocaleTimeString();
-    logMessages.value.push({ time, message });
+  const time = new Date().toLocaleTimeString();
+  logMessages.value.push({ time, message });
 };
 
 const clearLogs = () => {
-    logMessages.value = [];
+  logMessages.value = [];
 };
 
 const showStatus = (message, type) => {
-    statusMessage.value = message;
-    statusType.value = type;
+  statusMessage.value = message;
+  statusType.value = type;
 };
 </script>
 
 <style scoped>
-.tool-page {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: var(--space-xl);
-    color: var(--text);
-    min-height: calc(100vh - 200px);
+.page {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 48px 0;
 }
 
-.tool-header {
-    text-align: center;
-    margin-bottom: var(--space-3xl);
-    padding-bottom: var(--space-xl);
-    border-bottom: 1px solid var(--border);
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 13px;
+  margin-bottom: 24px;
+  padding: 4px 8px;
+  margin-left: -8px;
+  border-radius: 6px;
+  transition: all 0.15s ease;
 }
 
-.tool-header h1 {
-    font-size: var(--font-size-3xl);
-    font-weight: var(--font-weight-bold);
-    color: var(--accent);
-    margin-bottom: var(--space-sm);
+.back:hover {
+  color: var(--text-primary);
+  background: var(--bg-hover);
 }
 
-.tool-header p {
-    font-size: var(--font-size-lg);
-    color: var(--text-secondary);
-    margin: 0;
+.back svg {
+  width: 14px;
+  height: 14px;
 }
 
-.main-content {
-    max-width: 800px;
-    margin: 0 auto;
+.card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
 }
 
-.tool-section {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    padding: var(--space-xl);
-    margin-bottom: var(--space-2xl);
-    box-shadow: var(--shadow-sm);
+.card-header {
+  padding: 20px 20px 0;
 }
 
-.upload-area {
-    margin-bottom: var(--space-2xl);
+.title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 4px;
 }
 
-.file-input-wrapper {
-    position: relative;
-    margin-bottom: var(--space-lg);
+.subtitle {
+  color: var(--text-muted);
+  font-size: 13px;
 }
 
-.file-input {
-    position: absolute;
-    opacity: 0;
-    width: 100%;
-    height: 100%;
-    cursor: pointer;
+.upload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 20px;
+  padding: 32px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  background: var(--bg-base);
 }
 
-.file-input-label {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-sm);
-    padding: var(--space-lg) var(--space-xl);
-    background: var(--accent);
-    color: white;
-    border-radius: var(--radius-md);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-weight: var(--font-weight-medium);
-    font-size: var(--font-size);
+.upload:hover {
+  border-color: var(--text-muted);
 }
 
-.file-input-label:hover {
-    background: var(--accent-light);
-    transform: translateY(-1px);
+.upload.active {
+  border-style: solid;
 }
 
-.preview-container {
-    display: flex;
-    align-items: center;
-    gap: var(--space-lg);
-    padding: var(--space-lg);
-    background: var(--bg-secondary);
-    border-radius: var(--radius-md);
-    border: 2px dashed var(--border);
+.upload input {
+  display: none;
 }
 
-.preview-image {
-    max-width: 100px;
-    max-height: 100px;
-    object-fit: contain;
-    border-radius: var(--radius-sm);
+.upload-icon {
+  width: 32px;
+  height: 32px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.upload-text {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.preview {
+  max-width: 80px;
+  max-height: 80px;
+  object-fit: contain;
+  border-radius: 4px;
+  margin-bottom: 8px;
 }
 
 .file-info {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-xs);
+  text-align: center;
 }
 
 .file-name {
-    font-weight: var(--font-weight-medium);
-    color: var(--text);
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 2px;
 }
 
 .file-size {
-    font-size: var(--font-size-sm);
-    color: var(--text-secondary);
+  font-size: 12px;
+  color: var(--text-muted);
 }
 
-.action-buttons {
-    display: flex;
-    gap: var(--space-lg);
-    margin-bottom: var(--space-lg);
+.actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  padding: 0 20px 20px;
 }
 
 .btn {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-xs);
-    padding: var(--space-sm) var(--space-md);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    background: var(--bg);
-    color: var(--text);
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-medium);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    text-decoration: none;
-    min-height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px;
+  background: var(--bg-base);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
 }
 
-.btn:hover {
-    background: var(--info);
-    border-color: var(--border);
+.btn:hover:not(:disabled) {
+  background: var(--bg-hover);
+  border-color: var(--text-muted);
 }
 
 .btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
-.btn-primary {
-    background: var(--accent);
-    color: white;
-    border-color: var(--accent);
+.btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg-base);
 }
 
-.btn-primary:hover:not(:disabled) {
-    background: var(--accent-light);
-    border-color: var(--accent-light);
+.btn.primary:hover:not(:disabled) {
+  background: #06b6d4;
+  border-color: #06b6d4;
 }
 
-.btn-small {
-    padding: var(--space-sm) var(--space);
-    font-size: var(--font-size-xs);
-}
-
-.status-container {
-    margin-bottom: var(--space-lg);
-}
-
-.status-message {
-    display: flex;
-    align-items: center;
-    gap: var(--space-sm);
-    padding: var(--space-sm) var(--space);
-    border-radius: var(--radius);
-    font-weight: var(--font-weight-medium);
-    font-size: var(--font-size-sm);
-}
-
-.status-message.success {
-    background: rgba(16, 185, 129, 0.1);
-    color: var(--success);
-    border: 1px solid var(--success);
-}
-
-.status-message.error {
-    background: rgba(239, 68, 68, 0.1);
-    color: var(--error);
-    border: 1px solid var(--error);
-}
-
-.status-message.info {
-    background: rgba(59, 130, 246, 0.1);
-    color: var(--info);
-    border: 1px solid var(--info);
-}
-
-.log-container {
-    background: var(--bg-secondary);
-    border-radius: var(--radius-md);
-    overflow: hidden;
-    border: 1px solid var(--border);
-}
-
-.log-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: var(--space-lg);
-    background: var(--bg);
-    border-bottom: 1px solid var(--border);
-}
-
-.log-header h3 {
-    margin: 0;
-    font-size: var(--font-size-lg);
-    font-weight: var(--font-weight-semibold);
-    color: var(--accent);
-}
-
-.log-content {
-    max-height: 200px;
-    overflow-y: auto;
-    padding: var(--space-lg);
-}
-
-.log-item {
-    display: flex;
-    gap: var(--space-sm);
-    margin-bottom: var(--space-sm);
-    font-size: var(--font-size-sm);
-    font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
-}
-
-.log-time {
-    color: var(--text-secondary);
-    white-space: nowrap;
-}
-
-.log-message {
-    color: var(--text);
-    word-break: break-word;
-}
-
-.spinning {
-    animation: spin 1s linear infinite;
+.spinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid transparent;
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
 }
 
 @keyframes spin {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-/* 响应式设计 */
-@media (max-width: 768px) {
-    .tool-page {
-        padding: var(--space-lg);
-    }
+.status {
+  margin: 0 20px 16px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+}
 
-    .tool-section {
-        padding: var(--space-lg);
-    }
+.status.success {
+  background: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+}
 
-    .action-buttons {
-        flex-direction: column;
-    }
+.status.error {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
 
-    .preview-container {
-        flex-direction: column;
-        text-align: center;
-    }
+.status.info {
+  background: var(--accent-dim);
+  color: var(--accent);
+}
+
+.logs {
+  margin: 0 20px 20px;
+  background: var(--bg-base);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.logs-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.clear {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 11px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.clear:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.logs-body {
+  max-height: 100px;
+  overflow-y: auto;
+  padding: 8px 12px;
+}
+
+.log {
+  display: flex;
+  gap: 8px;
+  font-size: 11px;
+  font-family: "SF Mono", "Monaco", monospace;
+  margin-bottom: 2px;
+}
+
+.log-time {
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.log-msg {
+  color: var(--text-secondary);
+}
+
+@media (max-width: 480px) {
+  .actions {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 </style>
