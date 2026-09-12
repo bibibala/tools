@@ -1,7 +1,6 @@
 <script setup>
 import { reactive, ref, computed, onMounted } from "vue";
 import { RouterLink } from "vue-router";
-import html2pdf from "html2pdf.js";
 
 const SEC_META = {
   summary: { label: "个人简介", title: "个人简介" },
@@ -248,6 +247,7 @@ async function doExport() {
   const resumeEl = document.getElementById("resume");
   if (!resumeEl) return;
 
+  const { default: html2pdf } = await import("html2pdf.js");
   html2pdf()
     .set({
       margin: 0,
